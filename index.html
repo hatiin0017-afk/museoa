@@ -92,18 +92,7 @@ nav a {
   transition: all .25s;
 }
 nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
-.nav-live {
-  font-size: 12px; font-weight: 600; padding: 6px 16px;
-  border-radius: 20px; text-decoration: none; margin-left: 6px;
-  background: linear-gradient(120deg, rgba(201,184,245,0.25), rgba(184,228,247,0.25));
-  border: 1px solid rgba(155,132,232,0.35);
-  color: var(--lav-dark); transition: all .25s;
-}
-.nav-live:hover {
-  background: linear-gradient(120deg, rgba(201,184,245,0.45), rgba(184,228,247,0.45));
-  border-color: rgba(155,132,232,0.55);
-  transform: translateY(-1px);
-}
+
 
 /* ── HERO — 히어로가 기준폭, 헤더·섹션 모두 이 폭에 맞춤 ── */
 .hero {
@@ -159,6 +148,15 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 
 /* 배지 */
 .badge-row { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+.hero-catchphrase {
+  font-size: 13px; font-weight: 600;
+  color: var(--lav-dark); letter-spacing: .3px;
+  margin-bottom: 16px;
+  padding: 4px 12px;
+  background: rgba(201,184,245,0.12);
+  border-radius: 20px; display: inline-block;
+  border: 1px solid rgba(155,132,232,0.25);
+}
 .badge {
   font-size: 11px; font-weight: 500; letter-spacing: .5px;
   padding: 4px 12px; border-radius: 20px; border: 1px solid;
@@ -471,7 +469,6 @@ footer span {
 @media (max-width: 600px) {
   .link-grid { grid-template-columns: 1fr; }
   nav { display: none; }
-  .nav-live { display: none; }
 }
 </style>
 </head>
@@ -484,11 +481,11 @@ footer span {
   <div class="header-inner">
     <a class="logo" href="/">MUSEA ✦</a>
     <nav>
+      <a href="/">홈</a>
       <a href="/schedule/">스케줄</a>
       <a href="/song/">노래책</a>
       <a href="/work/">업보</a>
     </nav>
-    <a class="nav-live" href="#" target="_blank">🎮 방송 바로가기</a>
   </div>
 </header>
 
@@ -502,11 +499,7 @@ footer span {
 
   <!-- 오른쪽: 정보 -->
   <div class="hero-info">
-    <div class="badge-row">
-      <span class="badge badge-ice">VTuber</span>
-      <span class="badge badge-lav">노래</span>
-      <span class="badge badge-pink">버추얼</span>
-    </div>
+    <p class="hero-catchphrase">노래하고 춤추는 방구석 뮤지션</p>
 
     <h1 class="hero-name">
       <span class="name-main">뮤서아</span>
@@ -531,15 +524,15 @@ footer span {
     <div class="link-grid">
       <a class="link-btn btn-soop" href="https://www.sooplive.com/station/airutheneko" target="_blank">
         <div class="btn-icon">🎮</div>
-        <div><div class="btn-sub">숲 방송국</div>SOOP</div>
+        <div>SOOP</div>
       </a>
       <a class="link-btn btn-x" href="https://x.com/Museoa_xo" target="_blank">
         <div class="btn-icon">✕</div>
-        <div><div class="btn-sub">트위터</div>@Museoa_xo</div>
+        <div>@Museoa_xo</div>
       </a>
       <a class="link-btn btn-yt" href="https://www.youtube.com/channel/UCxnRkuaFRG0NzKhW4ebQm7A" target="_blank">
         <div class="btn-icon">▶</div>
-        <div><div class="btn-sub">유튜브</div>YouTube</div>
+        <div>YouTube</div>
       </a>
     </div>
   </div>
