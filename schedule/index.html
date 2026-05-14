@@ -40,6 +40,11 @@
 .cal-cell:nth-child(7n+1) .cal-day-num { color:#F87171; }
 .cal-cell:nth-child(7n)   .cal-day-num { color:var(--ice-dk); }
 .cal-event { font-size:11px; padding:2px 6px; border-radius:6px; margin-bottom:2px; color:#fff; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; transition:opacity .2s; }
+.cal-event.highlight { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(91,184,232,.4); }
+  50%      { box-shadow: 0 0 10px 4px rgba(91,184,232,.4); }
+}
 .cal-event:hover { opacity:.85; }
 .list-wrap { display:none; }
 .list-group { margin-bottom:16px; }
@@ -50,6 +55,7 @@
 .list-day-badge.sat { color:var(--ice-dk); }
 .list-day-badge.today.sun,.list-day-badge.today.sat { color:#fff; }
 .list-dow { font-size:12px; color:var(--text-sub); font-weight:600; }
+.list-event.highlight-row { border-color:var(--ice-dk); box-shadow:0 0 10px rgba(91,184,232,.25); }
 .list-event { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface); border:1.5px solid var(--border); border-radius:14px; margin-bottom:6px; cursor:pointer; transition:all .2s; box-shadow:0 2px 8px var(--shadow); }
 .list-event:hover { transform:translateY(-2px); box-shadow:0 8px 20px var(--shadow); border-color:var(--ice); }
 .list-bar { width:3px; height:32px; border-radius:2px; flex-shrink:0; }
@@ -136,7 +142,7 @@ function renderCalendar(){
     const isPast=new Date(ds+'T23:59:59')<today&&!isToday;
     const dayEvs=schedules.filter(s=>s.event_date===ds);
     let evHtml='';
-    dayEvs.forEach(ev=>{const c=ev.color||TC[ev.event_type]||'#5BB8E8';const t=ev.event_time?ev.event_time.slice(0,2).replace(/^0/,'')+'시 ':'';evHtml+=`<div class="cal-event" style="background:${c}" onclick="showEvent('${ev.id}')">${t}${ev.title}</div>`;});
+    dayEvs.forEach(ev=>{const c=ev.color||TC[ev.event_type]||'#5BB8E8';const t=ev.event_time?ev.event_time.slice(0,2).replace(/^0/,'')+'시 ':'';evHtml+=`<div class="cal-event${ev.highlight?' highlight':''}" style="background:${c}" onclick="showEvent('${ev.id}')">${t}${ev.title}</div>`;});
     let cls='cal-cell';if(isToday)cls+=' today';if(isPast)cls+=' past';
     body.innerHTML+=`<div class="${cls}"><div class="cal-day-num">${d}</div>${evHtml}</div>`;
   }
@@ -155,7 +161,7 @@ function renderList(){
     if(isCurMonth&&!todayInserted&&ds>=todayStr){html+=`<div class="today-divider" id="todayAnchor"><span>TODAY</span></div>`;todayInserted=true;}
     let badge='list-day-badge';if(isToday)badge+=' today';if(dow===0)badge+=' sun';if(dow===6)badge+=' sat';
     html+=`<div class="list-group${isPast?' past':''}"><div class="list-date-row"><div class="${badge}">${d}</div><div class="list-dow">${DOW[dow]}요일${isToday?' · 오늘':''}</div></div>`;
-    dayEvs.forEach(ev=>{const c=ev.color||TC[ev.event_type]||'#5BB8E8';const l=TL[ev.event_type]||ev.event_type;const t=ev.event_time?ev.event_time.slice(0,5):'';html+=`<div class="list-event" onclick="showEvent('${ev.id}')"><div class="list-bar" style="background:${c}"></div><div style="flex:1"><div class="list-title">${ev.title}</div>${t?`<div class="list-time">${t}</div>`:''}</div><span class="badge" style="background:${c}22;color:${c}">${l}</span></div>`;});
+    dayEvs.forEach(ev=>{const c=ev.color||TC[ev.event_type]||'#5BB8E8';const l=TL[ev.event_type]||ev.event_type;const t=ev.event_time?ev.event_time.slice(0,5):'';html+=`<div class="list-event${ev.highlight?' highlight-row':''}" onclick="showEvent('${ev.id}')"><div class="list-bar" style="background:${c}"></div><div style="flex:1"><div class="list-title">${ev.title}</div>${t?`<div class="list-time">${t}</div>`:''}</div><span class="badge" style="background:${c}22;color:${c}">${l}</span></div>`;});
     html+=`</div>`;
   }
   if(!html)html='<div class="empty-box">이번 달 일정이 없어요 ❄️</div>';

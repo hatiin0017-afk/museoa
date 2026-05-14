@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뮤서아 ❄️ 신청 폼</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+.form-wrap {
+  max-width: 520px; margin: 40px auto 0; padding: 0 20px 60px;
+}
+.form-header {
+  text-align: center; margin-bottom: 32px;
+}
+.form-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px; font-weight: 700; letter-spacing: -.5px;
+  background: linear-gradient(120deg, var(--lav-dk), var(--ice-dk));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.form-sub { font-size: 13px; color: var(--text-sub); }
+.form-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 20px; padding: 28px 24px;
+  box-shadow: 0 4px 24px rgba(91,184,232,.08);
+}
+.field-group { margin-bottom: 16px; }
+.field-label {
+  font-size: 12px; font-weight: 700; color: var(--text-sub);
+  margin-bottom: 6px; display: block; letter-spacing: .3px;
+}
+.field-input {
+  width: 100%; padding: 10px 14px; border-radius: 12px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-size: 14px; color: var(--text); outline: none;
+  font-family: inherit; transition: border-color .2s;
+}
+.field-input:focus { border-color: var(--ice-dk); }
+textarea.field-input { resize: vertical; min-height: 80px; }
+.submit-btn {
+  width: 100%; padding: 13px; border-radius: 14px; margin-top: 8px;
+  background: linear-gradient(120deg, var(--lav-dk), var(--ice-dk));
+  color: #fff; border: none; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: opacity .2s; font-family: inherit;
+}
+.submit-btn:hover { opacity: .88; }
+.submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+.closed-box {
+  text-align: center; padding: 60px 20px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 20px;
+}
+.closed-icon { font-size: 40px; margin-bottom: 12px; }
+.closed-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.closed-desc { font-size: 13px; color: var(--text-sub); }
+.success-box {
+  text-align: center; padding: 60px 20px;
+  background: linear-gradient(135deg, rgba(201,184,245,.10), rgba(184,228,247,.10));
+  border: 1.5px solid var(--ice); border-radius: 20px;
+}
+.toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--text); color:#fff; padding:10px 20px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .3s; z-index:200; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+  <div class="nav-inner-wrap">
+    <a href="/" class="site-logo">MUSEA ✦</a>
+  </div>
+</nav>
+<div class="form-wrap" id="formWrap">
+  <div class="loading">폼 정보 불러오는 중...</div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/js/supabase-config.js"></script>
+<script>
+let config = null;
+
+async function loadForm() {
+  const wrap = document.getElementById('formWrap');
+  try {
+    const { data, error } = await supabaseClient
+      .from('musea_form_config')
+      .select('*')
+      .order('id', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      wrap.innerHTML = '<div class="closed-box"><div class="closed-icon">📭</div><div class="closed-title">폼이 없어요</div><div class="closed-desc">현재 열린 신청 폼이 없어요.</div></div>';
+      return;
+    }
+
+    config = data;
+
+    if (!data.is_active) {
+      wrap.innerHTML = '<div class="closed-box"><div class="closed-icon">🔒</div><div class="closed-title">현재 폼이 닫혀 있어요</div><div class="closed-desc">신청 기간이 아니거나 마감됐어요.</div></div>';
+      return;
+    }
+
+    // 폼 렌더링
+    const fields = [1,2,3,4,5].filter(n => data[`field_${n}_active`]).map(n => ({
+      label: data[`field_${n}_label`] || `항목 ${n}`,
+      type:  data[`field_${n}_type`]  || 'text',
+      key:   `field_${n}`
+    }));
+
+    let fieldsHtml = '';
+    if (data.use_nickname) {
+      fieldsHtml += `<div class="field-group"><label class="field-label">닉네임 <span style="color:#F87171">*</span></label><input class="field-input" id="f_nick" type="text" placeholder="닉네임을 입력해주세요" required></div>`;
+    }
+    if (data.use_contact) {
+      fieldsHtml += `<div class="field-group"><label class="field-label">연락처</label><input class="field-input" id="f_contact" type="text" placeholder="연락처를 입력해주세요"></div>`;
+    }
+    fields.forEach(f => {
+      const tag = f.type === 'textarea' ? 'textarea' : 'input';
+      const typeAttr = tag === 'input' ? `type="${f.type}"` : '';
+      fieldsHtml += `<div class="field-group"><label class="field-label">${f.label}</label><${tag} class="field-input" id="f_${f.key}" ${typeAttr} placeholder="${f.label}을(를) 입력해주세요">${tag==='textarea'?'</'+ tag +'>':''}</div>`;
+    });
+
+    wrap.innerHTML = `
+      <div class="form-header">
+        <div class="form-title">${data.event_name || '신청 폼'}</div>
+        <div class="form-sub">아래 항목을 작성해주세요 ✨</div>
+      </div>
+      <div class="form-card">
+        ${fieldsHtml}
+        <button class="submit-btn" onclick="submitForm()">신청하기</button>
+      </div>`;
+  } catch(e) {
+    wrap.innerHTML = '<div class="closed-box"><div class="closed-icon">⚠️</div><div class="closed-title">오류가 발생했어요</div><div class="closed-desc">잠시 후 다시 시도해주세요.</div></div>';
+  }
+}
+
+async function submitForm() {
+  if (!config) return;
+  const btn = document.querySelector('.submit-btn');
+  btn.disabled = true; btn.textContent = '제출 중...';
+
+  const row = { event_name: config.event_name };
+  if (config.use_nickname) row.nickname = document.getElementById('f_nick')?.value?.trim() || '';
+  if (config.use_contact)  row.contact  = document.getElementById('f_contact')?.value?.trim() || '';
+  [1,2,3,4,5].forEach(n => {
+    if (config[`field_${n}_active`]) {
+      row[`field_${n}`] = document.getElementById(`f_field_${n}`)?.value?.trim() || '';
+    }
+  });
+
+  if (config.use_nickname && !row.nickname) {
+    showToast('닉네임을 입력해주세요'); btn.disabled = false; btn.textContent = '신청하기'; return;
+  }
+
+  const { error } = await supabaseClient.from('musea_form_submissions').insert([row]);
+  if (error) {
+    showToast('제출 실패: ' + error.message); btn.disabled = false; btn.textContent = '신청하기'; return;
+  }
+
+  document.getElementById('formWrap').innerHTML = `
+    <div class="success-box">
+      <div style="font-size:40px;margin-bottom:12px">✅</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">신청 완료!</div>
+      <div style="font-size:13px;color:var(--text-sub)">신청이 정상적으로 접수됐어요 ❄️</div>
+    </div>`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg;
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+loadForm();
+</script>
+</body>
+</html>
