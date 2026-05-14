@@ -311,6 +311,11 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 }
 /* 모바일: 카드 가로 압축형 */
 @media (max-width: 760px) {
+  .sched-col  { order: 1; }
+  .overlay-col { order: 2; }
+  .data-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 760px) {
   .page-cards { grid-template-columns: repeat(3, 1fr) !important; gap: 8px; }
   .page-card { flex-direction: column; align-items: center; justify-content: center; padding: 12px 6px; gap: 5px; border-radius: 12px; text-align: center; min-height: 0; }
   .card-icon { font-size: 20px; flex-shrink: 0; }
@@ -499,14 +504,13 @@ footer span {
 
   <!-- 오른쪽: 정보 -->
   <div class="hero-info">
-    <p class="hero-catchphrase">노래하고 춤추는 방구석 뮤지션</p>
-
     <h1 class="hero-name">
       <span class="name-main">뮤서아</span>
       <span class="name-sub">MUSEA ✦</span>
     </h1>
 
     <p class="hero-tagline">
+      노래하고 춤추는 방구석 뮤지션<br>
       실용음악과 출신, 직접 만든 버추얼.<br>
       노래하고 그리고 떠들고 가끔 민폐도.
     </p>
@@ -594,9 +598,9 @@ footer span {
   <!-- 일정 + 최근 곡 -->
   <div class="data-section">
     <div class="wrapper">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+      <div class="data-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
         <!-- 일정 -->
-        <div class="fade-up">
+        <div class="fade-up sched-col">
           <div class="sec-label">앞으로 일정</div>
           <div id="sched-list" class="sched-list">
             <div class="loading">불러오는 중...</div>
@@ -606,7 +610,7 @@ footer span {
           </div>
         </div>
         <!-- 최근 곡 -->
-        <div class="fade-up">
+        <div class="fade-up overlay-col">
           <div class="sec-label">최근 부른 곡</div>
           <div id="overlay-list" class="overlay-list">
             <div class="loading">불러오는 중...</div>
