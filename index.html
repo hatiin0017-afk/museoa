@@ -76,7 +76,8 @@ header {
 .header-inner {
   max-width: 1160px; width: 100%; margin: 0 auto;
   padding: 0 16px;
-  display: flex; align-items: center; justify-content: space-between;
+  position: relative;
+  display: flex; align-items: center; justify-content: flex-start;
 }
 .logo {
   font-family: 'Outfit', sans-serif;
@@ -85,7 +86,7 @@ header {
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   text-decoration: none;
 }
-nav { display: flex; gap: 4px; align-items: center; }
+nav { display: flex; gap: 4px; align-items: center; position: absolute; left: 50%; transform: translateX(-50%); }
 nav a {
   font-size: 13px; font-weight: 500; color: var(--mid);
   text-decoration: none; padding: 6px 14px; border-radius: 20px;
