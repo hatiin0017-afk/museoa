@@ -870,7 +870,7 @@ function copyOvUrl(){
 let taskTypes=[],allMembers=[],selMemberId=null,memberTaskState={},coinPending=0;
 
 async function loadTaskTypes(){
-  const{data}=await supabaseClient.from('musea_musea_upbo_task_types').select('*').order('sort_order').order('id');
+  const{data}=await supabaseClient.from('musea_upbo_task_types').select('*').order('sort_order').order('id');
   taskTypes=data||[];renderTypeList();
 }
 
@@ -939,7 +939,7 @@ async function saveTypeOrder(){
   const updates=items.map((el,i)=>({id:parseInt(el.dataset.id),sort_order:i}));
   // 순서 업데이트
   await Promise.all(updates.map(u=>
-    supabaseClient.from('musea_musea_upbo_task_types').update({sort_order:u.sort_order}).eq('id',u.id)
+    supabaseClient.from('musea_upbo_task_types').update({sort_order:u.sort_order}).eq('id',u.id)
   ));
   // taskTypes 배열도 동기화
   taskTypes=updates.map(u=>taskTypes.find(t=>t.id===u.id)).filter(Boolean);
@@ -950,14 +950,14 @@ async function addTaskType(){
   const name=document.getElementById('typeNm').value.trim();
   if(!name){toast('타입명을 입력해주세요');return;}
   const maxOrder=Math.max(0,...taskTypes.map(t=>t.sort_order||0));
-  const{error}=await supabaseClient.from('musea_musea_upbo_task_types').insert([{name,category:document.getElementById('typeCat').value,sort_order:maxOrder+1}]);
+  const{error}=await supabaseClient.from('musea_upbo_task_types').insert([{name,category:document.getElementById('typeCat').value,sort_order:maxOrder+1}]);
   if(error){toast('추가 실패');return;}
   toast('✅ 타입 추가!');document.getElementById('typeNm').value='';loadTaskTypes();
 }
 
 async function delTaskType(id){
   if(!confirm('삭제할까요?'))return;
-  await supabaseClient.from('musea_musea_upbo_task_types').delete().eq('id',id);
+  await supabaseClient.from('musea_upbo_task_types').delete().eq('id',id);
   toast('🗑️ 삭제됨');loadTaskTypes();
 }
 
@@ -977,7 +977,7 @@ function editTaskType(id){
 }
 
 async function saveTaskTypeEdit(id){
-  const{error}=await supabaseClient.from('musea_musea_upbo_task_types').update({
+  const{error}=await supabaseClient.from('musea_upbo_task_types').update({
     name:document.getElementById('eTypeName').value.trim(),
     category:document.getElementById('eTypeCat').value
   }).eq('id',id);
@@ -1411,7 +1411,7 @@ async function newFormEvent(){
   if(!confirm('새 이벤트로 발행할까요?\n기존 응답은 유지되고, 시청자 참여 기록이 초기화돼서 다시 참여 가능해집니다.'))return;
   // 기존 폼 비활성화
   if(currentFormId){
-    await supabaseClient.from('form_config').update({is_active:false}).eq('id',currentFormId);
+    await supabaseClient.from('musea_form_config').update({is_active:false}).eq('id',currentFormId);
   }
   // currentFormId 초기화 → 저장 시 새 row 생성
   currentFormId=null;
@@ -1442,7 +1442,7 @@ async function loadFormConfig(){
   if(previewEl)previewEl.textContent=formUrl;
   if(iframeEl)iframeEl.textContent=`<p><iframe frameborder="0" height="800px" src="${formUrl}" width="100%"></iframe></p>`;
 
-  const{data}=await supabaseClient.from('form_config').select('*').order('id',{ascending:false}).limit(1);
+  const{data}=await supabaseClient.from('musea_form_config').select('*').order('id',{ascending:false}).limit(1);
   if(!data||!data.length){renderFields();return;}
   const c=data[0];
   currentFormId=c.id;
@@ -1462,7 +1462,7 @@ async function loadFormConfig(){
       const isVote=c[`field_${i}_type`]==='vote';
       let options=['',''];
       if(isVote){
-        const{data:opts}=await supabaseClient.from('vote_options').select('*').eq('config_id',c.id).eq('field_index',i).order('display_order');
+        const{data:opts}=await supabaseClient.from('musea_vote_options').select('*').eq('config_id',c.id).eq('field_index',i).order('display_order');
         if(opts&&opts.length)options=opts.map(o=>o.option_text);
       }
       formFields.push({id:Date.now()+i,label:c[`field_${i}_label`],type:c[`field_${i}_type`]||'text',active:c[`field_${i}_active`]!==false,options});
@@ -1480,7 +1480,7 @@ function updateActiveBadge(isActive){
 
 async function toggleFormActive(val){
   if(!currentFormId){toast('먼저 저장해주세요');return;}
-  const{error}=await supabaseClient.from('form_config').update({is_active:val}).eq('id',currentFormId);
+  const{error}=await supabaseClient.from('musea_form_config').update({is_active:val}).eq('id',currentFormId);
   if(error){toast('실패: '+error.message);return;}
   updateActiveBadge(val);
   toast(val?'✅ 폼 활성화!':'폼 비활성화');
@@ -1505,16 +1505,16 @@ async function saveFormConfig(){
 
   let cid=currentFormId;
   if(cid){
-    const{error}=await supabaseClient.from('form_config').update(row).eq('id',cid);
+    const{error}=await supabaseClient.from('musea_form_config').update(row).eq('id',cid);
     if(error){toast('저장 실패: '+error.message);return;}
   }else{
-    const{data,error}=await supabaseClient.from('form_config').insert([row]).select();
+    const{data,error}=await supabaseClient.from('musea_form_config').insert([row]).select();
     if(error){toast('저장 실패: '+error.message);return;}
     cid=data[0].id;currentFormId=cid;
   }
 
   // vote_options 재저장
-  await supabaseClient.from('vote_options').delete().eq('config_id',cid);
+  await supabaseClient.from('musea_vote_options').delete().eq('config_id',cid);
   const voteRows=[];
   formFields.forEach((f,fi)=>{
     if(f.type==='vote'){
@@ -1523,7 +1523,7 @@ async function saveFormConfig(){
       });
     }
   });
-  if(voteRows.length)await supabaseClient.from('vote_options').insert(voteRows);
+  if(voteRows.length)await supabaseClient.from('musea_vote_options').insert(voteRows);
   toast('💾 저장 완료!');
 }
 
@@ -1531,15 +1531,15 @@ async function saveFormConfig(){
 let currentFormConfig=null;
 async function loadResponses(){
   if(!currentFormId){
-    const{data}=await supabaseClient.from('form_config').select('*').order('id',{ascending:false}).limit(1);
+    const{data}=await supabaseClient.from('musea_form_config').select('*').order('id',{ascending:false}).limit(1);
     if(!data||!data.length){document.getElementById('responseBody').innerHTML='<tr class="empty-row"><td colspan="2">폼 설정이 없어요</td></tr>';return;}
     currentFormConfig=data[0];currentFormId=data[0].id;
   }else if(!currentFormConfig){
-    const{data}=await supabaseClient.from('form_config').select('*').eq('id',currentFormId).single();
+    const{data}=await supabaseClient.from('musea_form_config').select('*').eq('id',currentFormId).single();
     currentFormConfig=data;
   }
   const c=currentFormConfig;
-  const{data:subs}=await supabaseClient.from('form_submissions').select('*').eq('config_id',currentFormId).order('created_at',{ascending:false});
+  const{data:subs}=await supabaseClient.from('musea_form_submissions').select('*').eq('config_id',currentFormId).order('created_at',{ascending:false});
   const rows=subs||[];
   document.getElementById('responseCount').textContent=`총 ${rows.length}개 응답`;
 
@@ -1601,7 +1601,7 @@ async function loadResponses(){
 async function clearResponses(){
   if(!currentFormId){toast('폼이 없어요');return;}
   if(!confirm('모든 응답을 삭제할까요?\n(시청자 localStorage 기록은 유지되어 재참여는 불가해요)'))return;
-  const{error}=await supabaseClient.from('form_submissions').delete().eq('config_id',currentFormId);
+  const{error}=await supabaseClient.from('musea_form_submissions').delete().eq('config_id',currentFormId);
   if(error){toast('삭제 실패: '+error.message);console.error(error);return;}
   toast('🗑️ 전체 삭제됨');loadResponses();
 }
