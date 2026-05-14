@@ -8,28 +8,136 @@
 <meta property="og:title" content="뮤서아">
 <meta property="og:description" content="버추얼 엔터테이너 뮤서아">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/common.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ── HERO BANNER ── */
-.hero-banner { max-width: 800px; margin: 24px auto 0; padding: 0 20px; }
+:root {
+  --ice: #B8E4F7;
+  --ice-light: #E8F7FF;
+  --ice-mid: #7ECEF0;
+  --lav: #C9B8F5;
+  --lav-deep: #9B84E8;
+  --lav-dark: #7B62D4;
+  --pink-eye: #E870B0;
+  --pink-soft: #F2C4DE;
+  --bg: #FAFCFF;
+  --dark: #1A1828;
+  --mid: #4A4565;
+  --muted: #8A859F;
+  --card-bg: rgba(255,255,255,0.75);
+  --card-border: rgba(180,200,240,0.40);
+  --surface: #FFFFFF;
+  --border: #D8EAF5;
+  --shadow: rgba(91,184,232,.10);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* 배경 */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 80% 20%, rgba(184,228,247,0.40) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 15% 80%, rgba(201,184,245,0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 60% 90%, rgba(242,196,222,0.18) 0%, transparent 50%),
+    linear-gradient(160deg, #EFF8FF 0%, #F5EFFF 50%, #FEF2F9 100%);
+  pointer-events: none;
+}
+
+/* 파티클 */
+.particle {
+  position: fixed; z-index: 0; border-radius: 50%; pointer-events: none;
+  animation: floatUp linear infinite; opacity: 0;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+  10%  { opacity: 0.5; transform: scale(1); }
+  90%  { opacity: 0.25; }
+  100% { transform: translateY(-10vh) scale(0.5); opacity: 0; }
+}
+
+/* ── NAV BAR (판다와 동일 구조) ── */
+.nav-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(240,248,255,0.90);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(180,210,240,0.30);
+}
+.nav-inner-wrap {
+  max-width: 860px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+}
+.nav-logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px; font-weight: 700; letter-spacing: -.3px;
+  background: linear-gradient(120deg, var(--lav-dark), var(--ice-mid));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-decoration: none;
+}
+.nav-links { display: flex; }
+.nav-links a {
+  text-decoration: none; font-size: 13px; font-weight: 600;
+  color: var(--muted); padding: 14px 16px;
+  position: relative; transition: color .2s;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 2px;
+  background: linear-gradient(90deg, var(--lav-dark), var(--ice-mid));
+  border-radius: 2px; transition: width .25s;
+}
+.nav-links a:hover { color: var(--lav-dark); }
+.nav-links a:hover::after { width: 60%; }
+.nav-links a.active { color: var(--lav-dark); }
+.nav-links a.active::after { width: 100%; }
+.nav-broadcast {
+  font-size: 12px; font-weight: 600; padding: 6px 14px;
+  border-radius: 20px; text-decoration: none;
+  background: linear-gradient(120deg, rgba(201,184,245,0.20), rgba(184,228,247,0.20));
+  border: 1px solid rgba(155,132,232,0.30);
+  color: var(--lav-dark); transition: all .25s;
+}
+.nav-broadcast:hover {
+  background: linear-gradient(120deg, rgba(201,184,245,0.35), rgba(184,228,247,0.35));
+  border-color: rgba(155,132,232,0.50);
+}
+
+/* ── HERO (좌우 2컬럼) ── */
+.hero {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 0 auto;
+  padding: 28px 20px 0;
+}
 .banner-inner {
   border-radius: 24px;
   border: 1.5px solid var(--border);
-  background: var(--surface);
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  box-shadow: 0 4px 24px rgba(91,184,232,.10);
+  box-shadow: 0 4px 32px rgba(91,184,232,.10), 0 1px 0 rgba(255,255,255,.8) inset;
   transition: box-shadow .3s ease;
-  min-height: 320px;
+  min-height: 360px;
 }
-.banner-inner:hover { box-shadow: 0 12px 40px rgba(91,184,232,.18); }
+.banner-inner:hover {
+  box-shadow: 0 12px 48px rgba(91,184,232,.16), 0 1px 0 rgba(255,255,255,.8) inset;
+}
 
 /* 왼쪽: 이미지 */
 .banner-visual {
   position: relative; overflow: hidden;
-  background: linear-gradient(160deg, var(--ice-lt) 0%, var(--lav-lt) 100%);
+  background: linear-gradient(160deg, var(--ice-light) 0%, rgba(201,184,245,0.15) 100%);
   border-right: 1.5px solid var(--border);
 }
 .banner-visual img {
@@ -39,159 +147,217 @@
   transition: transform 6s ease;
 }
 .banner-inner:hover .banner-visual img { transform: scale(1.04); }
-
-/* 이미지 하단 그라데이션 */
 .banner-visual::after {
   content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
-  background: linear-gradient(to top, rgba(240,247,255,.4), transparent);
+  position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+  background: linear-gradient(to top, rgba(240,248,255,.35), transparent);
   pointer-events: none;
 }
 
 /* 오른쪽: 정보 */
 .banner-info {
-  padding: 28px 24px;
-  display: flex; flex-direction: column; gap: 16px;
+  padding: 28px 26px;
+  display: flex; flex-direction: column; gap: 14px;
   justify-content: center;
 }
 .banner-name-row { display: flex; align-items: baseline; gap: 10px; }
 .banner-name {
   font-family: 'Outfit', sans-serif;
   font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1;
-  background: linear-gradient(135deg, var(--lav-dk) 0%, var(--ice-dk) 100%);
+  background: linear-gradient(135deg, var(--lav-dark) 0%, var(--ice-mid) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-.banner-tag { font-size: 12px; color: var(--text-sub); }
+.banner-tag { font-size: 12px; color: var(--muted); }
 
 /* 프로필 카드 그리드 */
 .profile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
 }
 .pc {
-  background: var(--bg); border: 1.5px solid var(--border);
-  border-radius: 11px; padding: 9px 11px;
+  background: rgba(240,248,255,0.80); border: 1.5px solid var(--border);
+  border-radius: 11px; padding: 9px 12px;
   transition: all .25s ease;
 }
 .pc:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(91,184,232,.14);
+  box-shadow: 0 6px 18px rgba(91,184,232,.12);
   border-color: var(--ice);
 }
-.pc.accent { background: var(--ice-lt); border-color: var(--ice); }
-.pc.accent:hover { box-shadow: 0 6px 18px rgba(91,184,232,.20); }
+.pc.accent { background: rgba(232,247,255,0.90); border-color: var(--ice); }
+.pc.accent:hover { box-shadow: 0 6px 18px rgba(91,184,232,.18); }
 .pc-label {
-  font-size: 9px; font-weight: 700; color: var(--text-mut);
+  font-size: 9px; font-weight: 700; color: var(--muted);
   letter-spacing: .8px; text-transform: uppercase; margin-bottom: 3px;
 }
-.pc-value { font-size: 12px; font-weight: 600; color: var(--text); }
-.pc.accent .pc-value { color: var(--ice-dk); }
+.pc-value { font-size: 12px; font-weight: 600; color: var(--dark); }
+.pc.accent .pc-value { color: #3A9CC8; }
 
 /* 링크 버튼 */
 .link-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .link-btn {
   display: flex; align-items: center; gap: 6px;
-  padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
+  padding: 7px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
   text-decoration: none; border: 1.5px solid var(--border);
-  background: var(--surface); color: var(--text);
-  transition: all .25s ease;
+  background: var(--card-bg); color: var(--dark);
+  transition: all .25s ease; white-space: nowrap;
 }
 .link-btn:hover {
   transform: translateY(-2px);
-  border-color: var(--ice-dk);
-  box-shadow: 0 6px 18px rgba(91,184,232,.18);
-  color: var(--ice-dk);
+  border-color: var(--ice-mid);
+  box-shadow: 0 6px 18px rgba(91,184,232,.16);
+  color: #3A9CC8;
 }
+
+/* ── NAV PILL (홈/스케줄/노래책/업보) ── */
+.nav-wrap { max-width: 860px; margin: 14px auto 0; padding: 0 20px; }
+.nav-inner {
+  display: flex; gap: 4px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 100px; padding: 5px;
+  overflow-x: auto; scrollbar-width: none;
+  box-shadow: 0 2px 12px rgba(91,184,232,.08);
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-inner a {
+  text-decoration: none; font-size: 13px; font-weight: 600;
+  color: var(--muted); padding: 7px 18px; border-radius: 100px;
+  white-space: nowrap; transition: all .2s ease; flex-shrink: 0;
+}
+.nav-inner a.active {
+  background: linear-gradient(120deg, var(--lav), var(--ice));
+  color: var(--dark);
+  box-shadow: 0 2px 10px rgba(91,184,232,.22);
+}
+.nav-inner a:hover:not(.active) { color: var(--dark); background: var(--ice-light); }
+
+/* ── SECTION ── */
+.section { max-width: 860px; margin: 28px auto 0; padding: 0 20px; }
+.sec-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
 
 /* ── SCHEDULE ── */
 .sched-list { display: flex; flex-direction: column; gap: 8px; }
 .sched {
-  background: var(--surface); border: 1.5px solid var(--border);
+  background: var(--card-bg); border: 1.5px solid var(--border);
   border-radius: 16px; padding: 13px 18px;
   display: flex; align-items: center; gap: 14px;
+  backdrop-filter: blur(8px);
   transition: all .25s ease;
-  box-shadow: 0 2px 8px rgba(91,184,232,.06);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 .sched:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(91,184,232,.14);
+  box-shadow: 0 8px 24px rgba(91,184,232,.13);
   border-color: var(--ice);
 }
-.sched.today {
-  border-color: var(--ice-dk); background: var(--ice-lt);
-  box-shadow: 0 4px 16px rgba(91,184,232,.16);
-}
+.sched.today { border-color: var(--ice-mid); background: rgba(232,247,255,0.85); }
 .sched-date { text-align: center; min-width: 30px; }
 .sched-d { font-family:'Outfit',sans-serif; font-size:20px; font-weight:700; line-height:1; }
-.sched-dow { font-size:10px; font-weight:700; color:var(--text-sub); }
+.sched-dow { font-size:10px; font-weight:700; color:var(--muted); }
 .vdiv { width:1.5px; height:26px; background:var(--border); border-radius:2px; }
-.sched.today .vdiv { background: var(--ice-dk); }
-.sched-title { font-size:14px; font-weight:600; }
-.sched-time { font-size:12px; color:var(--text-sub); margin-top:2px; }
-.today-dot {
-  margin-left:auto; flex-shrink:0; width:8px; height:8px;
-  border-radius:50%; background:var(--ice-dk);
-  box-shadow: 0 0 0 3px rgba(91,184,232,.25), 0 0 8px rgba(91,184,232,.4);
-}
-.type-badge {
-  margin-left: auto; font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 100px; flex-shrink: 0;
-}
+.sched.today .vdiv { background: var(--ice-mid); }
+.sched-title { font-size:14px; font-weight:600; flex:1; }
+.sched-time { font-size:12px; color:var(--muted); margin-top:2px; }
+.today-dot { margin-left:auto; flex-shrink:0; width:8px; height:8px; border-radius:50%; background:var(--ice-mid); box-shadow:0 0 0 3px rgba(91,184,232,.25),0 0 8px rgba(91,184,232,.4); }
+.type-badge { margin-left:auto; font-size:11px; font-weight:600; padding:3px 10px; border-radius:100px; flex-shrink:0; }
 
 /* ── OVERLAY (최근 곡) ── */
 .overlay-list { display: flex; flex-direction: column; gap: 8px; }
 .ov-row {
-  background: var(--surface); border: 1.5px solid var(--border);
+  background: var(--card-bg); border: 1.5px solid var(--border);
   border-radius: 16px; padding: 11px 16px;
   display: flex; align-items: center; gap: 12px;
+  backdrop-filter: blur(8px);
   transition: all .25s ease;
-  box-shadow: 0 2px 8px rgba(91,184,232,.06);
+  box-shadow: 0 2px 8px var(--shadow);
 }
-.ov-row:hover {
-  transform: translateY(-2px);
-  border-color: var(--ice);
-  box-shadow: 0 8px 24px rgba(91,184,232,.14);
-}
-.ov-num { font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; color:var(--text-mut); min-width:20px; }
+.ov-row:hover { transform: translateY(-2px); border-color: var(--ice); box-shadow: 0 8px 24px rgba(91,184,232,.13); }
+.ov-num { font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; color:var(--muted); min-width:20px; }
 .ov-thumb {
   width:38px; height:38px; border-radius:10px;
-  background: linear-gradient(135deg, var(--ice-lt), var(--lav-lt));
+  background: linear-gradient(135deg, var(--ice-light), rgba(201,184,245,0.25));
   border:1px solid var(--border);
   display:flex; align-items:center; justify-content:center;
-  font-size:18px; flex-shrink:0;
-  transition: transform .25s ease;
+  font-size:18px; flex-shrink:0; transition: transform .25s ease;
 }
 .ov-row:hover .ov-thumb { transform: scale(1.1) rotate(-4deg); }
 .ov-title { font-size:14px; font-weight:600; }
-.ov-artist { font-size:12px; color:var(--text-sub); margin-top:1px; }
-.ov-date { margin-left:auto; font-size:11px; color:var(--text-mut); white-space:nowrap; }
+.ov-artist { font-size:12px; color:var(--muted); margin-top:1px; }
+.ov-date { margin-left:auto; font-size:11px; color:var(--muted); white-space:nowrap; }
+
+/* empty/loading */
+.empty-box {
+  background: var(--card-bg); border: 1.5px dashed var(--border);
+  border-radius: 16px; padding: 28px;
+  text-align: center; font-size: 13px; color: var(--muted);
+  backdrop-filter: blur(8px);
+}
+.loading { text-align:center; padding:28px; font-size:13px; color:var(--muted); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 36px auto 0;
+  padding: 20px 20px 48px;
+  border-top: 1.5px solid var(--border);
+  text-align: center; font-size: 12px; color: var(--muted);
+}
+
+/* fade-up */
+.fade-up { opacity:0; transform:translateY(14px); transition:opacity .45s ease,transform .45s ease; }
+.fade-up.visible { opacity:1; transform:translateY(0); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--ice); border-radius: 3px; }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .banner-inner { grid-template-columns: 1fr; min-height: auto; }
-  .banner-visual { height: 220px; border-right: none; border-bottom: 1.5px solid var(--border); }
-  .profile-grid { grid-template-columns: repeat(2, 1fr); }
+  .banner-visual { height: 240px; border-right: none; border-bottom: 1.5px solid var(--border); }
   .banner-info { padding: 20px; }
   .banner-name { font-size: 26px; }
+  .profile-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links a { padding: 12px 10px; font-size: 12px; }
+  .nav-broadcast { display: none; }
 }
 </style>
 </head>
 <body>
 
+<div id="particles"></div>
+
+<!-- NAV BAR -->
+<nav class="nav-bar">
+  <div class="nav-inner-wrap">
+    <a class="nav-logo" href="/">MUSEA ✦</a>
+    <div class="nav-links">
+      <a href="/schedule/">스케줄</a>
+      <a href="/song/">노래책</a>
+      <a href="/work/">업보</a>
+    </div>
+    <a class="nav-broadcast" href="#" target="_blank">🎮 방송 바로가기</a>
+  </div>
+</nav>
+
 <!-- HERO BANNER -->
-<div class="hero-banner">
+<div class="hero fade-up">
   <div class="banner-inner">
     <!-- 이미지 (좌) -->
     <div class="banner-visual">
       <img src="/assets/profile.jpg" alt="뮤서아"
-           onerror="this.style.background='linear-gradient(160deg,#B8E4F7,#C9B8F5)';this.style.minHeight='320px';">
+           onerror="this.style.background='linear-gradient(160deg,#B8E4F7,#C9B8F5)';this.style.minHeight='100%';">
     </div>
     <!-- 정보 (우) -->
     <div class="banner-info">
       <div class="banner-name-row">
         <div class="banner-name">뮤서아</div>
-        <div class="banner-tag">버추얼 · 노래</div>
+        <div class="banner-tag">버주얼 · 노래</div>
       </div>
       <div class="profile-grid">
         <div class="pc"><div class="pc-label">데뷔일</div><div class="pc-value">-</div></div>
@@ -208,8 +374,8 @@
   </div>
 </div>
 
-<!-- NAV -->
-<div class="nav-wrap">
+<!-- NAV PILL -->
+<div class="nav-wrap fade-up">
   <div class="nav-inner">
     <a href="/" class="active">홈</a>
     <a href="/schedule/">스케줄</a>
@@ -238,108 +404,65 @@
 
 <script src="/js/supabase-config.js"></script>
 <script>
-const DOW = ['일','월','화','수','목','금','토'];
-const TYPE_COLORS = {
-  broadcast:'#5BB8E8', rest:'#9DB0C0', event:'#F9A8D4',
-  collab:'#86EFAC', tournament:'#93C5FD', other:'#C9B8F5'
-};
-const TYPE_LABELS = {
-  broadcast:'방송', rest:'휴방', event:'이벤트',
-  collab:'합방', tournament:'대회', other:'기타'
-};
-
-async function loadSchedule() {
-  const el = document.getElementById('sched-list');
-  try {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const todayStr = today.toISOString().split('T')[0];
-    const { data, error } = await supabaseClient
-      .from('musea_schedules')
-      .select('*')
-      .gte('event_date', todayStr)
-      .order('event_date').order('event_time')
-      .limit(3);
-    if (error) throw error;
-    if (!data || !data.length) {
-      el.innerHTML = '<div class="empty-box">예정된 일정이 없어요 ❄️</div>';
-      return;
-    }
-    el.innerHTML = data.map(s => {
-      const dt = new Date(s.event_date + 'T00:00:00');
-      const isToday = s.event_date === todayStr;
-      const color = s.color || TYPE_COLORS[s.event_type] || '#5BB8E8';
-      const label = TYPE_LABELS[s.event_type] || s.event_type || '';
-      return `
-        <div class="sched ${isToday?'today':''}">
-          <div class="sched-date">
-            <div class="sched-d">${dt.getDate()}</div>
-            <div class="sched-dow">${DOW[dt.getDay()]}</div>
-          </div>
-          <div class="vdiv"></div>
-          <div style="flex:1">
-            <div class="sched-title">${s.title}</div>
-            ${s.event_time?`<div class="sched-time">${s.event_time.slice(0,5)}</div>`:''}
-          </div>
-          <span class="type-badge" style="background:${color}22;color:${color}">${label}</span>
-          ${isToday?'<div class="today-dot"></div>':''}
-        </div>`;
-    }).join('');
-  } catch(e) {
-    console.error(e);
-    el.innerHTML = '<div class="empty-box">일정을 불러오지 못했어요</div>';
+/* 파티클 */
+(function(){
+  const colors=['#B8E4F7','#C9B8F5','#F2C4DE','#7ECEF0','#E8D5FF'];
+  const c=document.getElementById('particles');
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div');p.className='particle';
+    const s=4+Math.random()*10;
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${14+Math.random()*16}s;animation-delay:${Math.random()*14}s;`;
+    c.appendChild(p);
   }
+})();
+
+const DOW=['일','월','화','수','목','금','토'];
+const TYPE_COLORS={broadcast:'#5BB8E8',rest:'#9DB0C0',event:'#F9A8D4',collab:'#86EFAC',tournament:'#C9B8F5',other:'#B8E4F7'};
+const TYPE_LABELS={broadcast:'방송',rest:'휴방',event:'이벤트',collab:'합방',tournament:'대회',other:'기타'};
+
+async function loadSchedule(){
+  const el=document.getElementById('sched-list');
+  try{
+    const today=new Date();today.setHours(0,0,0,0);
+    const todayStr=today.toISOString().split('T')[0];
+    const{data,error}=await supabaseClient.from('musea_schedules').select('*').gte('event_date',todayStr).order('event_date').order('event_time').limit(3);
+    if(error)throw error;
+    if(!data||!data.length){el.innerHTML='<div class="empty-box">예정된 일정이 없어요 ❄️</div>';return;}
+    el.innerHTML=data.map(s=>{
+      const dt=new Date(s.event_date+'T00:00:00');
+      const isToday=s.event_date===todayStr;
+      const color=s.color||TYPE_COLORS[s.event_type]||'#5BB8E8';
+      const label=TYPE_LABELS[s.event_type]||s.event_type||'';
+      return `<div class="sched${isToday?' today':''}">
+        <div class="sched-date"><div class="sched-d">${dt.getDate()}</div><div class="sched-dow">${DOW[dt.getDay()]}</div></div>
+        <div class="vdiv"></div>
+        <div style="flex:1"><div class="sched-title">${s.title}</div>${s.event_time?`<div class="sched-time">${s.event_time.slice(0,5)}</div>`:''}</div>
+        <span class="type-badge" style="background:${color}22;color:${color}">${label}</span>
+        ${isToday?'<div class="today-dot"></div>':''}
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty-box">일정을 불러오지 못했어요</div>';}
 }
 
-async function loadOverlay() {
-  const el = document.getElementById('overlay-list');
-  try {
-    const { data, error } = await supabaseClient
-      .from('musea_recent_overlays')
-      .select('*')
-      .order('played_at', { ascending: false })
-      .limit(5);
-    if (error) throw error;
-    if (!data || !data.length) {
-      el.innerHTML = '<div class="empty-box">최근 오버레이 기록이 없어요 🎵</div>';
-      return;
-    }
-    el.innerHTML = data.map((s,i) => {
-      const d = new Date(s.played_at);
-      const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
-      return `
-        <div class="ov-row">
-          <span class="ov-num">0${i+1}</span>
-          <div class="ov-thumb">🎵</div>
-          <div>
-            <div class="ov-title">${s.song_title}</div>
-            <div class="ov-artist">${s.song_artist||''}</div>
-          </div>
-          <span class="ov-date">${dateStr}</span>
-        </div>`;
+async function loadOverlay(){
+  const el=document.getElementById('overlay-list');
+  try{
+    const{data,error}=await supabaseClient.from('musea_recent_overlays').select('*').order('played_at',{ascending:false}).limit(5);
+    if(error)throw error;
+    if(!data||!data.length){el.innerHTML='<div class="empty-box">최근 오버레이 기록이 없어요 🎵</div>';return;}
+    el.innerHTML=data.map((s,i)=>{
+      const d=new Date(s.played_at);
+      const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+      return `<div class="ov-row"><span class="ov-num">0${i+1}</span><div class="ov-thumb">🎵</div><div><div class="ov-title">${s.song_title}</div><div class="ov-artist">${s.song_artist||''}</div></div><span class="ov-date">${dateStr}</span></div>`;
     }).join('');
-  } catch(e) {
-    console.error(e);
-    el.innerHTML = '<div class="empty-box">불러오지 못했어요</div>';
-  }
+  }catch(e){el.innerHTML='<div class="empty-box">불러오지 못했어요</div>';}
 }
 
 loadSchedule();
 loadOverlay();
 
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-</script>
-<script>
-function sendHeight(){
-  const h = document.documentElement.scrollHeight;
-  window.parent.postMessage({type:'museaHeight', height:h}, '*');
-}
-window.addEventListener('load', sendHeight);
-window.addEventListener('resize', sendHeight);
-new MutationObserver(sendHeight).observe(document.body, {childList:true, subtree:true});
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.08});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>
