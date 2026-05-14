@@ -115,7 +115,7 @@ tbody td.col-action{white-space:nowrap;text-align:right;}
 .member-card-btn.selected{border-color:var(--lav-dk);background:var(--lav-lt);box-shadow:0 0 0 2px var(--lav-dk);}
 .mc-nick{font-size:13px;font-weight:700;}
 .mc-id{font-size:11px;color:var(--text-sub);margin-top:2px;}
-.mc-coin{font-size:11px;font-weight:700;color:#92400E;background:var(--yellow);padding:2px 8px;border-radius:100px;margin-top:6px;display:inline-block;}
+.mc-coin{display:none!important;}
 .task-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px;}
 .task-item{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;}
 .task-nm{font-size:12px;font-weight:600;margin-bottom:6px;}
@@ -124,7 +124,7 @@ tbody td.col-action{white-space:nowrap;text-align:right;}
 .qbtn:hover{border-color:var(--lav-dk);background:var(--lav-lt);}
 .qval{font-family:'Outfit',sans-serif;font-size:16px;font-weight:900;min-width:24px;text-align:center;}
 .task-memo-inp{font-size:11px;padding:4px 8px;margin-top:6px;min-height:auto;}
-.coin-row{display:flex;align-items:center;gap:10px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;margin-top:12px;}
+.coin-row{display:none!important;}
 .coin-label{font-size:12px;font-weight:600;color:var(--text-sub);flex-shrink:0;}
 .coin-toggle-row{display:flex;gap:6px;}
 .coin-dir{padding:5px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--text-sub);}
@@ -1004,7 +1004,7 @@ function renderMemberList(list){
         <div style="font-size:14px;font-weight:600;">${m.nickname}</div>
         <div style="font-size:11px;color:var(--text-sub);">${m.user_id}</div>
       </div>
-      <span class="badge" style="background:var(--yellow);color:#92400E;">Coin ${m.coins||0}</span>
+
       <button class="btn-edit" onclick="editMember(${m.id})">수정</button>
       <button class="btn-del" onclick="delMember(${m.id})">삭제</button>
     </div>`).join('')}
@@ -1068,7 +1068,6 @@ function renderAssignMemberGrid(list){
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;">
         <div class="mc-id">${m.user_id}</div>
-        <div class="mc-coin">Coin ${m.coins||0}</div>
       </div>
     </button>`).join('');
   initAssignGridDragDrop();
@@ -1194,7 +1193,7 @@ async function loadMemberTasks(){
   memberTaskState={};
   const{data:existing}=await supabaseClient.from('musea_upbo_tasks').select('*').eq('member_id',selMemberId);
   (existing||[]).forEach(t=>{memberTaskState[t.task_type_id]={qty:t.quantity,memo:t.memo||'',existingId:t.id};});
-  const active=taskTypes.filter(t=>t.is_active);
+  const active=taskTypes;
   if(!active.length){grid.innerHTML='<div style="color:var(--text-mut);font-size:13px;">업보 타입을 먼저 추가해주세요</div>';return;}
   grid.innerHTML=active.map(t=>{
     const cur=memberTaskState[t.id]||{qty:0,memo:''};
@@ -1219,7 +1218,7 @@ function changeQty(typeId,delta){
 async function saveTasks(){
   if(!selMemberId){toast('시청자를 선택해주세요');return;}
   // 업보 저장
-  for(const t of taskTypes.filter(x=>x.is_active)){
+  for(const t of taskTypes){
     const qty=parseInt(document.getElementById(`qty-${t.id}`)?.textContent||0);
     const memo=document.getElementById(`memo-${t.id}`)?.value||'';
     const cur=memberTaskState[t.id]||{};
