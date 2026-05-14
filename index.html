@@ -195,6 +195,22 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
   border-left: 2px solid var(--lav);
 }
 
+/* 프로필 그리드 */
+.profile-grid-hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px;
+  margin-bottom: 24px;
+}
+.pg-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px;
+}
+.pg-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--muted);
+  min-width: 40px; flex-shrink: 0;
+}
+.pg-val { font-weight: 500; color: var(--dark); }
+
 /* 통계 */
 .stats-row {
   display: flex; gap: 36px; margin-bottom: 40px;
@@ -237,6 +253,7 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 .btn-soop  .btn-icon { background: rgba(255,80,50,.10); }
 .btn-chzzk .btn-icon { background: rgba(0,200,100,.08); }
 .btn-x     .btn-icon { background: rgba(26,26,26,.07); }
+.btn-yt    .btn-icon { background: rgba(255,0,0,.08); }
 .btn-cafe  .btn-icon { background: rgba(3,199,90,.08); }
 .btn-sub { font-size: 11px; color: var(--muted); line-height: 1; margin-bottom: 2px; }
 
@@ -439,10 +456,20 @@ footer span {
     </h1>
 
     <p class="hero-tagline">
-      백발과 핑크 눈이 시그니처.<br>
-      노래하고 떠들고 가끔 민폐도 끼치는<br>
-      버추얼 엔터테이너.
+      실용음악과 출신, 직접 만든 버추얼.<br>
+      노래하고 그리고 떠들고 가끔 민폐도.<br>
+      팬캐릭터: <strong style="color:var(--lav-dark)">잔향</strong> ✨
     </p>
+
+    <!-- 프로필 그리드 -->
+    <div class="profile-grid-hero">
+      <div class="pg-item"><span class="pg-label">생일</span><span class="pg-val">7월 24일</span></div>
+      <div class="pg-item"><span class="pg-label">국적</span><span class="pg-val">뉴질랜드 🥝</span></div>
+      <div class="pg-item"><span class="pg-label">MBTI</span><span class="pg-val">ENTJ</span></div>
+      <div class="pg-item"><span class="pg-label">데뷔</span><span class="pg-val">2026. 5. 8</span></div>
+      <div class="pg-item"><span class="pg-label">방송</span><span class="pg-val">오후 4시 ~ 10시</span></div>
+      <div class="pg-item"><span class="pg-label">컨텐츠</span><span class="pg-val">소통 · 노래 · 게임</span></div>
+    </div>
 
     <div class="stats-row">
       <div class="stat-item">
@@ -460,21 +487,13 @@ footer span {
     </div>
 
     <div class="link-grid">
-      <a class="link-btn btn-soop" href="#" target="_blank">
-        <div class="btn-icon">🎮</div>
-        <div><div class="btn-sub">숲 방송국</div>SOOP</div>
-      </a>
-      <a class="link-btn btn-chzzk" href="#" target="_blank">
-        <div class="btn-icon">📺</div>
-        <div><div class="btn-sub">치지직</div>CHZZK</div>
-      </a>
-      <a class="link-btn btn-x" href="#" target="_blank">
+      <a class="link-btn btn-x" href="https://x.com/Museoa_xo" target="_blank">
         <div class="btn-icon">✕</div>
-        <div><div class="btn-sub">트위터</div>@musea</div>
+        <div><div class="btn-sub">트위터</div>@Museoa_xo</div>
       </a>
-      <a class="link-btn btn-cafe" href="#" target="_blank">
-        <div class="btn-icon">☕</div>
-        <div><div class="btn-sub">팬 카페</div>네이버 카페</div>
+      <a class="link-btn btn-yt" href="https://www.youtube.com/channel/UCxnRkuaFRG0NzKhW4ebQm7A" target="_blank">
+        <div class="btn-icon">▶</div>
+        <div><div class="btn-sub">유튜브</div>YouTube</div>
       </a>
     </div>
   </div>
