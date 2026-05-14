@@ -303,21 +303,21 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 
 .page-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
 .page-card {
-  border-radius: 20px; border: 1px solid var(--card-border);
+  border-radius: 16px; border: 1px solid var(--card-border);
   background: var(--card-bg); backdrop-filter: blur(16px);
-  padding: 32px 28px; text-decoration: none; color: var(--dark);
+  padding: 20px 22px; text-decoration: none; color: var(--dark);
   transition: all .35s cubic-bezier(.34,1.56,.64,1);
-  display: flex; flex-direction: column; gap: 10px;
+  display: flex; flex-direction: column; gap: 8px;
   position: relative; overflow: hidden;
 }
 /* 모바일: 카드 가로 압축형 */
 @media (max-width: 640px) {
-  .page-cards { grid-template-columns: 1fr !important; gap: 8px; }
-  .page-card { flex-direction: row; align-items: center; padding: 14px 18px; gap: 14px; border-radius: 14px; }
-  .card-icon { font-size: 22px; flex-shrink: 0; }
-  .card-title { font-size: 15px; margin: 0; }
+  .page-cards { grid-template-columns: repeat(3, 1fr) !important; gap: 8px; }
+  .page-card { flex-direction: column; align-items: center; justify-content: center; padding: 14px 8px; gap: 6px; border-radius: 12px; text-align: center; }
+  .card-icon { font-size: 20px; flex-shrink: 0; }
+  .card-title { font-size: 12px; margin: 0; font-weight: 700; }
   .card-desc { display: none; }
-  .card-arrow { margin-left: auto; margin-top: 0; }
+  .card-arrow { display: none; }
 }
 .page-card::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
@@ -330,16 +330,42 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
   border-color: rgba(155,132,232,.38);
 }
 .page-card:hover::after { opacity: 1; }
-.card-icon { font-size: 30px; line-height: 1; }
+.card-icon { font-size: 24px; line-height: 1; }
 .card-title {
   font-family: 'Outfit', sans-serif;
-  font-size: 20px; font-weight: 700; letter-spacing: -.3px;
+  font-size: 16px; font-weight: 700; letter-spacing: -.3px;
 }
 .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
 .card-arrow { font-size: 18px; color: var(--lav-dark); align-self: flex-end; transition: transform .25s; }
 .page-card:hover .card-arrow { transform: translateX(4px); }
 
 /* 일정 / 최근 곡 섹션 */
+.roadmap-section { padding: 56px 0 0; }
+.roadmap-list {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+}
+.rm-item {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 12px; border-radius: 14px;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px); text-align: center;
+  transition: all .25s;
+}
+.rm-item:hover { transform: translateY(-2px); border-color: rgba(155,132,232,.40); box-shadow: 0 6px 20px rgba(155,132,232,.10); }
+.rm-item.done { background: linear-gradient(135deg, rgba(201,184,245,.15), rgba(184,228,247,.12)); border-color: rgba(155,132,232,.35); }
+.rm-num {
+  font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(155,132,232,.15); color: var(--lav-dark);
+  flex-shrink: 0;
+}
+.rm-item.done .rm-num { background: var(--lav-dark); color: #fff; }
+.rm-text { font-size: 12px; font-weight: 500; color: var(--dark); line-height: 1.4; }
+.rm-item.done .rm-text { color: var(--lav-dark); font-weight: 600; }
+@media (max-width: 768px) { .roadmap-list { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .roadmap-list { grid-template-columns: repeat(2, 1fr); } }
+
 .data-section { padding: 56px 0 80px; }
 .sec-label {
   font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
@@ -488,8 +514,7 @@ footer span {
 
     <p class="hero-tagline">
       실용음악과 출신, 직접 만든 버추얼.<br>
-      노래하고 그리고 떠들고 가끔 민폐도.<br>
-      팬캐릭터: <strong style="color:var(--lav-dark)">잔향</strong> ✨
+      노래하고 그리고 떠들고 가끔 민폐도.
     </p>
 
     <!-- 프로필 그리드 -->
@@ -500,18 +525,6 @@ footer span {
       <div class="pg-item"><span class="pg-label">데뷔</span><span class="pg-val">2026. 5. 8</span></div>
       <div class="pg-item"><span class="pg-label">방송</span><span class="pg-val">오후 4시 ~ 10시</span></div>
       <div class="pg-item"><span class="pg-label">컨텐츠</span><span class="pg-val">소통 · 노래 · 게임</span></div>
-    </div>
-
-    <!-- 잔향 팬캐릭터 -->
-    <div class="fan-char-row">
-      <div class="fan-char-img-wrap">
-        <img src="/assets/fan_ghost.png" alt="잔향">
-      </div>
-      <div class="fan-char-info">
-        <div class="fan-char-label">팬캐릭터</div>
-        <div class="fan-char-name">잔향 <span>✨</span></div>
-        <div class="fan-char-desc">서아가 남긴 목소리,<br>당신의 마음에 머무는 작은 잔향</div>
-      </div>
     </div>
 
     <div class="link-grid">
@@ -559,6 +572,27 @@ footer span {
           <div class="card-desc">시청자들의 업보 기록이 담겨 있어요.</div>
           <div class="card-arrow">→</div>
         </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로드맵 -->
+  <div class="roadmap-section fade-up">
+    <div class="wrapper" style="padding:0 0;">
+      <div class="section-label-sm">Roadmap</div>
+      <div class="section-title">1년 안에 이루고 싶은 것들</div>
+      <div class="divider-line"></div>
+      <div class="roadmap-list">
+        <div class="rm-item done"><span class="rm-num">1</span><span class="rm-text">애청자 300명</span></div>
+        <div class="rm-item"><span class="rm-num">2</span><span class="rm-text">노래대회 참가</span></div>
+        <div class="rm-item"><span class="rm-num">3</span><span class="rm-text">와루도 풀트 셋팅 받기</span></div>
+        <div class="rm-item"><span class="rm-num">4</span><span class="rm-text">노래대회 1등 해보기</span></div>
+        <div class="rm-item"><span class="rm-num">5</span><span class="rm-text">마크 서버 합격 해보기</span></div>
+        <div class="rm-item"><span class="rm-num">6</span><span class="rm-text">애청자 500명</span></div>
+        <div class="rm-item"><span class="rm-num">7</span><span class="rm-text">노래대회 1등 세 번 하기</span></div>
+        <div class="rm-item"><span class="rm-num">8</span><span class="rm-text">루키존 · VOD 달기</span></div>
+        <div class="rm-item"><span class="rm-num">9</span><span class="rm-text">애청자 1000명</span></div>
+        <div class="rm-item"><span class="rm-num">10</span><span class="rm-text">베스트 스트리머 되기</span></div>
       </div>
     </div>
   </div>
