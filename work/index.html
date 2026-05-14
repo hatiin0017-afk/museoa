@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뮤서아 ❄️ 업보</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+.header-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+.updated-label { font-size:12px; color:var(--text-mut); background:var(--surface); border:1px solid var(--border); padding:4px 12px; border-radius:100px; }
+.search-input { width:100%; padding:10px 16px; border-radius:12px; border:1.5px solid var(--border); background:var(--surface); font-size:13px; color:var(--text); outline:none; transition:border-color .2s; font-family:inherit; margin-bottom:16px; }
+.search-input:focus { border-color:var(--ice-dk); }
+.member-card { background:var(--surface); border:1.5px solid var(--border); border-radius:18px; padding:16px 18px; display:flex; gap:14px; align-items:flex-start; margin-bottom:10px; transition:all .25s; box-shadow:0 2px 8px var(--shadow); }
+.member-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px var(--shadow); border-color:var(--ice); }
+.member-info { flex-shrink:0; min-width:90px; }
+.member-nick { font-size:16px; font-weight:700; color:var(--text); line-height:1.2; }
+.member-id   { font-size:11px; color:var(--text-mut); margin-top:2px; }
+.member-coins { display:inline-flex; align-items:center; gap:3px; background:var(--ice-lt); border:1px solid var(--ice); color:var(--ice-dk); font-size:11px; font-weight:700; padding:2px 8px; border-radius:100px; margin-top:6px; }
+.task-tags { display:flex; flex-wrap:wrap; gap:6px; flex:1; }
+.task-tag { display:inline-flex; align-items:center; gap:4px; padding:5px 12px; border-radius:10px; font-size:12px; font-weight:600; border:1.5px solid; }
+.task-tag.normal { background:var(--lav-lt); border-color:var(--lav); color:var(--lav-dk); }
+.task-tag.event  { background:var(--pink-lt); border-color:var(--pink); color:#BE185D; }
+.task-qty { font-weight:800; }
+.task-memo { font-size:11px; opacity:.75; }
+.inquiry-btn { display:flex; align-items:center; gap:8px; margin:28px auto 0; padding:10px 24px; background:var(--surface); border:1.5px solid var(--border); border-radius:100px; font-size:13px; font-weight:600; color:var(--text-sub); cursor:pointer; transition:all .2s; box-shadow:0 2px 8px var(--shadow); }
+.inquiry-btn:hover { border-color:var(--ice); color:var(--ice-dk); transform:translateY(-1px); }
+.modal-backdrop { position:fixed; inset:0; z-index:100; background:rgba(28,42,58,.25); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; }
+.modal-backdrop.open { display:flex; }
+.modal-box { background:var(--surface); border-radius:22px; padding:28px; max-width:380px; width:90%; box-shadow:0 20px 60px rgba(28,42,58,.18); border:1.5px solid var(--border); }
+.modal-title { font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text); }
+.modal-input { width:100%; padding:10px 14px; border-radius:12px; border:1.5px solid var(--border); font-family:inherit; font-size:13px; color:var(--text); outline:none; margin-bottom:10px; transition:border-color .2s; }
+.modal-input:focus { border-color:var(--ice-dk); }
+textarea.modal-input { height:90px; resize:none; }
+.modal-submit { width:100%; padding:10px; border-radius:12px; background:linear-gradient(120deg,var(--lav-dk),var(--ice-dk)); color:#fff; border:none; font-size:14px; font-weight:700; cursor:pointer; transition:opacity .2s; font-family:inherit; }
+.modal-submit:hover { opacity:.85; }
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+  <div class="nav-inner-wrap">
+    <a href="/">홈</a>
+    <a href="/schedule/">스케줄</a>
+    <a href="/song/">노래책</a>
+    <a href="/work/" class="active">업보</a>
+  </div>
+</nav>
+<div class="page-wrap">
+  <div class="header-row fade-up">
+    <div class="sec-label" style="margin-bottom:0;flex:1;font-size:15px;letter-spacing:1px;">업보 현황</div>
+    <div class="updated-label" id="updatedLabel" style="font-size:13px;font-weight:700;">갱신일: -</div>
+  </div>
+  <input class="search-input fade-up" id="searchInput" type="text" placeholder="닉네임 또는 아이디 검색...">
+  <div id="loadingState" class="loading">불러오는 중...</div>
+  <div id="emptyState"   class="empty-box" style="display:none">업보가 없어요 ❄️</div>
+  <div id="memberList"></div>
+  <button class="inquiry-btn fade-up" onclick="openInquiry()">✉️ 업보 문의하기</button>
+</div>
+<div class="modal-backdrop" id="inquiryModal" onclick="closeInquiry(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">업보 문의</div>
+    <div id="inquiryForm">
+      <input class="modal-input" id="iNick" type="text" placeholder="닉네임">
+      <textarea class="modal-input" id="iContent" placeholder="문의 내용을 입력해주세요"></textarea>
+      <button class="modal-submit" onclick="submitInquiry()">문의 접수</button>
+    </div>
+    <div id="inquirySuccess" style="display:none;text-align:center;padding:20px">
+      <div style="font-size:2rem;margin-bottom:8px">✅</div>
+      <div style="font-weight:700;color:var(--text)">문의가 접수됐어요!</div>
+    </div>
+  </div>
+</div>
+<footer class="page-footer">© 2025 뮤서아</footer>
+<script src="/js/supabase-config.js"></script>
+<script>
+let allMembers=[],memberTasks={};
+function esc(t){const d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+async function load(){
+  try{
+    const{data:settings}=await supabaseClient.from('musea_upbo_settings').select('*').eq('key','last_updated').single();
+    if(settings)document.getElementById('updatedLabel').textContent='갱신일: '+settings.value;
+    const{data:members}=await supabaseClient.from('musea_upbo_members').select('*').order('created_at');
+    const{data:tasks}=await supabaseClient.from('musea_upbo_tasks').select('*, musea_upbo_task_types(*)').gt('quantity',0);
+    document.getElementById('loadingState').style.display='none';
+    memberTasks={};
+    (tasks||[]).forEach(t=>{if(!memberTasks[t.member_id])memberTasks[t.member_id]=[];memberTasks[t.member_id].push(t);});
+    allMembers=(members||[]).filter(m=>memberTasks[m.id]?.length&&!m.is_hidden).sort((a,b)=>a.nickname.localeCompare(b.nickname,'ko'));
+    if(!allMembers.length){document.getElementById('emptyState').style.display='block';return;}
+    render(allMembers);
+  }catch(e){document.getElementById('loadingState').style.display='none';document.getElementById('emptyState').style.display='block';}
+}
+function render(members){
+  const empty=document.getElementById('emptyState');
+  const list=document.getElementById('memberList');
+  if(!members.length){empty.style.display='block';list.innerHTML='';return;}
+  empty.style.display='none';
+  list.innerHTML=members.map(m=>{
+    const tasks=memberTasks[m.id]||[];
+    const tagHtml=tasks.map(t=>{const cls=t.musea_upbo_task_types?.category==='event'?'event':'normal';return `<span class="task-tag ${cls}">${esc(t.musea_upbo_task_types?.name||'')}${t.quantity>1?`<span class="task-qty">×${t.quantity}</span>`:''}${t.memo?`<span class="task-memo">(${esc(t.memo)})</span>`:''}</span>`;}).join('');
+    const coinHtml=m.coins>0?`<div class="member-coins">Coin ${m.coins}개</div>`:'';
+    return `<div class="member-card fade-up"><div class="member-info"><div class="member-nick">${esc(m.nickname)}</div><div class="member-id">(${esc(m.user_id)})</div>${coinHtml}</div><div class="task-tags">${tagHtml||'<span style="color:var(--text-mut);font-size:12px">숙제 없음</span>'}</div></div>`;
+  }).join('');
+  document.querySelectorAll('#memberList .fade-up').forEach(el=>obs.observe(el));
+}
+document.getElementById('searchInput').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase().trim();
+  render(q?allMembers.filter(m=>m.nickname.toLowerCase().includes(q)||m.user_id.toLowerCase().includes(q)):allMembers);
+});
+function openInquiry(){document.getElementById('inquiryForm').style.display='block';document.getElementById('inquirySuccess').style.display='none';document.getElementById('iNick').value='';document.getElementById('iContent').value='';document.getElementById('inquiryModal').classList.add('open');}
+function closeInquiry(e){if(e.target===e.currentTarget)document.getElementById('inquiryModal').classList.remove('open');}
+async function submitInquiry(){
+  const nick=document.getElementById('iNick').value.trim();
+  const content=document.getElementById('iContent').value.trim();
+  if(!nick||!content)return;
+  const{error}=await supabaseClient.from('musea_upbo_inquiries').insert({nickname:nick,content});
+  if(error){alert('접수 실패: '+error.message);return;}
+  document.getElementById('inquiryForm').style.display='none';
+  document.getElementById('inquirySuccess').style.display='block';
+  setTimeout(()=>document.getElementById('inquiryModal').classList.remove('open'),2000);
+}
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+load();
+</script>
+</body>
+</html>

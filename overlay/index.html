@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뮤서아 오버레이</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* OBS: 700x120, 크로마키 배경 완전 투명 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 700px; height: 120px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.bar {
+  display: inline-flex;
+  align-items: center;
+  height: 100px;
+  margin: 10px 0 0 10px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid rgba(184, 228, 247, 0.8);
+  padding: 0 10px 0 6px;
+  gap: 0;
+  transition: width 0.4s ease;
+}
+
+.profile-wrap {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 2;
+}
+.profile-bg {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #B8E4F7, #C9B8F5);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.profile-bg img {
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: 50%;
+}
+
+.song-info {
+  overflow: hidden;
+  max-width: 460px;
+  padding: 0 16px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+.song-title-wrap {
+  white-space: nowrap;
+  overflow: hidden;
+}
+.song-title-text {
+  display: inline-block;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 22px; font-weight: 700;
+  color: #1C2A3A;
+  white-space: nowrap;
+}
+.song-artist {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: #5BB8E8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.artist-name { color: #607080; }
+.artist-sep  { font-size: 11px; opacity: .5; }
+.singer-name { color: #7B62D4; font-weight: 700; }
+
+@keyframes rolling {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(var(--roll-dist)); }
+}
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar">
+  <div class="profile-wrap">
+    <div class="profile-bg">
+      <img src="/assets/profile.jpg" alt="뮤서아" onerror="this.style.display='none'">
+    </div>
+  </div>
+  <div class="song-info" id="songInfo">
+    <div class="song-title-wrap" id="titleWrap">
+      <span class="song-title-text" id="titleText">🎵 뮤서아</span>
+    </div>
+    <div class="song-artist" id="artistText"></div>
+  </div>
+</div>
+
+<script src="/js/supabase-config.js"></script>
+<script>
+let lastId = null;
+let rollingAnim = null;
+
+function applyRolling(el, container) {
+  if (rollingAnim) {
+    el.style.animation = 'none';
+    el.style.transform = 'translateX(0)';
+    rollingAnim = null;
+  }
+  requestAnimationFrame(() => {
+    const overflowAmt = el.scrollWidth - container.clientWidth;
+    if (overflowAmt > 0) {
+      const gap = 60;
+      const totalDist = el.scrollWidth + gap;
+      const duration = totalDist / 70;
+      el.style.setProperty('--roll-dist', `-${totalDist}px`);
+      const txt = el.textContent;
+      el.innerHTML = `<span>${txt}</span><span style="padding-left:${gap}px">${txt}</span>`;
+      el.style.animation = `rolling ${duration}s linear infinite`;
+      rollingAnim = true;
+    } else {
+      el.innerHTML = el.textContent;
+      el.style.animation = 'none';
+      el.style.transform = 'translateX(0)';
+    }
+  });
+}
+
+async function fetchLatest() {
+  try {
+    const{data:state}=await supabaseClient.from('musea_overlay_state').select('is_visible').eq('id',1).single();
+    const visible=state?state.is_visible!==false:true;
+    document.getElementById('bar').style.opacity=visible?'1':'0';
+    if(!visible)return;
+
+    const { data, error } = await supabaseClient
+      .from('musea_recent_overlays')
+      .select('*')
+      .order('played_at', { ascending: false })
+      .limit(1);
+
+    if (error || !data || !data.length) return;
+    const row = data[0];
+    if (row.id === lastId) return;
+    lastId = row.id;
+
+    const titleEl = document.getElementById('titleText');
+    const artistEl = document.getElementById('artistText');
+    const titleWrap = document.getElementById('titleWrap');
+
+    titleEl.style.animation = 'none';
+    titleEl.style.transform = 'translateX(0)';
+    titleEl.innerHTML = '';
+
+    const title = row.song_title || '';
+    const artist = row.song_artist || '';
+
+    titleEl.textContent = title;
+    artistEl.innerHTML = `<span class="artist-name">${artist}</span><span class="artist-sep">🎵</span><span class="singer-name">뮤서아</span>`;
+
+    applyRolling(titleEl, titleWrap);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+fetchLatest();
+setInterval(fetchLatest, 5000);
+</script>
+</body>
+</html>

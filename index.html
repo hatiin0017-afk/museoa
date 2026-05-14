@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뮤서아 ❄️</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<meta property="og:title" content="뮤서아">
+<meta property="og:description" content="버추얼 엔터테이너 뮤서아">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+/* ── HERO BANNER ── */
+.hero-banner { max-width: 800px; margin: 24px auto 0; padding: 0 20px; }
+.banner-inner {
+  border-radius: 24px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  box-shadow: 0 4px 24px rgba(91,184,232,.10);
+  transition: box-shadow .3s ease;
+  min-height: 320px;
+}
+.banner-inner:hover { box-shadow: 0 12px 40px rgba(91,184,232,.18); }
+
+/* 왼쪽: 이미지 */
+.banner-visual {
+  position: relative; overflow: hidden;
+  background: linear-gradient(160deg, var(--ice-lt) 0%, var(--lav-lt) 100%);
+  border-right: 1.5px solid var(--border);
+}
+.banner-visual img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  display: block;
+  transition: transform 6s ease;
+}
+.banner-inner:hover .banner-visual img { transform: scale(1.04); }
+
+/* 이미지 하단 그라데이션 */
+.banner-visual::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
+  background: linear-gradient(to top, rgba(240,247,255,.4), transparent);
+  pointer-events: none;
+}
+
+/* 오른쪽: 정보 */
+.banner-info {
+  padding: 28px 24px;
+  display: flex; flex-direction: column; gap: 16px;
+  justify-content: center;
+}
+.banner-name-row { display: flex; align-items: baseline; gap: 10px; }
+.banner-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 1;
+  background: linear-gradient(135deg, var(--lav-dk) 0%, var(--ice-dk) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.banner-tag { font-size: 12px; color: var(--text-sub); }
+
+/* 프로필 카드 그리드 */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.pc {
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 11px; padding: 9px 11px;
+  transition: all .25s ease;
+}
+.pc:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(91,184,232,.14);
+  border-color: var(--ice);
+}
+.pc.accent { background: var(--ice-lt); border-color: var(--ice); }
+.pc.accent:hover { box-shadow: 0 6px 18px rgba(91,184,232,.20); }
+.pc-label {
+  font-size: 9px; font-weight: 700; color: var(--text-mut);
+  letter-spacing: .8px; text-transform: uppercase; margin-bottom: 3px;
+}
+.pc-value { font-size: 12px; font-weight: 600; color: var(--text); }
+.pc.accent .pc-value { color: var(--ice-dk); }
+
+/* 링크 버튼 */
+.link-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.link-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600;
+  text-decoration: none; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text);
+  transition: all .25s ease;
+}
+.link-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--ice-dk);
+  box-shadow: 0 6px 18px rgba(91,184,232,.18);
+  color: var(--ice-dk);
+}
+
+/* ── SCHEDULE ── */
+.sched-list { display: flex; flex-direction: column; gap: 8px; }
+.sched {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 13px 18px;
+  display: flex; align-items: center; gap: 14px;
+  transition: all .25s ease;
+  box-shadow: 0 2px 8px rgba(91,184,232,.06);
+}
+.sched:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(91,184,232,.14);
+  border-color: var(--ice);
+}
+.sched.today {
+  border-color: var(--ice-dk); background: var(--ice-lt);
+  box-shadow: 0 4px 16px rgba(91,184,232,.16);
+}
+.sched-date { text-align: center; min-width: 30px; }
+.sched-d { font-family:'Outfit',sans-serif; font-size:20px; font-weight:700; line-height:1; }
+.sched-dow { font-size:10px; font-weight:700; color:var(--text-sub); }
+.vdiv { width:1.5px; height:26px; background:var(--border); border-radius:2px; }
+.sched.today .vdiv { background: var(--ice-dk); }
+.sched-title { font-size:14px; font-weight:600; }
+.sched-time { font-size:12px; color:var(--text-sub); margin-top:2px; }
+.today-dot {
+  margin-left:auto; flex-shrink:0; width:8px; height:8px;
+  border-radius:50%; background:var(--ice-dk);
+  box-shadow: 0 0 0 3px rgba(91,184,232,.25), 0 0 8px rgba(91,184,232,.4);
+}
+.type-badge {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 100px; flex-shrink: 0;
+}
+
+/* ── OVERLAY (최근 곡) ── */
+.overlay-list { display: flex; flex-direction: column; gap: 8px; }
+.ov-row {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 11px 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: all .25s ease;
+  box-shadow: 0 2px 8px rgba(91,184,232,.06);
+}
+.ov-row:hover {
+  transform: translateY(-2px);
+  border-color: var(--ice);
+  box-shadow: 0 8px 24px rgba(91,184,232,.14);
+}
+.ov-num { font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; color:var(--text-mut); min-width:20px; }
+.ov-thumb {
+  width:38px; height:38px; border-radius:10px;
+  background: linear-gradient(135deg, var(--ice-lt), var(--lav-lt));
+  border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+  transition: transform .25s ease;
+}
+.ov-row:hover .ov-thumb { transform: scale(1.1) rotate(-4deg); }
+.ov-title { font-size:14px; font-weight:600; }
+.ov-artist { font-size:12px; color:var(--text-sub); margin-top:1px; }
+.ov-date { margin-left:auto; font-size:11px; color:var(--text-mut); white-space:nowrap; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .banner-inner { grid-template-columns: 1fr; min-height: auto; }
+  .banner-visual { height: 220px; border-right: none; border-bottom: 1.5px solid var(--border); }
+  .profile-grid { grid-template-columns: repeat(2, 1fr); }
+  .banner-info { padding: 20px; }
+  .banner-name { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO BANNER -->
+<div class="hero-banner">
+  <div class="banner-inner">
+    <!-- 이미지 (좌) -->
+    <div class="banner-visual">
+      <img src="/assets/profile.jpg" alt="뮤서아"
+           onerror="this.style.background='linear-gradient(160deg,#B8E4F7,#C9B8F5)';this.style.minHeight='320px';">
+    </div>
+    <!-- 정보 (우) -->
+    <div class="banner-info">
+      <div class="banner-name-row">
+        <div class="banner-name">뮤서아</div>
+        <div class="banner-tag">버추얼 · 노래</div>
+      </div>
+      <div class="profile-grid">
+        <div class="pc"><div class="pc-label">데뷔일</div><div class="pc-value">-</div></div>
+        <div class="pc"><div class="pc-label">생일</div><div class="pc-value">-</div></div>
+        <div class="pc accent"><div class="pc-label">팬 애칭</div><div class="pc-value">-</div></div>
+        <div class="pc accent"><div class="pc-label">구독닉</div><div class="pc-value">-</div></div>
+      </div>
+      <div class="link-row">
+        <a class="link-btn" href="#" target="_blank">🎮 SOOP</a>
+        <a class="link-btn" href="#" target="_blank">📺 치지직</a>
+        <a class="link-btn" href="#" target="_blank">✕ 트위터</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <a href="/" class="active">홈</a>
+    <a href="/schedule/">스케줄</a>
+    <a href="/song/">노래책</a>
+    <a href="/work/">업보</a>
+  </div>
+</div>
+
+<!-- 앞으로 일정 -->
+<div class="section fade-up">
+  <div class="sec-label">앞으로 일정</div>
+  <div id="sched-list" class="sched-list">
+    <div class="loading">일정 불러오는 중...</div>
+  </div>
+</div>
+
+<!-- 최근 부른 곡 -->
+<div class="section fade-up" style="margin-bottom:0">
+  <div class="sec-label">최근 부른 곡</div>
+  <div id="overlay-list" class="overlay-list">
+    <div class="loading">불러오는 중...</div>
+  </div>
+</div>
+
+<footer>© 2025 뮤서아</footer>
+
+<script src="/js/supabase-config.js"></script>
+<script>
+const DOW = ['일','월','화','수','목','금','토'];
+const TYPE_COLORS = {
+  broadcast:'#5BB8E8', rest:'#9DB0C0', event:'#F9A8D4',
+  collab:'#86EFAC', tournament:'#93C5FD', other:'#C9B8F5'
+};
+const TYPE_LABELS = {
+  broadcast:'방송', rest:'휴방', event:'이벤트',
+  collab:'합방', tournament:'대회', other:'기타'
+};
+
+async function loadSchedule() {
+  const el = document.getElementById('sched-list');
+  try {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayStr = today.toISOString().split('T')[0];
+    const { data, error } = await supabaseClient
+      .from('musea_schedules')
+      .select('*')
+      .gte('event_date', todayStr)
+      .order('event_date').order('event_time')
+      .limit(3);
+    if (error) throw error;
+    if (!data || !data.length) {
+      el.innerHTML = '<div class="empty-box">예정된 일정이 없어요 ❄️</div>';
+      return;
+    }
+    el.innerHTML = data.map(s => {
+      const dt = new Date(s.event_date + 'T00:00:00');
+      const isToday = s.event_date === todayStr;
+      const color = s.color || TYPE_COLORS[s.event_type] || '#5BB8E8';
+      const label = TYPE_LABELS[s.event_type] || s.event_type || '';
+      return `
+        <div class="sched ${isToday?'today':''}">
+          <div class="sched-date">
+            <div class="sched-d">${dt.getDate()}</div>
+            <div class="sched-dow">${DOW[dt.getDay()]}</div>
+          </div>
+          <div class="vdiv"></div>
+          <div style="flex:1">
+            <div class="sched-title">${s.title}</div>
+            ${s.event_time?`<div class="sched-time">${s.event_time.slice(0,5)}</div>`:''}
+          </div>
+          <span class="type-badge" style="background:${color}22;color:${color}">${label}</span>
+          ${isToday?'<div class="today-dot"></div>':''}
+        </div>`;
+    }).join('');
+  } catch(e) {
+    console.error(e);
+    el.innerHTML = '<div class="empty-box">일정을 불러오지 못했어요</div>';
+  }
+}
+
+async function loadOverlay() {
+  const el = document.getElementById('overlay-list');
+  try {
+    const { data, error } = await supabaseClient
+      .from('musea_recent_overlays')
+      .select('*')
+      .order('played_at', { ascending: false })
+      .limit(5);
+    if (error) throw error;
+    if (!data || !data.length) {
+      el.innerHTML = '<div class="empty-box">최근 오버레이 기록이 없어요 🎵</div>';
+      return;
+    }
+    el.innerHTML = data.map((s,i) => {
+      const d = new Date(s.played_at);
+      const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+      return `
+        <div class="ov-row">
+          <span class="ov-num">0${i+1}</span>
+          <div class="ov-thumb">🎵</div>
+          <div>
+            <div class="ov-title">${s.song_title}</div>
+            <div class="ov-artist">${s.song_artist||''}</div>
+          </div>
+          <span class="ov-date">${dateStr}</span>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    console.error(e);
+    el.innerHTML = '<div class="empty-box">불러오지 못했어요</div>';
+  }
+}
+
+loadSchedule();
+loadOverlay();
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+<script>
+function sendHeight(){
+  const h = document.documentElement.scrollHeight;
+  window.parent.postMessage({type:'museaHeight', height:h}, '*');
+}
+window.addEventListener('load', sendHeight);
+window.addEventListener('resize', sendHeight);
+new MutationObserver(sendHeight).observe(document.body, {childList:true, subtree:true});
+</script>
+</body>
+</html>

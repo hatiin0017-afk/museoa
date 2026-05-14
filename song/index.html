@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>뮤서아 ❄️ 노래책</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+.genre-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+.genre-tab { padding:7px 18px; border-radius:100px; font-size:13px; font-weight:600; border:1.5px solid var(--border); background:var(--surface); color:var(--text-sub); cursor:pointer; transition:all .2s; }
+.genre-tab:hover { border-color:var(--ice); color:var(--text); }
+.genre-tab.active { background:linear-gradient(120deg,var(--lav),var(--ice)); border-color:transparent; color:var(--text); box-shadow:0 2px 10px rgba(91,184,232,.25); }
+.search-row { display:flex; gap:8px; margin-bottom:20px; }
+.search-input { flex:1; padding:10px 16px; border-radius:12px; border:1.5px solid var(--border); background:var(--surface); font-size:13px; color:var(--text); outline:none; transition:border-color .2s; font-family:inherit; }
+.search-input:focus { border-color:var(--ice-dk); }
+.random-btn { padding:10px 16px; border-radius:12px; background:linear-gradient(120deg,var(--lav-dk),var(--ice-dk)); color:#fff; border:none; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; white-space:nowrap; font-family:inherit; }
+.random-btn:hover { opacity:.85; transform:translateY(-1px); box-shadow:0 4px 12px rgba(91,184,232,.35); }
+.sig-section { margin-bottom:24px; }
+.sig-card { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,var(--ice-lt),var(--lav-lt)); border:1.5px solid var(--ice); border-radius:14px; padding:11px 16px; margin-bottom:8px; transition:all .25s; box-shadow:0 2px 8px var(--shadow); }
+.sig-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(91,184,232,.18); }
+.sig-artist { font-weight:700; color:var(--ice-dk); font-size:13px; min-width:110px; flex-shrink:0; }
+.sig-title  { font-weight:600; font-size:14px; flex:1; }
+.stars { letter-spacing:2px; font-size:13px; flex-shrink:0; }
+.sig-badge { font-size:11px; background:rgba(91,184,232,.15); color:var(--ice-dk); border-radius:4px; padding:1px 5px; margin-left:4px; }
+.copy-btn { background:none; border:none; cursor:pointer; font-size:14px; padding:2px 6px; border-radius:6px; transition:background .2s; }
+.copy-btn:hover { background:var(--ice-lt); }
+.table-wrap { overflow-x:auto; border-radius:16px; border:1.5px solid var(--border); background:var(--surface); }
+.song-table { width:100%; border-collapse:collapse; }
+.song-table thead th { padding:10px 14px; text-align:left; font-size:11px; font-weight:700; color:var(--text-mut); letter-spacing:1px; text-transform:uppercase; background:var(--ice-lt); border-bottom:1.5px solid var(--border); cursor:pointer; user-select:none; white-space:nowrap; }
+.song-table thead th:first-child { border-radius:12px 0 0 0; }
+.song-table thead th:last-child  { border-radius:0 12px 0 0; text-align:center; }
+.song-table tbody tr { border-bottom:1px solid rgba(184,228,247,.2); transition:all .2s ease; cursor:default; }
+.song-table tbody tr:hover { background:var(--ice-lt); transform:translateY(-1px); box-shadow:0 4px 14px rgba(91,184,232,.10); }
+.song-table tbody tr:last-child { border-bottom:none; }
+.song-table td { padding:10px 14px; font-size:13px; vertical-align:middle; }
+.modal-backdrop { position:fixed; inset:0; z-index:100; background:rgba(28,42,58,.25); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; }
+.modal-backdrop.open { display:flex; }
+.modal-box { background:var(--surface); border-radius:22px; padding:28px; max-width:340px; width:90%; box-shadow:0 20px 60px rgba(28,42,58,.18); border:1.5px solid var(--border); text-align:center; }
+.modal-btns { display:flex; gap:8px; margin-top:16px; }
+.modal-btn { flex:1; padding:10px; border-radius:12px; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; font-family:inherit; }
+.toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--text); color:#fff; padding:10px 20px; border-radius:12px; font-size:13px; font-weight:600; opacity:0; pointer-events:none; transition:all .3s; z-index:200; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+  <div class="nav-inner-wrap">
+    <a href="/">홈</a>
+    <a href="/schedule/">스케줄</a>
+    <a href="/song/" class="active">노래책</a>
+    <a href="/work/">업보</a>
+  </div>
+</nav>
+<div class="page-wrap">
+  <div class="genre-tabs fade-up">
+    <button class="genre-tab active" data-genre="all">전체</button>
+    <button class="genre-tab" data-genre="kpop">케이팝</button>
+    <button class="genre-tab" data-genre="jpop">제이팝</button>
+    <button class="genre-tab" data-genre="pop">팝</button>
+    <button class="genre-tab" data-genre="aegyo">애교송</button>
+  </div>
+  <div class="search-row fade-up">
+    <input class="search-input" id="searchInput" type="text" placeholder="아티스트 또는 곡명 검색...">
+    <button class="random-btn" onclick="showRandom()">🎲 랜덤</button>
+  </div>
+  <div class="sig-section fade-up" id="sigSection" style="display:none">
+    <div class="sec-label">시그니처</div>
+    <div id="sigList"></div>
+  </div>
+  <div class="fade-up">
+    <div class="sec-label" id="tableLabel">전체</div>
+    <div class="table-wrap">
+      <div id="loadingState" class="loading">불러오는 중...</div>
+      <div id="emptyState" class="empty-box" style="display:none">등록된 곡이 없어요 🎵</div>
+      <table class="song-table" id="songTable" style="display:none">
+        <thead>
+          <tr>
+            <th data-key="artist" style="width:18%;">아티스트</th>
+            <th data-key="title" style="width:auto;">곡명</th>
+            <th style="width:18%;color:var(--text-mut);">메모</th>
+            <th data-key="level" style="width:1%;white-space:nowrap;text-align:right;">난이도</th>
+            <th style="width:1%;white-space:nowrap;text-align:right;">복사</th>
+          </tr>
+        </thead>
+        <tbody id="songBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="randomModal">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div style="font-size:2.5rem;margin-bottom:12px">🎵</div>
+    <div id="rndArtist" style="font-size:13px;font-weight:700;color:var(--ice-dk);margin-bottom:4px"></div>
+    <div id="rndTitle"  style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:10px"></div>
+    <div id="rndStars"  style="letter-spacing:3px;font-size:14px;margin-bottom:4px"></div>
+    <div class="modal-btns">
+      <button class="modal-btn" style="background:var(--surface);color:var(--ice-dk);border:1.5px solid var(--ice)" onclick="copyRnd()">📋 복사</button>
+      <button class="modal-btn" style="background:var(--ice-lt);color:var(--ice-dk);border:1.5px solid var(--ice)" onclick="showRandom()">🎲 다시</button>
+      <button class="modal-btn" style="background:#f5f5f5;color:var(--text-sub);border:1px solid #e5e7eb" onclick="closeRandom()">닫기</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<footer class="page-footer">© 2025 뮤서아</footer>
+<script src="/js/supabase-config.js"></script>
+<script>
+let currentGenre='all',allSongs=[],sort={key:'artist',dir:'asc'},rndSong=null;
+document.querySelectorAll('.genre-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.genre-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentGenre=tab.dataset.genre;
+    document.getElementById('searchInput').value='';
+    sort={key:'artist',dir:'asc'};
+    loadSongs();
+  });
+});
+document.getElementById('searchInput').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase().trim();
+  renderTable(q?allSongs.filter(s=>s.artist.toLowerCase().includes(q)||s.title.toLowerCase().includes(q)):allSongs);
+});
+async function loadSongs(){
+  const loading=document.getElementById('loadingState');
+  const empty=document.getElementById('emptyState');
+  const table=document.getElementById('songTable');
+  loading.style.display='block';empty.style.display='none';table.style.display='none';
+  document.getElementById('sigSection').style.display='none';
+  try{
+    const query=supabaseClient.from('musea_songs').select('*').order('artist',{ascending:true}).order('title',{ascending:true});
+    const{data,error}=currentGenre==='all'?await query:await query.eq('genre',currentGenre);
+    if(error)throw error;
+    function sortKoEn(a,b){const isKo=s=>/^[가-힣]/.test(s);const isEn=s=>/^[a-zA-Z]/.test(s);const ak=isKo(a),bk=isKo(b),ae=isEn(a),be=isEn(b);if(ak&&!bk)return -1;if(!ak&&bk)return 1;if(ae&&!be)return -1;if(!ae&&be)return 1;return a.localeCompare(b,'ko');}
+    allSongs=(data||[]).sort((a,b)=>sortKoEn(a.title,b.title));
+    loading.style.display='none';
+    const label={all:'전체',kpop:'케이팝',jpop:'제이팝',pop:'팝',aegyo:'애교송'};
+    document.getElementById('tableLabel').textContent=label[currentGenre]||currentGenre;
+    const sigs=allSongs.filter(s=>s.is_signature);
+    if(sigs.length){
+      document.getElementById('sigSection').style.display='block';
+      document.getElementById('sigList').innerHTML=sigs.map(s=>`<div class="sig-card"><div class="sig-artist">${esc(s.artist)}</div><div class="sig-title">${esc(s.title)}</div><div class="stars">${stars(s.level)}</div><button class="copy-btn" onclick="copyText('${esc(s.artist)}','${esc(s.title)}')">📋</button></div>`).join('');
+    }
+    if(!allSongs.length){empty.style.display='block';return;}
+    table.style.display='table';
+    setupSort();renderTable(allSongs);
+  }catch(e){loading.style.display='none';empty.style.display='block';}
+}
+function renderTable(songs){
+  const sorted=[...songs].sort((a,b)=>{let va=a[sort.key],vb=b[sort.key];if(sort.key==='level')return sort.dir==='asc'?va-vb:vb-va;va=(va||'').toLowerCase();vb=(vb||'').toLowerCase();return sort.dir==='asc'?va.localeCompare(vb,'ko'):vb.localeCompare(va,'ko');});
+  document.getElementById('songBody').innerHTML=sorted.map((s,i)=>`<tr style="background:${i%2===0?'#fff':'var(--bg)'}"><td>${esc(s.artist)}${s.is_signature?'<span class="sig-badge">❄️</span>':''}</td><td>${esc(s.title)}</td><td style="color:var(--text-sub);font-size:12px;max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(s.memo||'')}</td><td style="text-align:right;white-space:nowrap;">${stars(s.level)}</td><td style="text-align:right;"><button class="copy-btn" onclick="copyText('${esc(s.artist)}','${esc(s.title)}')">📋</button></td></tr>`).join('');
+}
+function setupSort(){
+  document.querySelectorAll('.song-table thead th[data-key]').forEach(th=>{
+    th.onclick=()=>{
+      const k=th.dataset.key;
+      sort={key:k,dir:sort.key===k&&sort.dir==='asc'?'desc':'asc'};
+      document.getElementById('searchInput').value='';
+      renderTable(allSongs);
+      document.querySelectorAll('.song-table thead th').forEach(t=>{const arrow=t.querySelector('.arr');if(arrow)arrow.remove();});
+      const arr=document.createElement('span');arr.className='arr';arr.textContent=sort.dir==='asc'?' ▲':' ▼';arr.style.cssText='font-size:10px;opacity:.7';th.appendChild(arr);
+    };
+  });
+}
+function showRandom(){if(!allSongs.length)return;rndSong=allSongs[Math.floor(Math.random()*allSongs.length)];document.getElementById('rndArtist').textContent=rndSong.artist;document.getElementById('rndTitle').textContent=rndSong.title;document.getElementById('rndStars').innerHTML=stars(rndSong.level);document.getElementById('randomModal').classList.add('open');}
+function closeRandom(){document.getElementById('randomModal').classList.remove('open');}
+document.getElementById('randomModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeRandom();});
+function copyRnd(){if(rndSong)copyText(rndSong.artist,rndSong.title);}
+function copyText(artist,title){navigator.clipboard.writeText(`${artist} - ${title}`).then(()=>showToast('복사됨! ✅')).catch(()=>showToast('복사 실패 😢'));}
+function stars(n){let h='';for(let i=1;i<=5;i++)h+=`<span style="color:${i<=n?'#5BB8E8':'#D8EAF5'};letter-spacing:1px">★</span>`;return h;}
+function esc(t){const d=document.createElement('div');d.textContent=t||'';return d.innerHTML;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+loadSongs();
+</script>
+</body>
+</html>
