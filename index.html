@@ -117,23 +117,22 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 }
 /* hero-inner 제거 — hero가 직접 grid */
 
-/* 왼쪽: 이미지 — 패딩으로 여백 주고 안에서 비율 유지 */
+/* 왼쪽: 이미지 — 세로형 1:2 비율, 컬럼 안에서만 */
 .hero-visual {
   position: relative;
-  display: flex; align-items: center; justify-content: flex-start;
-  padding: 32px 0 32px 0;
-  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px 24px 32px 0;
+  overflow: hidden;
 }
 .hero-visual img {
   display: block;
-  /* 높이: 히어로 영역의 90%, 좌우: 아래 섹션 wrapper 끝선과 맞도록 자동 */
-  height: calc((100vh - 60px) * 0.90);
-  max-height: 680px;
-  width: auto;
+  width: 100%;
+  aspect-ratio: 1 / 2;
   object-fit: cover; object-position: center top;
   border-radius: 20px;
   box-shadow: 0 8px 40px rgba(155,132,232,0.15);
   transition: transform 8s ease;
+  max-height: calc(100vh - 100px);
 }
 .hero-visual:hover img { transform: scale(1.02); }
 /* 이미지 우측 글로우 — 제거 (이미지가 border-radius로 분리됨) */
