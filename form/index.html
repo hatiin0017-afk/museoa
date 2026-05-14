@@ -102,7 +102,19 @@ async function loadForm() {
       return;
     }
 
-    // 폼 렌더링
+    // 세션 중복 제출 방지 — 같은 폼 ID로 이미 제출했으면 막기
+    const sessionKey = 'musea_form_submitted_' + data.id;
+    if (sessionStorage.getItem(sessionKey)) {
+      wrap.innerHTML = `
+        <div class="success-box">
+          <div style="font-size:40px;margin-bottom:12px">✅</div>
+          <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">이미 신청했어요!</div>
+          <div style="font-size:13px;color:var(--text-sub)">이미 신청이 완료된 폼이에요 ❄️</div>
+        </div>`;
+      return;
+    }
+
+    // 필드 구성
     const fields = [1,2,3,4,5].filter(n => data[`field_${n}_active`]).map(n => ({
       label: data[`field_${n}_label`] || `항목 ${n}`,
       type:  data[`field_${n}_type`]  || 'text',
@@ -110,16 +122,23 @@ async function loadForm() {
     }));
 
     let fieldsHtml = '';
+
+    // 익명허용이면 닉네임 선택, 아니면 필수
     if (data.use_nickname) {
-      fieldsHtml += `<div class="field-group"><label class="field-label">닉네임 <span style="color:#F87171">*</span></label><input class="field-input" id="f_nick" type="text" placeholder="닉네임을 입력해주세요" required></div>`;
+      const required = !data.allow_anon;
+      const reqMark = required ? '<span style="color:#F87171">*</span>' : '<span style="font-size:10px;color:var(--text-sub)">(익명 가능)</span>';
+      fieldsHtml += `<div class="field-group"><label class="field-label">닉네임 ${reqMark}</label><input class="field-input" id="f_nick" type="text" placeholder="${required ? '닉네임을 입력해주세요' : '비워두면 익명으로 제출돼요'}"></div>`;
     }
     if (data.use_contact) {
       fieldsHtml += `<div class="field-group"><label class="field-label">연락처</label><input class="field-input" id="f_contact" type="text" placeholder="연락처를 입력해주세요"></div>`;
     }
     fields.forEach(f => {
-      const tag = f.type === 'textarea' ? 'textarea' : 'input';
-      const typeAttr = tag === 'input' ? `type="${f.type}"` : '';
-      fieldsHtml += `<div class="field-group"><label class="field-label">${f.label}</label><${tag} class="field-input" id="f_${f.key}" ${typeAttr} placeholder="${f.label}을(를) 입력해주세요">${tag==='textarea'?'</'+ tag +'>':''}</div>`;
+      const isTextarea = f.type === 'textarea';
+      if (isTextarea) {
+        fieldsHtml += `<div class="field-group"><label class="field-label">${f.label}</label><textarea class="field-input" id="f_${f.key}" placeholder="${f.label}을(를) 입력해주세요"></textarea></div>`;
+      } else {
+        fieldsHtml += `<div class="field-group"><label class="field-label">${f.label}</label><input class="field-input" id="f_${f.key}" type="${f.type}" placeholder="${f.label}을(를) 입력해주세요"></div>`;
+      }
     });
 
     wrap.innerHTML = `
@@ -141,23 +160,34 @@ async function submitForm() {
   const btn = document.querySelector('.submit-btn');
   btn.disabled = true; btn.textContent = '제출 중...';
 
-  const row = { event_name: config.event_name };
-  if (config.use_nickname) row.nickname = document.getElementById('f_nick')?.value?.trim() || '';
-  if (config.use_contact)  row.contact  = document.getElementById('f_contact')?.value?.trim() || '';
+  const nickname = document.getElementById('f_nick')?.value?.trim() || '';
+
+  // 익명 불허인데 닉네임 비어있으면 막기
+  if (config.use_nickname && !config.allow_anon && !nickname) {
+    showToast('닉네임을 입력해주세요');
+    btn.disabled = false; btn.textContent = '신청하기'; return;
+  }
+
+  const row = {
+    config_id: config.id,
+    event_name: config.event_name,
+    nickname: nickname || '익명'
+  };
+  if (config.use_contact) row.contact = document.getElementById('f_contact')?.value?.trim() || '';
   [1,2,3,4,5].forEach(n => {
     if (config[`field_${n}_active`]) {
       row[`field_${n}`] = document.getElementById(`f_field_${n}`)?.value?.trim() || '';
     }
   });
 
-  if (config.use_nickname && !row.nickname) {
-    showToast('닉네임을 입력해주세요'); btn.disabled = false; btn.textContent = '신청하기'; return;
-  }
-
   const { error } = await supabaseClient.from('musea_form_submissions').insert([row]);
   if (error) {
-    showToast('제출 실패: ' + error.message); btn.disabled = false; btn.textContent = '신청하기'; return;
+    showToast('제출 실패: ' + error.message);
+    btn.disabled = false; btn.textContent = '신청하기'; return;
   }
+
+  // 세션에 제출 기록
+  sessionStorage.setItem('musea_form_submitted_' + config.id, '1');
 
   document.getElementById('formWrap').innerHTML = `
     <div class="success-box">

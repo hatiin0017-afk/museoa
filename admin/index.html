@@ -1462,7 +1462,8 @@ async function loadFormConfig(){
       const isVote=c[`field_${i}_type`]==='vote';
       let options=['',''];
       if(isVote){
-        const{data:opts}=await supabaseClient.from('musea_vote_options').select('*').eq('config_id',c.id).eq('field_index',i).order('display_order');
+        const voteQ=supabaseClient.from('musea_vote_options').select('*').eq('field_index',i).order('display_order');
+        const{data:opts}=await (c.id?voteQ.eq('config_id',c.id):voteQ);
         if(opts&&opts.length)options=opts.map(o=>o.option_text);
       }
       formFields.push({id:Date.now()+i,label:c[`field_${i}_label`],type:c[`field_${i}_type`]||'text',active:c[`field_${i}_active`]!==false,options});
@@ -1539,7 +1540,14 @@ async function loadResponses(){
     currentFormConfig=data;
   }
   const c=currentFormConfig;
-  const{data:subs}=await supabaseClient.from('musea_form_submissions').select('*').eq('config_id',currentFormId).order('created_at',{ascending:false});
+  // config_id로 먼저 시도, 실패하면 event_name으로 fallback
+  let subsQuery=supabaseClient.from('musea_form_submissions').select('*').order('created_at',{ascending:false});
+  if(currentFormId)subsQuery=subsQuery.eq('config_id',currentFormId);
+  const{data:subs,error:subsErr}=await subsQuery;
+  if(subsErr&&currentFormConfig){
+    // fallback: event_name으로
+    const{data:subs2}=await supabaseClient.from('musea_form_submissions').select('*').eq('event_name',currentFormConfig.event_name).order('created_at',{ascending:false});
+  }
   const rows=subs||[];
   document.getElementById('responseCount').textContent=`총 ${rows.length}개 응답`;
 
