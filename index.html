@@ -117,22 +117,19 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 }
 /* hero-inner 제거 — hero가 직접 grid */
 
-/* 왼쪽: 이미지 — 세로형 1:2 비율, 컬럼 안에서만 */
+/* 왼쪽: 이미지 — 컬럼 폭 꽉채움, 높이=hero-info 높이 */
 .hero-visual {
   position: relative;
-  display: flex; align-items: center; justify-content: center;
-  padding: 32px 24px 32px 0;
   overflow: hidden;
+  display: flex; align-items: stretch;
 }
 .hero-visual img {
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 2;
+  height: 100%;
   object-fit: cover; object-position: center top;
-  border-radius: 20px;
-  box-shadow: 0 8px 40px rgba(155,132,232,0.15);
+  border-radius: 0;
   transition: transform 8s ease;
-  max-height: calc(100vh - 100px);
 }
 .hero-visual:hover img { transform: scale(1.02); }
 /* 이미지 우측 글로우 — 제거 (이미지가 border-radius로 분리됨) */
@@ -154,7 +151,7 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 /* 오른쪽: 정보 */
 .hero-info {
   display: flex; flex-direction: column; justify-content: center;
-  padding: 60px 0 60px 64px;
+  padding: 48px 0 48px 64px;
   position: relative; z-index: 1;
 }
 
