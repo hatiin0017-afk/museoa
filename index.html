@@ -379,30 +379,62 @@ nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
 }
 .sec-label::after { content:''; flex:1; height:1px; background: rgba(180,200,240,.40); }
 
-.sched-list { display: flex; flex-direction: column; gap: 8px; }
-.sched {
+.sched-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.sched-card {
   background: var(--card-bg); border: 1px solid var(--card-border);
-  border-radius: 16px; padding: 14px 20px;
-  display: flex; align-items: center; gap: 16px;
+  border-radius: 16px; padding: 18px 16px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  aspect-ratio: 3 / 4;
   backdrop-filter: blur(10px);
   transition: all .25s;
   box-shadow: 0 2px 10px rgba(155,132,232,.06);
+  position: relative; overflow: hidden;
 }
-.sched:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(91,184,232,.12);
+.sched-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(91,184,232,.14);
   border-color: rgba(126,206,240,.50);
 }
-.sched.today { border-color: var(--ice-mid); background: rgba(232,247,255,.80); }
-.sched-date { text-align:center; min-width:30px; }
-.sched-d { font-family:'Outfit',sans-serif; font-size:20px; font-weight:700; line-height:1; }
-.sched-dow { font-size:10px; font-weight:700; color:var(--muted); }
-.vdiv { width:1.5px; height:26px; background:rgba(180,200,240,.50); border-radius:2px; }
-.sched.today .vdiv { background: var(--ice-mid); }
-.sched-title { font-size:14px; font-weight:600; flex:1; }
-.sched-time  { font-size:12px; color:var(--muted); margin-top:2px; }
-.today-dot { margin-left:auto; flex-shrink:0; width:8px; height:8px; border-radius:50%; background:var(--ice-mid); box-shadow:0 0 0 3px rgba(91,184,232,.25),0 0 8px rgba(91,184,232,.4); }
-.type-badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:100px; flex-shrink:0; margin-left:auto; }
+.sched-card.today {
+  border-color: var(--ice-mid);
+  background: rgba(232,247,255,.85);
+}
+.sched-card-date {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.sched-card-d {
+  font-family:'Outfit',sans-serif; font-size:32px; font-weight:700; line-height:1;
+  color: var(--dark);
+}
+.sched-card-dow {
+  font-size:11px; font-weight:700; color:var(--muted);
+}
+.sched-card-title {
+  font-size:14px; font-weight:600; color:var(--dark); line-height:1.4; flex:1;
+}
+.sched-card-time {
+  font-size:12px; color:var(--muted);
+}
+.sched-card-badge {
+  font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px;
+  align-self: flex-start;
+}
+.sched-card.today::after {
+  content:'';
+  position:absolute; top:10px; right:10px;
+  width:8px; height:8px; border-radius:50%;
+  background:var(--ice-mid);
+  box-shadow:0 0 0 3px rgba(91,184,232,.25),0 0 8px rgba(91,184,232,.4);
+}
+@media (max-width: 760px) {
+  .sched-card-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .sched-card { aspect-ratio: 3 / 4; padding: 14px 12px 12px; }
+  .sched-card-d { font-size: 24px; }
+}
 
 .overlay-list { display: flex; flex-direction: column; gap: 8px; }
 .ov-row {
@@ -596,27 +628,15 @@ footer span {
     </div>
   </div>
 
-  <!-- 일정 + 최근 곡 -->
-  <div class="data-section">
+  <!-- 앞으로 일정 — 4열 카드 -->
+  <div class="data-section fade-up">
     <div class="wrapper">
-      <div class="data-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
-        <!-- 일정 -->
-        <div class="fade-up sched-col">
-          <div class="sec-label">앞으로 일정</div>
-          <div id="sched-list" class="sched-list">
-            <div class="loading">불러오는 중...</div>
-          </div>
-          <div style="text-align:right;margin-top:12px;">
-            <a href="/schedule/" style="font-size:12px;color:var(--lav-dark);text-decoration:none;font-weight:600;">전체 보기 →</a>
-          </div>
-        </div>
-        <!-- 최근 곡 -->
-        <div class="fade-up overlay-col">
-          <div class="sec-label">최근 부른 곡</div>
-          <div id="overlay-list" class="overlay-list">
-            <div class="loading">불러오는 중...</div>
-          </div>
-        </div>
+      <div class="sec-label">앞으로 일정</div>
+      <div id="sched-list" class="sched-card-grid">
+        <div class="loading">불러오는 중...</div>
+      </div>
+      <div style="text-align:right;margin-top:14px;">
+        <a href="/schedule/" style="font-size:12px;color:var(--lav-dark);text-decoration:none;font-weight:600;">전체 보기 →</a>
       </div>
     </div>
   </div>
@@ -665,12 +685,14 @@ async function loadSchedule(){
       const isToday=s.event_date===todayStr;
       const color=s.color||TC[s.event_type]||'#5BB8E8';
       const label=TL[s.event_type]||s.event_type||'';
-      return `<div class="sched${isToday?' today':''}">
-        <div class="sched-date"><div class="sched-d">${dt.getDate()}</div><div class="sched-dow">${DOW[dt.getDay()]}</div></div>
-        <div class="vdiv"></div>
-        <div style="flex:1"><div class="sched-title">${s.title}</div>${s.event_time?`<div class="sched-time">${s.event_time.slice(0,5)}</div>`:''}</div>
-        <span class="type-badge" style="background:${color}22;color:${color}">${label}</span>
-        ${isToday?'<div class="today-dot"></div>':''}
+      return `<div class="sched-card${isToday?' today':''}">
+        <div class="sched-card-date">
+          <div class="sched-card-d">${dt.getDate()}</div>
+          <div class="sched-card-dow">${DOW[dt.getDay()]}</div>
+        </div>
+        <div class="sched-card-title">${s.title}</div>
+        ${s.event_time?`<div class="sched-card-time">${s.event_time.slice(0,5)}</div>`:''}
+        <span class="sched-card-badge" style="background:${color}22;color:${color}">${label}</span>
       </div>`;
     }).join('');
   }catch(e){el.innerHTML='<div class="empty-box">불러오지 못했어요</div>';}
@@ -690,7 +712,6 @@ async function loadOverlay(){
 }
 
 loadSchedule();
-loadOverlay();
 
 const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.08});
 document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
