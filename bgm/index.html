@@ -9,45 +9,37 @@
 
   body {
     background: transparent;
-    width: 600px;
-    height: 300px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding: 60px;
+    display: inline-flex;
     font-family: 'Noto Sans KR', sans-serif;
-    overflow: hidden;
   }
 
   .overlay {
     display: flex;
     align-items: center;
-    gap: 28px;
+    gap: 20px;
     background: rgba(255, 220, 230, 0.18);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     border: 2px solid rgba(255, 180, 200, 0.35);
     border-radius: 999px;
-    padding: 18px 48px 18px 18px;
-    min-width: 680px;
-    max-width: 1000px;
+    padding: 14px 36px 14px 14px;
+    width: 560px;
     opacity: 0;
     transition: opacity 0.5s ease;
   }
 
   .overlay.visible { opacity: 1; }
 
-  /* 프로필 이미지 */
   .album-wrap {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 90px;
+    height: 90px;
     flex-shrink: 0;
   }
 
   .album-art {
-    width: 120px;
-    height: 120px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid rgba(255, 160, 190, 0.6);
@@ -61,7 +53,7 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 20px; height: 20px;
+    width: 16px; height: 16px;
     border-radius: 50%;
     background: rgba(30, 10, 20, 0.85);
     pointer-events: none;
@@ -72,20 +64,19 @@
     to   { transform: rotate(360deg); }
   }
 
-  /* 텍스트 영역 */
   .info {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
   }
 
   .live-label {
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
     color: rgba(255, 180, 200, 0.85);
     text-transform: uppercase;
   }
@@ -96,7 +87,7 @@
   }
 
   .track-name {
-    font-size: 30px;
+    font-size: 22px;
     font-weight: 700;
     color: #fff;
     display: inline-block;
@@ -114,7 +105,7 @@
   }
 
   .artist-name {
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 400;
     color: rgba(255, 210, 220, 0.75);
     white-space: nowrap;
