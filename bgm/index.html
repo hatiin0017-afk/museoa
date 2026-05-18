@@ -9,12 +9,12 @@
 
   body {
     background: transparent;
-    width: 100vw;
-    height: 100vh;
+    width: 1920px;
+    height: 1080px;
     display: flex;
     align-items: flex-end;
     justify-content: flex-end;
-    padding: 28px;
+    padding: 60px;
     font-family: 'Noto Sans KR', sans-serif;
     overflow: hidden;
   }
@@ -22,15 +22,15 @@
   .overlay {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 28px;
     background: rgba(255, 220, 230, 0.18);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 180, 200, 0.35);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 2px solid rgba(255, 180, 200, 0.35);
     border-radius: 999px;
-    padding: 8px 20px 8px 8px;
-    min-width: 300px;
-    max-width: 480px;
+    padding: 18px 48px 18px 18px;
+    min-width: 680px;
+    max-width: 1000px;
     opacity: 0;
     transition: opacity 0.5s ease;
   }
@@ -40,17 +40,17 @@
   /* 프로필 이미지 */
   .album-wrap {
     position: relative;
-    width: 54px;
-    height: 54px;
+    width: 120px;
+    height: 120px;
     flex-shrink: 0;
   }
 
   .album-art {
-    width: 54px;
-    height: 54px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid rgba(255, 160, 190, 0.6);
+    border: 3px solid rgba(255, 160, 190, 0.6);
     animation: spin 10s linear infinite;
     animation-play-state: paused;
   }
@@ -61,7 +61,7 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 9px; height: 9px;
+    width: 20px; height: 20px;
     border-radius: 50%;
     background: rgba(30, 10, 20, 0.85);
     pointer-events: none;
@@ -78,30 +78,30 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 8px;
     min-width: 0;
   }
 
   .live-label {
-    font-size: 8px;
+    font-size: 18px;
     font-weight: 700;
-    letter-spacing: 2.5px;
-    color: rgba(255, 180, 200, 0.8);
+    letter-spacing: 4px;
+    color: rgba(255, 180, 200, 0.85);
     text-transform: uppercase;
   }
 
-  /* 제목 마퀴 */
   .track-wrap {
     overflow: hidden;
     white-space: nowrap;
   }
 
   .track-name {
-    font-size: 13px;
+    font-size: 30px;
     font-weight: 700;
     color: #fff;
     display: inline-block;
     white-space: nowrap;
+    text-shadow: 0 2px 12px rgba(255, 120, 160, 0.3);
   }
 
   .track-name.scrolling {
@@ -110,57 +110,16 @@
 
   @keyframes marquee {
     0%,15%   { transform: translateX(0); }
-    75%,100% { transform: translateX(var(--md, -40px)); }
-  }
-
-  /* 아티스트 + 이퀄라이저 한 줄 */
-  .bottom-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    75%,100% { transform: translateX(var(--md, -100px)); }
   }
 
   .artist-name {
-    font-size: 10px;
-    color: rgba(255, 210, 220, 0.7);
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255, 210, 220, 0.75);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 160px;
-  }
-
-  /* 이퀄라이저 */
-  .eq {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 14px;
-    flex-shrink: 0;
-  }
-
-  .eq-b {
-    width: 2px;
-    background: rgba(255, 160, 190, 0.85);
-    border-radius: 2px;
-    transform-origin: bottom;
-    animation: eq var(--d) ease-in-out infinite alternate;
-    animation-play-state: paused;
-    transform: scaleY(0.15);
-  }
-
-  .eq-b.playing { animation-play-state: running; }
-
-  .eq-b:nth-child(1){--d:.42s;height:40%}
-  .eq-b:nth-child(2){--d:.61s;height:90%}
-  .eq-b:nth-child(3){--d:.33s;height:60%}
-  .eq-b:nth-child(4){--d:.72s;height:100%}
-  .eq-b:nth-child(5){--d:.48s;height:50%}
-  .eq-b:nth-child(6){--d:.57s;height:80%}
-  .eq-b:nth-child(7){--d:.39s;height:65%}
-
-  @keyframes eq {
-    from { transform: scaleY(0.15); }
-    to   { transform: scaleY(1); }
   }
 </style>
 </head>
@@ -168,7 +127,6 @@
 
 <div class="overlay" id="overlay">
   <div class="album-wrap">
-    <!-- assets/profile.jpg 경로 -->
     <img class="album-art" id="albumArt" src="../assets/profile.jpg" alt="">
     <div class="album-hole"></div>
   </div>
@@ -177,18 +135,7 @@
     <div class="track-wrap">
       <span class="track-name" id="trackName">–</span>
     </div>
-    <div class="bottom-row">
-      <span class="artist-name" id="artistName">–</span>
-      <div class="eq">
-        <div class="eq-b"></div>
-        <div class="eq-b"></div>
-        <div class="eq-b"></div>
-        <div class="eq-b"></div>
-        <div class="eq-b"></div>
-        <div class="eq-b"></div>
-        <div class="eq-b"></div>
-      </div>
-    </div>
+    <span class="artist-name" id="artistName">–</span>
   </div>
 </div>
 
@@ -200,11 +147,9 @@ const overlay    = document.getElementById('overlay');
 const albumArt   = document.getElementById('albumArt');
 const trackName  = document.getElementById('trackName');
 const artistName = document.getElementById('artistName');
-const eqBars     = document.querySelectorAll('.eq-b');
 
 function setPlaying(on) {
   albumArt.classList.toggle('playing', on);
-  eqBars.forEach(b => b.classList.toggle('playing', on));
 }
 
 function updateTrack(title, artist) {
@@ -212,14 +157,13 @@ function updateTrack(title, artist) {
   trackName.textContent  = title  || '–';
   artistName.textContent = artist || '–';
 
-  // 제목 길면 마퀴 스크롤
   const el = trackName;
   el.classList.remove('scrolling');
   void el.offsetWidth;
   requestAnimationFrame(() => {
     const pw = el.parentElement.clientWidth;
     if (el.scrollWidth > pw + 4) {
-      el.style.setProperty('--md', `-${el.scrollWidth - pw + 8}px`);
+      el.style.setProperty('--md', `-${el.scrollWidth - pw + 16}px`);
       el.classList.add('scrolling');
     }
   });
