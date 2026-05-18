@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 28px;
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow: hidden;
+  }
+
+  .overlay {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(8, 8, 16, 0.58);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    padding: 8px 20px 8px 8px;
+    min-width: 300px;
+    max-width: 460px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .overlay.visible { opacity: 1; }
+
+  .album-wrap {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+  }
+
+  .album-art {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(255,255,255,0.18);
+    animation: spin 10s linear infinite;
+    animation-play-state: paused;
+  }
+
+  .album-art.playing { animation-play-state: running; }
+
+  .album-hole {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: rgba(8,8,16,0.9);
+    pointer-events: none;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .info {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .live-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+  }
+
+  .track-wrap { overflow: hidden; white-space: nowrap; }
+
+  .track-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .track-name.scrolling {
+    animation: marquee 10s linear infinite;
+  }
+
+  @keyframes marquee {
+    0%,20%   { transform: translateX(0); }
+    80%,100% { transform: translateX(var(--md, -40px)); }
+  }
+
+  .artist-name {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 2.5px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .eq-b {
+    width: 2.5px;
+    background: rgba(255,255,255,0.75);
+    border-radius: 2px;
+    transform-origin: bottom;
+    animation: eq var(--d) ease-in-out infinite alternate;
+    animation-play-state: paused;
+    transform: scaleY(0.15);
+  }
+
+  .eq-b.playing { animation-play-state: running; }
+
+  .eq-b:nth-child(1){--d:.42s;height:35%}
+  .eq-b:nth-child(2){--d:.61s;height:85%}
+  .eq-b:nth-child(3){--d:.33s;height:55%}
+  .eq-b:nth-child(4){--d:.72s;height:95%}
+  .eq-b:nth-child(5){--d:.48s;height:45%}
+  .eq-b:nth-child(6){--d:.57s;height:75%}
+  .eq-b:nth-child(7){--d:.39s;height:60%}
+
+  @keyframes eq {
+    from { transform: scaleY(0.15); }
+    to   { transform: scaleY(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay">
+  <div class="album-wrap">
+    <img class="album-art" id="albumArt" src="" alt="">
+    <div class="album-hole"></div>
+  </div>
+  <div class="info">
+    <span class="live-label">Live BGM</span>
+    <div class="track-wrap">
+      <span class="track-name" id="trackName">–</span>
+    </div>
+    <span class="artist-name" id="artistName">–</span>
+  </div>
+  <div class="eq">
+    <div class="eq-b" id="eq0"></div>
+    <div class="eq-b" id="eq1"></div>
+    <div class="eq-b" id="eq2"></div>
+    <div class="eq-b" id="eq3"></div>
+    <div class="eq-b" id="eq4"></div>
+    <div class="eq-b" id="eq5"></div>
+    <div class="eq-b" id="eq6"></div>
+  </div>
+</div>
+
+<script>
+// ↓ MOS 오버레이 URL의 마지막 토큰 부분만 입력
+const MOS_TOKEN = '9c63974e5e0874eb3c2f4bb3fabcec99';
+
+const overlay    = document.getElementById('overlay');
+const albumArt   = document.getElementById('albumArt');
+const trackName  = document.getElementById('trackName');
+const artistName = document.getElementById('artistName');
+const eqBars     = Array.from({length:7}, (_,i) => document.getElementById('eq'+i));
+
+const DEFAULT_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52'%3E%3Crect width='52' height='52' rx='26' fill='%23222'/%3E%3Ccircle cx='26' cy='26' r='9' fill='%23444'/%3E%3Ccircle cx='26' cy='26' r='3' fill='%23666'/%3E%3C/svg%3E";
+albumArt.src = DEFAULT_IMG;
+
+function setPlaying(on) {
+  albumArt.classList.toggle('playing', on);
+  eqBars.forEach(b => b.classList.toggle('playing', on));
+}
+
+function updateTrack(title, artist, cover) {
+  overlay.classList.add('visible');
+  trackName.textContent  = title  || '–';
+  artistName.textContent = artist || '–';
+
+  if (cover && cover !== albumArt.src) albumArt.src = cover;
+  else if (!cover) albumArt.src = DEFAULT_IMG;
+
+  // 긴 제목 마퀴 처리
+  const el = trackName;
+  el.classList.remove('scrolling');
+  void el.offsetWidth;
+  requestAnimationFrame(() => {
+    const pw = el.parentElement.clientWidth;
+    if (el.scrollWidth > pw + 4) {
+      el.style.setProperty('--md', `-${el.scrollWidth - pw + 8}px`);
+      el.classList.add('scrolling');
+    }
+  });
+}
+
+// MOS 소켓 직접 연결
+const socket = io('https://music.omegadev.xyz', {
+  auth: { publicToken: MOS_TOKEN }
+});
+
+socket.on('connect', () => console.log('MOS 소켓 연결됨'));
+
+socket.on('update', (instance) => {
+  const state    = instance.scannerState;
+  const isPlaying = state?.isPlaying !== false && !!state?.title;
+
+  updateTrack(
+    state?.title    || '',
+    state?.artist   || state?.subtitle || '',
+    state?.cover    || ''
+  );
+  setPlaying(isPlaying);
+});
+
+socket.on('disconnect', () => setPlaying(false));
+</script>
+</body>
+</html>
