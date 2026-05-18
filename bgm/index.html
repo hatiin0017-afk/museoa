@@ -164,25 +164,26 @@
     <span class="artist-name" id="artistName">–</span>
   </div>
   <div class="eq">
-    <div class="eq-b" id="eq0"></div>
-    <div class="eq-b" id="eq1"></div>
-    <div class="eq-b" id="eq2"></div>
-    <div class="eq-b" id="eq3"></div>
-    <div class="eq-b" id="eq4"></div>
-    <div class="eq-b" id="eq5"></div>
-    <div class="eq-b" id="eq6"></div>
+    <div class="eq-b"></div>
+    <div class="eq-b"></div>
+    <div class="eq-b"></div>
+    <div class="eq-b"></div>
+    <div class="eq-b"></div>
+    <div class="eq-b"></div>
+    <div class="eq-b"></div>
   </div>
 </div>
 
 <script>
-// ↓ MOS 오버레이 URL의 마지막 토큰 부분만 입력
-const MOS_TOKEN = '9c63974e5e0874eb3c2f4bb3fabcec99';
+// ↓ 두 개만 수정하면 됨
+const WORKER_URL = 'https://museoa.hatiin0017.workers.dev'; //워커
+const MOS_TOKEN  = '9c63974e5e0874eb3c2f4bb3fabcec99';  //토큰
 
 const overlay    = document.getElementById('overlay');
 const albumArt   = document.getElementById('albumArt');
 const trackName  = document.getElementById('trackName');
 const artistName = document.getElementById('artistName');
-const eqBars     = Array.from({length:7}, (_,i) => document.getElementById('eq'+i));
+const eqBars     = document.querySelectorAll('.eq-b');
 
 const DEFAULT_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52'%3E%3Crect width='52' height='52' rx='26' fill='%23222'/%3E%3Ccircle cx='26' cy='26' r='9' fill='%23444'/%3E%3Ccircle cx='26' cy='26' r='3' fill='%23666'/%3E%3C/svg%3E";
 albumArt.src = DEFAULT_IMG;
@@ -196,11 +197,8 @@ function updateTrack(title, artist, cover) {
   overlay.classList.add('visible');
   trackName.textContent  = title  || '–';
   artistName.textContent = artist || '–';
+  albumArt.src = cover || DEFAULT_IMG;
 
-  if (cover && cover !== albumArt.src) albumArt.src = cover;
-  else if (!cover) albumArt.src = DEFAULT_IMG;
-
-  // 긴 제목 마퀴 처리
   const el = trackName;
   el.classList.remove('scrolling');
   void el.offsetWidth;
@@ -213,26 +211,27 @@ function updateTrack(title, artist, cover) {
   });
 }
 
-// MOS 소켓 직접 연결
-const socket = io('https://music.omegadev.xyz', {
-  auth: { publicToken: MOS_TOKEN }
+const socket = io(WORKER_URL, {
+  auth: { publicToken: MOS_TOKEN },
+  transports: ['websocket', 'polling']
 });
 
-socket.on('connect', () => console.log('MOS 소켓 연결됨'));
+socket.on('connect', () => console.log('연결됨'));
 
 socket.on('update', (instance) => {
-  const state    = instance.scannerState;
-  const isPlaying = state?.isPlaying !== false && !!state?.title;
-
+  console.log('update:', instance);
+  const state = instance.scannerState;
+  const playing = !!state?.title;
   updateTrack(
-    state?.title    || '',
-    state?.artist   || state?.subtitle || '',
-    state?.cover    || ''
+    state?.title  || '',
+    state?.artist || state?.subtitle || '',
+    state?.cover  || ''
   );
-  setPlaying(isPlaying);
+  setPlaying(playing);
 });
 
 socket.on('disconnect', () => setPlaying(false));
+socket.on('connect_error', (e) => console.error('연결 에러:', e.message));
 </script>
 </body>
 </html>
