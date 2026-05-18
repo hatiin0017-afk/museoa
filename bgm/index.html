@@ -2,60 +2,74 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
+  html, body {
     background: transparent;
+    overflow: hidden;
     display: inline-flex;
-    font-family: 'Noto Sans KR', sans-serif;
   }
 
-  .overlay {
-    display: flex;
+  /* ==========================================
+     테마 커스텀 영역
+  ========================================== */
+  .bar {
+    display: inline-flex;
     align-items: center;
-    gap: 20px;
+    height: 100px;
+    border-radius: 50px;
+    /* 배경 & 테두리 */
     background: rgba(255, 220, 230, 0.18);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     border: 2px solid rgba(255, 180, 200, 0.35);
-    border-radius: 999px;
-    padding: 14px 36px 14px 14px;
-    width: 560px;
+    padding: 0 28px 0 6px;
+    gap: 0;
+    /* 길이 자동 조정 */
+    transition: width 0.4s ease;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease, width 0.4s ease;
+    min-width: 160px;
+    max-width: 560px;
   }
 
-  .overlay.visible { opacity: 1; }
+  .bar.visible { opacity: 1; }
 
-  .album-wrap {
+  .profile-wrap {
     position: relative;
-    width: 90px;
-    height: 90px;
     flex-shrink: 0;
+    z-index: 2;
   }
 
-  .album-art {
-    width: 90px;
-    height: 90px;
+  .profile-bg {
+    width: 86px; height: 86px;
     border-radius: 50%;
-    object-fit: cover;
+    overflow: hidden;
+    flex-shrink: 0;
+    /* 프로필 테두리 */
     border: 3px solid rgba(255, 160, 190, 0.6);
     animation: spin 10s linear infinite;
     animation-play-state: paused;
   }
 
-  .album-art.playing { animation-play-state: running; }
+  .profile-bg.playing { animation-play-state: running; }
 
-  .album-hole {
+  .profile-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  /* 가운데 구멍 */
+  .profile-hole {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     width: 16px; height: 16px;
     border-radius: 50%;
-    background: rgba(30, 10, 20, 0.85);
+    background: rgba(20, 8, 14, 0.85);
     pointer-events: none;
   }
 
@@ -64,100 +78,131 @@
     to   { transform: rotate(360deg); }
   }
 
-  .info {
-    flex: 1;
+  .song-info {
     overflow: hidden;
+    padding: 0 14px;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 0;
+    justify-content: center;
+    gap: 4px;
   }
 
   .live-label {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 3px;
+    /* LIVE BGM 색상 */
     color: rgba(255, 180, 200, 0.85);
     text-transform: uppercase;
   }
 
-  .track-wrap {
-    overflow: hidden;
+  .song-title-wrap {
     white-space: nowrap;
+    overflow: hidden;
   }
 
-  .track-name {
+  .song-title-text {
+    display: inline-block;
+    font-family: 'Noto Sans KR', sans-serif;
     font-size: 22px;
     font-weight: 700;
+    /* 곡명 색상 */
     color: #fff;
-    display: inline-block;
     white-space: nowrap;
-    text-shadow: 0 2px 12px rgba(255, 120, 160, 0.3);
   }
 
-  .track-name.scrolling {
-    animation: marquee 12s linear infinite;
-  }
-
-  @keyframes marquee {
-    0%,15%   { transform: translateX(0); }
-    75%,100% { transform: translateX(var(--md, -100px)); }
-  }
-
-  .artist-name {
-    font-size: 15px;
-    font-weight: 400;
+  .song-artist {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    /* 아티스트명 색상 */
     color: rgba(255, 210, 220, 0.75);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* ==========================================
+     테마 커스텀 영역 끝
+  ========================================== */
+
+  @keyframes rolling {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(var(--roll-dist)); }
+  }
 </style>
 </head>
 <body>
 
-<div class="overlay" id="overlay">
-  <div class="album-wrap">
-    <img class="album-art" id="albumArt" src="../assets/profile.jpg" alt="">
-    <div class="album-hole"></div>
-  </div>
-  <div class="info">
-    <span class="live-label">Live BGM</span>
-    <div class="track-wrap">
-      <span class="track-name" id="trackName">–</span>
+<div class="bar" id="bar">
+  <div class="profile-wrap">
+    <div class="profile-bg" id="profileBg">
+      <!-- 이미지: assets/bgm.jpg -->
+      <img src="../assets/bgm.jpg" alt="" onerror="this.style.display='none'">
     </div>
-    <span class="artist-name" id="artistName">–</span>
+    <div class="profile-hole"></div>
+  </div>
+  <div class="song-info">
+    <span class="live-label">Live BGM</span>
+    <div class="song-title-wrap" id="titleWrap">
+      <span class="song-title-text" id="titleText">–</span>
+    </div>
+    <div class="song-artist" id="artistText">–</div>
   </div>
 </div>
 
 <script>
+// ==========================================
+// 여기만 수정
 const WORKER_URL = 'https://mos-proxy.hatiin0017.workers.dev';
 const MOS_TOKEN  = '9c63974e5e0874eb3c2f4bb3fabcec99';
+// ==========================================
 
-const overlay    = document.getElementById('overlay');
-const albumArt   = document.getElementById('albumArt');
-const trackName  = document.getElementById('trackName');
-const artistName = document.getElementById('artistName');
+const bar       = document.getElementById('bar');
+const profileBg = document.getElementById('profileBg');
+const titleText = document.getElementById('titleText');
+const titleWrap = document.getElementById('titleWrap');
+const artistText= document.getElementById('artistText');
+
+let rollingAnim = null;
+
+function applyRolling(el, container) {
+  // 기존 애니메이션 초기화
+  el.style.animation = 'none';
+  el.style.transform = 'translateX(0)';
+  el.innerHTML = el.textContent;
+  rollingAnim = null;
+
+  requestAnimationFrame(() => {
+    const overflow = el.scrollWidth - container.clientWidth;
+    if (overflow > 0) {
+      const gap = 60;
+      const totalDist = el.scrollWidth + gap;
+      const duration = totalDist / 70; // 속도 조절 (숫자 낮을수록 빠름)
+      const txt = el.textContent;
+      el.style.setProperty('--roll-dist', `-${totalDist}px`);
+      el.innerHTML = `<span>${txt}</span><span style="padding-left:${gap}px">${txt}</span>`;
+      el.style.animation = `rolling ${duration}s linear infinite`;
+      rollingAnim = true;
+    }
+  });
+}
 
 function setPlaying(on) {
-  albumArt.classList.toggle('playing', on);
+  profileBg.classList.toggle('playing', on);
 }
 
 function updateTrack(title, artist) {
-  overlay.classList.add('visible');
-  trackName.textContent  = title  || '–';
-  artistName.textContent = artist || '–';
+  bar.classList.add('visible');
 
-  const el = trackName;
-  el.classList.remove('scrolling');
-  void el.offsetWidth;
-  requestAnimationFrame(() => {
-    const pw = el.parentElement.clientWidth;
-    if (el.scrollWidth > pw + 4) {
-      el.style.setProperty('--md', `-${el.scrollWidth - pw + 16}px`);
-      el.classList.add('scrolling');
-    }
-  });
+  // 롤링 초기화 후 텍스트 세팅
+  titleText.style.animation = 'none';
+  titleText.style.transform = 'translateX(0)';
+  titleText.textContent = title || '–';
+  artistText.textContent = artist || '–';
+
+  applyRolling(titleText, titleWrap);
 }
 
 const socket = io(WORKER_URL, {
@@ -165,20 +210,16 @@ const socket = io(WORKER_URL, {
   transports: ['polling']
 });
 
-socket.on('connect', () => console.log('연결됨'));
-
 socket.on('update', (instance) => {
   const state = instance.scannerState;
-  const playing = !!state?.title;
   updateTrack(
     state?.title  || '',
     state?.artist || state?.subtitle || ''
   );
-  setPlaying(playing);
+  setPlaying(!!state?.title);
 });
 
 socket.on('disconnect', () => setPlaying(false));
-socket.on('connect_error', (e) => console.error('연결 에러:', e.message));
 </script>
 </body>
 </html>
