@@ -213,7 +213,7 @@ function updateTrack(title, artist, cover) {
 
 const socket = io(WORKER_URL, {
   auth: { publicToken: MOS_TOKEN },
-  transports: ['websocket', 'polling']
+  transports: ['polling']
 });
 
 socket.on('connect', () => console.log('연결됨'));
