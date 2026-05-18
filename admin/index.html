@@ -111,6 +111,13 @@ tbody td.col-action{white-space:nowrap;text-align:right;}
 /* UPBO ASSIGN */
 .member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:16px;}
 .member-card-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px;cursor:pointer;transition:all .2s;text-align:left;}
+.memo-panel{margin-top:16px;padding:16px;background:rgba(255,255,200,0.12);border:1.5px solid rgba(234,179,8,.25);border-radius:14px;}
+.memo-panel-title{font-size:11px;font-weight:700;letter-spacing:1px;color:#92400E;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.memo-textarea{width:100%;min-height:100px;padding:10px 12px;border-radius:10px;border:1.5px solid rgba(234,179,8,.25);background:rgba(255,255,240,0.6);font-family:inherit;font-size:13px;color:var(--text);resize:vertical;outline:none;line-height:1.6;transition:border-color .2s;}
+.memo-textarea:focus{border-color:rgba(234,179,8,.5);}
+.memo-save-btn{margin-top:8px;padding:7px 16px;border-radius:10px;background:rgba(234,179,8,.15);border:1.5px solid rgba(234,179,8,.35);color:#92400E;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;}
+.memo-save-btn:hover{background:rgba(234,179,8,.25);}
+.memo-updated{font-size:11px;color:var(--text-mut);margin-left:auto;}
 .member-card-btn:hover{border-color:var(--lav);transform:translateY(-1px);box-shadow:0 4px 12px rgba(91,184,232,.14);}
 .member-card-btn.selected{border-color:var(--lav-dk);background:var(--lav-lt);box-shadow:0 0 0 2px var(--lav-dk);}
 .mc-nick{font-size:13px;font-weight:700;}
@@ -343,6 +350,15 @@ tbody td.col-action{white-space:nowrap;text-align:right;}
           </div>
         </div>
         <div class="task-grid" id="taskGrid"></div>
+        <!-- 어드민 메모 -->
+        <div class="memo-panel">
+          <div class="memo-panel-title">
+            📝 어드민 메모 <span style="font-size:10px;color:var(--text-mut);font-weight:400;">(공개 안됨)</span>
+            <span class="memo-updated" id="memoUpdated"></span>
+          </div>
+          <textarea class="memo-textarea" id="memberMemoText" placeholder="이 시청자에 대한 메모를 자유롭게 작성하세요..."></textarea>
+          <button class="memo-save-btn" onclick="saveMemo()">💾 메모 저장</button>
+        </div>
         <!-- 코인 -->
         <div class="coin-row">
           <span class="coin-label">Coin</span>
@@ -1178,6 +1194,7 @@ async function selectMember(id){
   }));
   document.getElementById('assignTaskArea').style.display='block';
   await loadMemberTasks();
+  await loadMemo();
 }
 
 function adjustCoinPending(delta){
@@ -1186,6 +1203,33 @@ function adjustCoinPending(delta){
   const el=document.getElementById('coinPending');
   el.textContent=(coinPending>=0?'+':'')+coinPending;
   el.style.color=coinPending>0?'var(--green-dk)':coinPending<0?'var(--red-dk)':'var(--text-mut)';
+}
+
+async function loadMemo(){
+  const el=document.getElementById('memberMemoText');
+  const upd=document.getElementById('memoUpdated');
+  if(!el)return;
+  el.value=''; upd.textContent='';
+  try{
+    const{data}=await supabaseClient.from('musea_upbo_member_memos').select('*').eq('member_id',selMemberId).single();
+    if(data){
+      el.value=data.content||'';
+      if(data.updated_at){
+        const d=new Date(data.updated_at);
+        upd.textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 저장`;
+      }
+    }
+  }catch(e){}
+}
+
+async function saveMemo(){
+  if(!selMemberId){toast('시청자를 먼저 선택해주세요');return;}
+  const content=document.getElementById('memberMemoText').value;
+  const{error}=await supabaseClient.from('musea_upbo_member_memos').upsert({member_id:selMemberId,content,updated_at:new Date().toISOString()},{onConflict:'member_id'});
+  if(error){toast('메모 저장 실패: '+error.message);return;}
+  const d=new Date();
+  document.getElementById('memoUpdated').textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 저장`;
+  toast('📝 메모 저장!');
 }
 
 async function loadMemberTasks(){
