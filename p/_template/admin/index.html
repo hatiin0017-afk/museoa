@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>뮤서아 관리자</title>
+<title>{{NAME}} 관리자</title>
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -175,7 +175,7 @@ tbody td.col-action{white-space:nowrap;text-align:right;}
 <!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">뮤서아 ❄️</div>
+    <div class="login-logo">{{NAME}} ❄️</div>
     <div class="login-sub">관리자 페이지</div>
     <label style="display:block;font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:5px;">이메일</label>
     <input class="fi" type="email" id="loginEmail" placeholder="admin@example.com">
@@ -189,7 +189,7 @@ tbody td.col-action{white-space:nowrap;text-align:right;}
 <!-- ADMIN -->
 <div id="adminScreen">
   <div class="admin-header">
-    <div class="admin-logo">뮤서아 관리자 ❄️</div>
+    <div class="admin-logo">{{NAME}} 관리자 ❄️</div>
     <div style="display:flex;align-items:center;gap:10px;">
       <span style="font-size:11px;color:var(--text-sub);" id="adminEmail"></span>
       <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
@@ -624,7 +624,7 @@ async function loadSchedules(){
   const[y,mo]=m.split('-');
   const last=new Date(parseInt(y),parseInt(mo),0).getDate();
   const s=`${y}-${mo}-01`,e=`${y}-${mo}-${String(last).padStart(2,'0')}`;
-  const{data}=await supabaseClient.from('musea_schedules').select('*').gte('event_date',s).lte('event_date',e).order('event_date').order('event_time');
+  const{data}=await supabaseClient.from('{{PREFIX}}_schedules').select('*').gte('event_date',s).lte('event_date',e).order('event_date').order('event_time');
   scheduleData=data||[];renderScheduleTable();
 }
 
@@ -650,7 +650,7 @@ function renderScheduleTable(){
 async function addSchedule(){
   const date=document.getElementById('sDate').value,title=document.getElementById('sTitle').value.trim();
   if(!date||!title){toast('날짜와 제목을 입력해주세요');return;}
-  const{error}=await supabaseClient.from('musea_schedules').insert([{
+  const{error}=await supabaseClient.from('{{PREFIX}}_schedules').insert([{
     event_date:date,event_time:document.getElementById('sTime').value||null,
     event_type:document.getElementById('sType').value,title,
     description:document.getElementById('sDesc').value.trim()||null,
@@ -666,7 +666,7 @@ async function addSchedule(){
 
 async function delSchedule(id){
   if(!confirm('삭제할까요?'))return;
-  await supabaseClient.from('musea_schedules').delete().eq('id',id);
+  await supabaseClient.from('{{PREFIX}}_schedules').delete().eq('id',id);
   toast('🗑️ 삭제됨');loadSchedules();
 }
 
@@ -686,7 +686,7 @@ function editSchedule(id){
 }
 
 async function saveScheduleEdit(id){
-  const{error}=await supabaseClient.from('musea_schedules').update({
+  const{error}=await supabaseClient.from('{{PREFIX}}_schedules').update({
     event_date:document.getElementById('eDate').value,
     event_time:document.getElementById('eTime').value||null,
     event_type:document.getElementById('eType').value,
@@ -724,7 +724,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 async function loadSongs(){
-  const q=supabaseClient.from('musea_songs').select('*');
+  const q=supabaseClient.from('{{PREFIX}}_songs').select('*');
   const{data}=curSongGenre==='all'?await q:await q.eq('genre',curSongGenre);
   allSongs=(data||[]).sort((a,b)=>sortKoEn(a.title,b.title));
   renderSongTable(allSongs);
@@ -758,7 +758,7 @@ function filterSongs(){
 }
 
 async function toggleSig(id,val){
-  const{error}=await supabaseClient.from('musea_songs').update({is_signature:val}).eq('id',id);
+  const{error}=await supabaseClient.from('{{PREFIX}}_songs').update({is_signature:val}).eq('id',id);
   if(error){toast('실패: '+error.message);loadSongs();return;}
   toast(val?'🎀 시그니처 설정':'시그니처 해제');
   const song=allSongs.find(s=>s.id===id);if(song)song.is_signature=val;
@@ -767,7 +767,7 @@ async function toggleSig(id,val){
 async function addSong(){
   const artist=document.getElementById('songArtist').value.trim(),title=document.getElementById('songTitle').value.trim();
   if(!artist||!title){toast('아티스트와 제목을 입력해주세요');return;}
-  const{error}=await supabaseClient.from('musea_songs').insert([{
+  const{error}=await supabaseClient.from('{{PREFIX}}_songs').insert([{
     genre:document.getElementById('songGenre').value,artist,title,
     level:parseInt(document.getElementById('songLevel').value)||0,
     memo:document.getElementById('songMemo').value.trim()||null,
@@ -784,7 +784,7 @@ async function addSong(){
 
 async function delSong(id){
   if(!confirm('삭제할까요?'))return;
-  await supabaseClient.from('musea_songs').delete().eq('id',id);
+  await supabaseClient.from('{{PREFIX}}_songs').delete().eq('id',id);
   toast('🗑️ 삭제됨');loadSongs();
 }
 
@@ -812,7 +812,7 @@ function editSong(id){
 }
 
 async function saveSongEdit(id){
-  const{error}=await supabaseClient.from('musea_songs').update({
+  const{error}=await supabaseClient.from('{{PREFIX}}_songs').update({
     genre:document.getElementById('eGenre').value,
     artist:document.getElementById('eArtist').value.trim(),
     title:document.getElementById('eTitle2').value.trim(),
@@ -826,17 +826,17 @@ async function saveSongEdit(id){
 
 // ── OVERLAY (노래책 탭에서 처리) ──
 async function publishOverlay(title,artist){
-  await supabaseClient.from('musea_recent_overlays').insert([{song_title:title,song_artist:artist}]);
-  const{data:all}=await supabaseClient.from('musea_recent_overlays').select('id').order('played_at',{ascending:false});
+  await supabaseClient.from('{{PREFIX}}_recent_overlays').insert([{song_title:title,song_artist:artist}]);
+  const{data:all}=await supabaseClient.from('{{PREFIX}}_recent_overlays').select('id').order('played_at',{ascending:false});
   if(all&&all.length>5){
-    await supabaseClient.from('musea_recent_overlays').delete().in('id',all.slice(5).map(r=>r.id));
+    await supabaseClient.from('{{PREFIX}}_recent_overlays').delete().in('id',all.slice(5).map(r=>r.id));
   }
   toast(`🎤 오버레이: ${title}`);
   loadOvBar();
 }
 
 async function loadOvBar(){
-  const{data}=await supabaseClient.from('musea_recent_overlays').select('*').order('played_at',{ascending:false}).limit(1);
+  const{data}=await supabaseClient.from('{{PREFIX}}_recent_overlays').select('*').order('played_at',{ascending:false}).limit(1);
   if(!data||!data.length){
     document.getElementById('ovBarTitle').textContent='—';
     document.getElementById('ovBarArtist').textContent='';
@@ -850,7 +850,7 @@ async function loadOvBar(){
 async function toggleOvVisible(checked){
   const statusEl=document.getElementById('ovBarStatus');
   try{
-    const{error}=await supabaseClient.from('musea_overlay_state').upsert({id:1,is_visible:checked});
+    const{error}=await supabaseClient.from('{{PREFIX}}_overlay_state').upsert({id:1,is_visible:checked});
     if(error){toast('실패: '+error.message);console.error(error);return;}
     statusEl.textContent=checked?'표시중':'숨김';
     statusEl.style.background=checked?'#DCFCE7':'#F3F4F6';
@@ -862,7 +862,7 @@ async function toggleOvVisible(checked){
 async function loadOvState(){
   await loadOvBar();
   try{
-    const{data,error}=await supabaseClient.from('musea_overlay_state').select('*').eq('id',1).single();
+    const{data,error}=await supabaseClient.from('{{PREFIX}}_overlay_state').select('*').eq('id',1).single();
     const visible=(error||!data)?true:data.is_visible!==false;
     const tog=document.getElementById('ovVisibleToggle');
     const statusEl=document.getElementById('ovBarStatus');
@@ -886,7 +886,7 @@ function copyOvUrl(){
 let taskTypes=[],allMembers=[],selMemberId=null,memberTaskState={},coinPending=0;
 
 async function loadTaskTypes(){
-  const{data}=await supabaseClient.from('musea_upbo_task_types').select('*').order('sort_order').order('id');
+  const{data}=await supabaseClient.from('{{PREFIX}}_upbo_task_types').select('*').order('sort_order').order('id');
   taskTypes=data||[];renderTypeList();
 }
 
@@ -955,7 +955,7 @@ async function saveTypeOrder(){
   const updates=items.map((el,i)=>({id:parseInt(el.dataset.id),sort_order:i}));
   // 순서 업데이트
   await Promise.all(updates.map(u=>
-    supabaseClient.from('musea_upbo_task_types').update({sort_order:u.sort_order}).eq('id',u.id)
+    supabaseClient.from('{{PREFIX}}_upbo_task_types').update({sort_order:u.sort_order}).eq('id',u.id)
   ));
   // taskTypes 배열도 동기화
   taskTypes=updates.map(u=>taskTypes.find(t=>t.id===u.id)).filter(Boolean);
@@ -966,14 +966,14 @@ async function addTaskType(){
   const name=document.getElementById('typeNm').value.trim();
   if(!name){toast('타입명을 입력해주세요');return;}
   const maxOrder=Math.max(0,...taskTypes.map(t=>t.sort_order||0));
-  const{error}=await supabaseClient.from('musea_upbo_task_types').insert([{name,category:document.getElementById('typeCat').value,sort_order:maxOrder+1}]);
+  const{error}=await supabaseClient.from('{{PREFIX}}_upbo_task_types').insert([{name,category:document.getElementById('typeCat').value,sort_order:maxOrder+1}]);
   if(error){toast('추가 실패');return;}
   toast('✅ 타입 추가!');document.getElementById('typeNm').value='';loadTaskTypes();
 }
 
 async function delTaskType(id){
   if(!confirm('삭제할까요?'))return;
-  await supabaseClient.from('musea_upbo_task_types').delete().eq('id',id);
+  await supabaseClient.from('{{PREFIX}}_upbo_task_types').delete().eq('id',id);
   toast('🗑️ 삭제됨');loadTaskTypes();
 }
 
@@ -993,7 +993,7 @@ function editTaskType(id){
 }
 
 async function saveTaskTypeEdit(id){
-  const{error}=await supabaseClient.from('musea_upbo_task_types').update({
+  const{error}=await supabaseClient.from('{{PREFIX}}_upbo_task_types').update({
     name:document.getElementById('eTypeName').value.trim(),
     category:document.getElementById('eTypeCat').value
   }).eq('id',id);
@@ -1002,7 +1002,7 @@ async function saveTaskTypeEdit(id){
 }
 
 async function loadMembers(){
-  const{data}=await supabaseClient.from('musea_upbo_members').select('*').order('sort_order').order('created_at');
+  const{data}=await supabaseClient.from('{{PREFIX}}_upbo_members').select('*').order('sort_order').order('created_at');
   allMembers=data||[];
   renderMemberList(allMembers);
   renderAssignMemberGrid(allMembers);
@@ -1065,7 +1065,7 @@ async function saveMemberOrder(){
   if(!container)return;
   const items=[...container.querySelectorAll('.member-drag-item')];
   await Promise.all(items.map((el,i)=>
-    supabaseClient.from('musea_upbo_members').update({sort_order:i}).eq('id',parseInt(el.dataset.id))
+    supabaseClient.from('{{PREFIX}}_upbo_members').update({sort_order:i}).eq('id',parseInt(el.dataset.id))
   ));
   // allMembers 동기화
   allMembers=items.map(el=>allMembers.find(m=>m.id===parseInt(el.dataset.id))).filter(Boolean);
@@ -1126,7 +1126,7 @@ async function saveAssignOrder(){
   if(!container)return;
   const items=[...container.querySelectorAll('.member-card-btn')];
   await Promise.all(items.map((el,i)=>
-    supabaseClient.from('musea_upbo_members').update({sort_order:i}).eq('id',parseInt(el.dataset.id))
+    supabaseClient.from('{{PREFIX}}_upbo_members').update({sort_order:i}).eq('id',parseInt(el.dataset.id))
   ));
   allMembers=items.map(el=>allMembers.find(m=>m.id===parseInt(el.dataset.id))).filter(Boolean);
   toast('✅ 순서 저장됨');
@@ -1145,7 +1145,7 @@ function filterMembers(){
 async function addMember(){
   const nick=document.getElementById('memberNick').value.trim(),uid=document.getElementById('memberUid').value.trim();
   if(!nick||!uid){toast('닉네임과 유저ID를 입력해주세요');return;}
-  const{error}=await supabaseClient.from('musea_upbo_members').insert([{nickname:nick,user_id:uid,coins:0}]);
+  const{error}=await supabaseClient.from('{{PREFIX}}_upbo_members').insert([{nickname:nick,user_id:uid,coins:0}]);
   if(error){toast('추가 실패: '+error.message);return;}
   toast('✅ 시청자 추가!');
   document.getElementById('memberNick').value='';document.getElementById('memberUid').value='';
@@ -1154,7 +1154,7 @@ async function addMember(){
 
 async function delMember(id){
   if(!confirm('삭제할까요? 관련 업보도 모두 삭제됩니다.'))return;
-  await supabaseClient.from('musea_upbo_members').delete().eq('id',id);
+  await supabaseClient.from('{{PREFIX}}_upbo_members').delete().eq('id',id);
   if(selMemberId===id){selMemberId=null;document.getElementById('assignTaskArea').style.display='none';}
   toast('🗑️ 삭제됨');loadMembers();
 }
@@ -1172,7 +1172,7 @@ function editMember(id){
 }
 
 async function saveMemberEdit(id){
-  const{error}=await supabaseClient.from('musea_upbo_members').update({
+  const{error}=await supabaseClient.from('{{PREFIX}}_upbo_members').update({
     nickname:document.getElementById('eNick').value.trim(),
     user_id:document.getElementById('eUid').value.trim()
   }).eq('id',id);
@@ -1211,7 +1211,7 @@ async function loadMemo(){
   if(!el)return;
   el.value=''; upd.textContent='';
   try{
-    const{data}=await supabaseClient.from('musea_upbo_member_memos').select('*').eq('member_id',selMemberId).single();
+    const{data}=await supabaseClient.from('{{PREFIX}}_upbo_member_memos').select('*').eq('member_id',selMemberId).single();
     if(data){
       el.value=data.content||'';
       if(data.updated_at){
@@ -1225,7 +1225,7 @@ async function loadMemo(){
 async function saveMemo(){
   if(!selMemberId){toast('시청자를 먼저 선택해주세요');return;}
   const content=document.getElementById('memberMemoText').value;
-  const{error}=await supabaseClient.from('musea_upbo_member_memos').upsert({member_id:selMemberId,content,updated_at:new Date().toISOString()},{onConflict:'member_id'});
+  const{error}=await supabaseClient.from('{{PREFIX}}_upbo_member_memos').upsert({member_id:selMemberId,content,updated_at:new Date().toISOString()},{onConflict:'member_id'});
   if(error){toast('메모 저장 실패: '+error.message);return;}
   const d=new Date();
   document.getElementById('memoUpdated').textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} 저장`;
@@ -1235,7 +1235,7 @@ async function saveMemo(){
 async function loadMemberTasks(){
   const grid=document.getElementById('taskGrid');
   memberTaskState={};
-  const{data:existing}=await supabaseClient.from('musea_upbo_tasks').select('*').eq('member_id',selMemberId);
+  const{data:existing}=await supabaseClient.from('{{PREFIX}}_upbo_tasks').select('*').eq('member_id',selMemberId);
   (existing||[]).forEach(t=>{memberTaskState[t.task_type_id]={qty:t.quantity,memo:t.memo||'',existingId:t.id};});
   const active=taskTypes;
   if(!active.length){grid.innerHTML='<div style="color:var(--text-mut);font-size:13px;">업보 타입을 먼저 추가해주세요</div>';return;}
@@ -1267,17 +1267,17 @@ async function saveTasks(){
     const memo=document.getElementById(`memo-${t.id}`)?.value||'';
     const cur=memberTaskState[t.id]||{};
     if(cur.existingId){
-      if(qty===0)await supabaseClient.from('musea_upbo_tasks').delete().eq('id',cur.existingId);
-      else await supabaseClient.from('musea_upbo_tasks').update({quantity:qty,memo}).eq('id',cur.existingId);
+      if(qty===0)await supabaseClient.from('{{PREFIX}}_upbo_tasks').delete().eq('id',cur.existingId);
+      else await supabaseClient.from('{{PREFIX}}_upbo_tasks').update({quantity:qty,memo}).eq('id',cur.existingId);
     }else if(qty>0){
-      await supabaseClient.from('musea_upbo_tasks').insert([{member_id:selMemberId,task_type_id:t.id,quantity:qty,memo}]);
+      await supabaseClient.from('{{PREFIX}}_upbo_tasks').insert([{member_id:selMemberId,task_type_id:t.id,quantity:qty,memo}]);
     }
   }
   // 코인 처리
   if(coinPending!==0){
     const member=allMembers.find(m=>m.id===selMemberId);
     const newCoins=Math.max(0,(member.coins||0)+coinPending);
-    await supabaseClient.from('musea_upbo_members').update({coins:newCoins}).eq('id',selMemberId);
+    await supabaseClient.from('{{PREFIX}}_upbo_members').update({coins:newCoins}).eq('id',selMemberId);
     document.getElementById('coinCurrent').textContent=`${newCoins}개`;
     toast(`💾 저장! Coin ${coinPending>=0?'+':''}${coinPending} → ${newCoins}개`);
     coinPending=0;
@@ -1298,19 +1298,19 @@ async function saveTasks(){
 async function clearAllTasks(){
   if(!selMemberId){toast('시청자를 선택해주세요');return;}
   if(!confirm('이 시청자의 모든 업보를 초기화할까요?'))return;
-  await supabaseClient.from('musea_upbo_tasks').delete().eq('member_id',selMemberId);
+  await supabaseClient.from('{{PREFIX}}_upbo_tasks').delete().eq('member_id',selMemberId);
   toast('🗑️ 초기화됨');loadMemberTasks();
 }
 
 async function saveUpboDate(){
   const v=document.getElementById('upboDate')?.value;if(!v)return;
-  await supabaseClient.from('musea_upbo_settings').upsert({key:'last_updated',value:v,updated_at:new Date().toISOString()},{onConflict:'key'});
+  await supabaseClient.from('{{PREFIX}}_upbo_settings').upsert({key:'last_updated',value:v,updated_at:new Date().toISOString()},{onConflict:'key'});
   toast('✅ 갱신일 저장!');
 }
 
 async function saveUpboDateAssign(){
   const v=document.getElementById('upboDateAssign').value;if(!v)return;
-  await supabaseClient.from('musea_upbo_settings').upsert({key:'last_updated',value:v,updated_at:new Date().toISOString()},{onConflict:'key'});
+  await supabaseClient.from('{{PREFIX}}_upbo_settings').upsert({key:'last_updated',value:v,updated_at:new Date().toISOString()},{onConflict:'key'});
   toast('✅ 갱신일 저장!');
 }
 
@@ -1318,7 +1318,7 @@ async function saveUpboDateAssign(){
 // INQUIRY
 // ════════════════════════
 async function loadInqBadge(){
-  const{data}=await supabaseClient.from('musea_upbo_inquiries').select('id').eq('is_read',false);
+  const{data}=await supabaseClient.from('{{PREFIX}}_upbo_inquiries').select('id').eq('is_read',false);
   const cnt=(data||[]).length;
   const badge=document.getElementById('inqBadge');
   badge.style.display=cnt>0?'inline':'none';
@@ -1326,7 +1326,7 @@ async function loadInqBadge(){
 }
 
 async function loadInquiries(){
-  const{data}=await supabaseClient.from('musea_upbo_inquiries').select('*').order('created_at',{ascending:false});
+  const{data}=await supabaseClient.from('{{PREFIX}}_upbo_inquiries').select('*').order('created_at',{ascending:false});
   const el=document.getElementById('inqList');
   if(!data||!data.length){el.innerHTML='<div style="text-align:center;padding:24px;font-size:13px;color:var(--text-mut);">문의가 없어요</div>';return;}
   el.innerHTML=data.map(i=>{
@@ -1350,18 +1350,18 @@ async function loadInquiries(){
 }
 
 async function markRead(id){
-  await supabaseClient.from('musea_upbo_inquiries').update({is_read:true}).eq('id',id);
+  await supabaseClient.from('{{PREFIX}}_upbo_inquiries').update({is_read:true}).eq('id',id);
   loadInquiries();loadInqBadge();
 }
 
 async function markAllRead(){
-  await supabaseClient.from('musea_upbo_inquiries').update({is_read:true}).eq('is_read',false);
+  await supabaseClient.from('{{PREFIX}}_upbo_inquiries').update({is_read:true}).eq('is_read',false);
   toast('✅ 전체 읽음');loadInquiries();loadInqBadge();
 }
 
 async function delInquiry(id){
   if(!confirm('삭제할까요?'))return;
-  await supabaseClient.from('musea_upbo_inquiries').delete().eq('id',id);
+  await supabaseClient.from('{{PREFIX}}_upbo_inquiries').delete().eq('id',id);
   toast('🗑️ 삭제됨');loadInquiries();loadInqBadge();
 }
 
@@ -1454,7 +1454,7 @@ async function newFormEvent(){
   if(!confirm('새 이벤트로 발행할까요?\n기존 응답은 유지되고, 시청자 참여 기록이 초기화돼서 다시 참여 가능해집니다.'))return;
   // 기존 폼 비활성화
   if(currentFormId){
-    await supabaseClient.from('musea_form_config').update({is_active:false}).eq('id',currentFormId);
+    await supabaseClient.from('{{PREFIX}}_form_config').update({is_active:false}).eq('id',currentFormId);
   }
   // currentFormId 초기화 → 저장 시 새 row 생성
   currentFormId=null;
@@ -1485,7 +1485,7 @@ async function loadFormConfig(){
   if(previewEl)previewEl.textContent=formUrl;
   if(iframeEl)iframeEl.textContent=`<p><iframe frameborder="0" height="800px" src="${formUrl}" width="100%"></iframe></p>`;
 
-  const{data}=await supabaseClient.from('musea_form_config').select('*').order('id',{ascending:false}).limit(1);
+  const{data}=await supabaseClient.from('{{PREFIX}}_form_config').select('*').order('id',{ascending:false}).limit(1);
   if(!data||!data.length){renderFields();return;}
   const c=data[0];
   currentFormId=c.id;
@@ -1505,7 +1505,7 @@ async function loadFormConfig(){
       const isVote=c[`field_${i}_type`]==='vote';
       let options=['',''];
       if(isVote){
-        const voteQ=supabaseClient.from('musea_vote_options').select('*').eq('field_index',i).order('display_order');
+        const voteQ=supabaseClient.from('{{PREFIX}}_vote_options').select('*').eq('field_index',i).order('display_order');
         const{data:opts}=await (c.id?voteQ.eq('config_id',c.id):voteQ);
         if(opts&&opts.length)options=opts.map(o=>o.option_text);
       }
@@ -1524,7 +1524,7 @@ function updateActiveBadge(isActive){
 
 async function toggleFormActive(val){
   if(!currentFormId){toast('먼저 저장해주세요');return;}
-  const{error}=await supabaseClient.from('musea_form_config').update({is_active:val}).eq('id',currentFormId);
+  const{error}=await supabaseClient.from('{{PREFIX}}_form_config').update({is_active:val}).eq('id',currentFormId);
   if(error){toast('실패: '+error.message);return;}
   updateActiveBadge(val);
   toast(val?'✅ 폼 활성화!':'폼 비활성화');
@@ -1549,16 +1549,16 @@ async function saveFormConfig(){
 
   let cid=currentFormId;
   if(cid){
-    const{error}=await supabaseClient.from('musea_form_config').update(row).eq('id',cid);
+    const{error}=await supabaseClient.from('{{PREFIX}}_form_config').update(row).eq('id',cid);
     if(error){toast('저장 실패: '+error.message);return;}
   }else{
-    const{data,error}=await supabaseClient.from('musea_form_config').insert([row]).select();
+    const{data,error}=await supabaseClient.from('{{PREFIX}}_form_config').insert([row]).select();
     if(error){toast('저장 실패: '+error.message);return;}
     cid=data[0].id;currentFormId=cid;
   }
 
   // vote_options 재저장
-  await supabaseClient.from('musea_vote_options').delete().eq('config_id',cid);
+  await supabaseClient.from('{{PREFIX}}_vote_options').delete().eq('config_id',cid);
   const voteRows=[];
   formFields.forEach((f,fi)=>{
     if(f.type==='vote'){
@@ -1567,7 +1567,7 @@ async function saveFormConfig(){
       });
     }
   });
-  if(voteRows.length)await supabaseClient.from('musea_vote_options').insert(voteRows);
+  if(voteRows.length)await supabaseClient.from('{{PREFIX}}_vote_options').insert(voteRows);
   toast('💾 저장 완료!');
 }
 
@@ -1575,21 +1575,21 @@ async function saveFormConfig(){
 let currentFormConfig=null;
 async function loadResponses(){
   if(!currentFormId){
-    const{data}=await supabaseClient.from('musea_form_config').select('*').order('id',{ascending:false}).limit(1);
+    const{data}=await supabaseClient.from('{{PREFIX}}_form_config').select('*').order('id',{ascending:false}).limit(1);
     if(!data||!data.length){document.getElementById('responseBody').innerHTML='<tr class="empty-row"><td colspan="2">폼 설정이 없어요</td></tr>';return;}
     currentFormConfig=data[0];currentFormId=data[0].id;
   }else if(!currentFormConfig){
-    const{data}=await supabaseClient.from('musea_form_config').select('*').eq('id',currentFormId).single();
+    const{data}=await supabaseClient.from('{{PREFIX}}_form_config').select('*').eq('id',currentFormId).single();
     currentFormConfig=data;
   }
   const c=currentFormConfig;
   // config_id로 먼저 시도, 실패하면 event_name으로 fallback
-  let subsQuery=supabaseClient.from('musea_form_submissions').select('*').order('created_at',{ascending:false});
+  let subsQuery=supabaseClient.from('{{PREFIX}}_form_submissions').select('*').order('created_at',{ascending:false});
   if(currentFormId)subsQuery=subsQuery.eq('config_id',currentFormId);
   const{data:subs,error:subsErr}=await subsQuery;
   if(subsErr&&currentFormConfig){
     // fallback: event_name으로
-    const{data:subs2}=await supabaseClient.from('musea_form_submissions').select('*').eq('event_name',currentFormConfig.event_name).order('created_at',{ascending:false});
+    const{data:subs2}=await supabaseClient.from('{{PREFIX}}_form_submissions').select('*').eq('event_name',currentFormConfig.event_name).order('created_at',{ascending:false});
   }
   const rows=subs||[];
   document.getElementById('responseCount').textContent=`총 ${rows.length}개 응답`;
@@ -1652,7 +1652,7 @@ async function loadResponses(){
 async function clearResponses(){
   if(!currentFormId){toast('폼이 없어요');return;}
   if(!confirm('모든 응답을 삭제할까요?\n(시청자 localStorage 기록은 유지되어 재참여는 불가해요)'))return;
-  const{error}=await supabaseClient.from('musea_form_submissions').delete().eq('config_id',currentFormId);
+  const{error}=await supabaseClient.from('{{PREFIX}}_form_submissions').delete().eq('config_id',currentFormId);
   if(error){toast('삭제 실패: '+error.message);console.error(error);return;}
   toast('🗑️ 전체 삭제됨');loadResponses();
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>뮤서아 ❄️ 신청 폼</title>
+<title>{{NAME}} ❄️ 신청 폼</title>
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -69,7 +69,7 @@ textarea.field-input { resize: vertical; min-height: 80px; }
 <body>
 <nav class="nav-bar">
   <div class="nav-inner-wrap">
-    <a href="/" class="site-logo">MUSEOA ✦</a>
+    <a href="../" class="site-logo">MUSEOA ✦</a>
   </div>
 </nav>
 <div class="form-wrap" id="formWrap">
@@ -84,7 +84,7 @@ async function loadForm() {
   const wrap = document.getElementById('formWrap');
   try {
     const { data, error } = await supabaseClient
-      .from('musea_form_config')
+      .from('{{PREFIX}}_form_config')
       .select('*')
       .order('id', { ascending: false })
       .limit(1)
@@ -103,7 +103,7 @@ async function loadForm() {
     }
 
     // 세션 중복 제출 방지 — 같은 폼 ID로 이미 제출했으면 막기
-    const sessionKey = 'musea_form_submitted_' + data.id;
+    const sessionKey = '{{PREFIX}}_form_submitted_' + data.id;
     if (sessionStorage.getItem(sessionKey)) {
       wrap.innerHTML = `
         <div class="success-box">
@@ -180,14 +180,14 @@ async function submitForm() {
     }
   });
 
-  const { error } = await supabaseClient.from('musea_form_submissions').insert([row]);
+  const { error } = await supabaseClient.from('{{PREFIX}}_form_submissions').insert([row]);
   if (error) {
     showToast('제출 실패: ' + error.message);
     btn.disabled = false; btn.textContent = '신청하기'; return;
   }
 
   // 세션에 제출 기록
-  sessionStorage.setItem('musea_form_submitted_' + config.id, '1');
+  sessionStorage.setItem('{{PREFIX}}_form_submitted_' + config.id, '1');
 
   document.getElementById('formWrap').innerHTML = `
     <div class="success-box">

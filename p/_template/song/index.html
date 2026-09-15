@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>뮤서아 ❄️ 노래책</title>
+<title>{{NAME}} ❄️ 노래책</title>
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -48,10 +48,10 @@
 <body>
 <nav class="nav-bar">
   <div class="nav-inner-wrap">
-    <a href="/">홈</a>
-    <a href="/schedule/">스케줄</a>
-    <a href="/song/" class="active">노래책</a>
-    <a href="/work/">업보</a>
+    <a href="../">홈</a>
+    <a href="../schedule/">스케줄</a>
+    <a href="../song/" class="active">노래책</a>
+    <a href="../work/">업보</a>
   </div>
 </nav>
 <div class="page-wrap">
@@ -104,7 +104,7 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<footer class="page-footer">© 2026 뮤서아</footer>
+<footer class="page-footer">© 2026 {{NAME}}</footer>
 <script src="/js/supabase-config.js"></script>
 <script>
 let currentGenre='all',allSongs=[],sort={key:'artist',dir:'asc'},rndSong=null;
@@ -129,7 +129,7 @@ async function loadSongs(){
   loading.style.display='block';empty.style.display='none';table.style.display='none';
   document.getElementById('sigSection').style.display='none';
   try{
-    const query=supabaseClient.from('musea_songs').select('*').order('artist',{ascending:true}).order('title',{ascending:true});
+    const query=supabaseClient.from('{{PREFIX}}_songs').select('*').order('artist',{ascending:true}).order('title',{ascending:true});
     const{data,error}=currentGenre==='all'?await query:await query.eq('genre',currentGenre);
     if(error)throw error;
     function sortKoEn(a,b){const isKo=s=>/^[가-힣]/.test(s);const isEn=s=>/^[a-zA-Z]/.test(s);const ak=isKo(a),bk=isKo(b),ae=isEn(a),be=isEn(b);if(ak&&!bk)return -1;if(!ak&&bk)return 1;if(ae&&!be)return -1;if(!ae&&be)return 1;return a.localeCompare(b,'ko');}

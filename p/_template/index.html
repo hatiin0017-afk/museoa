@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} ❄️</title>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<meta property="og:title" content="{{NAME}}">
+<meta property="og:description" content="버추얼 엔터테이너 {{NAME}}">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ice: #B8E4F7;
+  --ice-light: #E8F7FF;
+  --ice-mid: #7ECEF0;
+  --lav: #C9B8F5;
+  --lav-deep: #9B84E8;
+  --lav-dark: #7B62D4;
+  --pink-eye: #E870B0;
+  --pink-soft: #F2C4DE;
+  --white: #FAFCFF;
+  --dark: #1A1828;
+  --mid: #4A4565;
+  --muted: #8A859F;
+  --card-bg: rgba(255,255,255,0.72);
+  --card-border: rgba(180,200,240,0.35);
+  --glow-ice: rgba(126,206,240,0.28);
+  --glow-lav: rgba(155,132,232,0.22);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--white);
+  color: var(--dark);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* 배경 */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 80% 20%, rgba(184,228,247,0.45) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 15% 80%, rgba(201,184,245,0.30) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 60% 90%, rgba(242,196,222,0.20) 0%, transparent 50%),
+    linear-gradient(160deg, #EFF8FF 0%, #F5EFFF 50%, #FEF2F9 100%);
+  pointer-events: none;
+}
+
+/* 파티클 */
+.particle {
+  position: fixed; z-index: 0; border-radius: 50%; pointer-events: none;
+  animation: floatUp linear infinite; opacity: 0;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+  10%  { opacity: 0.6; transform: scale(1); }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-10vh) scale(0.5); opacity: 0; }
+}
+
+/* ── 헤더 ── */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  backdrop-filter: blur(20px);
+  background: rgba(240,248,255,0.82);
+  border-bottom: 1px solid rgba(180,210,240,0.30);
+  height: 60px;
+  display: flex; align-items: center;
+}
+.header-inner {
+  max-width: 1160px; width: 100%; margin: 0 auto;
+  padding: 0 16px;
+  position: relative;
+  display: flex; align-items: center; justify-content: flex-start;
+}
+.logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px; font-weight: 700; letter-spacing: -0.3px;
+  background: linear-gradient(120deg, var(--lav-dark), var(--ice-mid));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-decoration: none;
+}
+nav { display: flex; gap: 4px; align-items: center; position: absolute; left: 50%; transform: translateX(-50%); }
+nav a {
+  font-size: 13px; font-weight: 500; color: var(--mid);
+  text-decoration: none; padding: 6px 14px; border-radius: 20px;
+  transition: all .25s;
+}
+nav a:hover { background: rgba(155,132,232,0.12); color: var(--lav-dark); }
+
+
+/* ── HERO — 히어로가 기준폭, 헤더·섹션 모두 이 폭에 맞춤 ── */
+.hero {
+  position: relative; z-index: 1;
+  padding-top: 60px;
+  height: calc(100vh - 60px);
+  max-height: 740px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+/* hero-inner 제거 — hero가 직접 grid */
+
+/* 왼쪽: 이미지 — 고정 컨테이너, 절대 넘침 없음 */
+.hero-visual {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  min-height: 480px;
+  max-height: 740px;
+}
+.hero-visual img {
+  display: block;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  transition: transform 8s ease;
+}
+.hero-visual:hover img { transform: scale(1.02); }
+.hero-visual::after { display: none; }
+/* 글로우 펄스 */
+.hero-visual::before {
+  content: '';
+  position: absolute; right: -30px; top: 25%; z-index: 2;
+  width: 160px; height: 55%; border-radius: 50%;
+  background: radial-gradient(ellipse, var(--glow-ice) 0%, transparent 70%);
+  pointer-events: none;
+  animation: glowPulse 4s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%,100% { opacity:.5; transform:scaleY(1); }
+  50%      { opacity:1;  transform:scaleY(1.12); }
+}
+
+/* 오른쪽: 정보 */
+.hero-info {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 48px 0 48px 64px;
+  position: relative; z-index: 1;
+}
+
+/* 배지 */
+.badge-row { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+.hero-catchphrase {
+  font-size: 13px; font-weight: 600;
+  color: var(--lav-dark); letter-spacing: .3px;
+  margin-bottom: 16px;
+  padding: 4px 12px;
+  background: rgba(201,184,245,0.12);
+  border-radius: 20px; display: inline-block;
+  border: 1px solid rgba(155,132,232,0.25);
+}
+.badge {
+  font-size: 11px; font-weight: 500; letter-spacing: .5px;
+  padding: 4px 12px; border-radius: 20px; border: 1px solid;
+  text-transform: uppercase;
+}
+.badge-ice  { background: rgba(184,228,247,0.25); border-color: rgba(126,206,240,.50); color: #2D7FA8; }
+.badge-lav  { background: rgba(201,184,245,0.20); border-color: rgba(155,132,232,.45); color: #6B52C4; }
+.badge-pink { background: rgba(242,196,222,0.20); border-color: rgba(232,112,176,.35); color: #B04890; }
+
+/* 이름 */
+.hero-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(56px, 5.5vw, 84px);
+  font-weight: 700; line-height: 1; letter-spacing: -2px;
+  margin-bottom: 14px;
+}
+.hero-name .name-main {
+  display: block;
+  background: linear-gradient(130deg, var(--lav-dark) 0%, var(--ice-mid) 55%, var(--pink-eye) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-name .name-sub {
+  display: block;
+  font-size: clamp(16px, 1.6vw, 22px);
+  font-weight: 300; letter-spacing: 7px;
+  color: var(--muted); -webkit-text-fill-color: var(--muted);
+  margin-top: 10px;
+}
+
+/* 태그라인 */
+.hero-tagline {
+  font-size: 14px; color: var(--mid); line-height: 1.8;
+  margin: 22px 0 36px;
+  max-width: 380px;
+  padding-left: 16px;
+  border-left: 2px solid var(--lav);
+}
+
+/* 프로필 그리드 */
+.profile-grid-hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 20px;
+  margin-bottom: 24px;
+}
+.pg-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px;
+}
+.pg-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--muted);
+  min-width: 40px; flex-shrink: 0;
+}
+.pg-val { font-weight: 500; color: var(--dark); }
+
+/* 잔향 팬캐릭터 */
+.fan-char-row {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 28px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(201,184,245,0.12), rgba(184,228,247,0.10));
+  border: 1px solid rgba(201,184,245,0.25);
+}
+.fan-char-img-wrap {
+  width: 72px; height: 72px; flex-shrink: 0;
+  border-radius: 50%;
+  background: #111;
+  overflow: hidden;
+  border: 2px solid rgba(201,184,245,0.40);
+  box-shadow: 0 0 16px rgba(201,184,245,0.30);
+}
+.fan-char-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center 20%;
+}
+.fan-char-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
+}
+.fan-char-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: -.3px;
+  background: linear-gradient(120deg, var(--lav-dark), var(--pink-eye));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.fan-char-name span { -webkit-text-fill-color: initial; }
+.fan-char-desc {
+  font-size: 11px; color: var(--muted); line-height: 1.6;
+}
+
+/* 링크 버튼 */
+.link-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.link-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; border-radius: 14px;
+  text-decoration: none; font-size: 13px; font-weight: 500;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  color: var(--dark);
+  transition: all .30s cubic-bezier(.34,1.56,.64,1);
+  position: relative; overflow: hidden;
+}
+.link-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(155,132,232,.18);
+  border-color: rgba(155,132,232,.50);
+}
+.btn-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.btn-soop  .btn-icon { background: rgba(255,80,50,.10); }
+.btn-chzzk .btn-icon { background: rgba(0,200,100,.08); }
+.btn-x     .btn-icon { background: rgba(26,26,26,.07); }
+.btn-yt    .btn-icon { background: rgba(255,0,0,.08); }
+.btn-cafe  .btn-icon { background: rgba(3,199,90,.08); }
+.btn-sub { font-size: 11px; color: var(--muted); line-height: 1; margin-bottom: 2px; }
+
+/* ── 아랫 섹션들 ── */
+.below { position: relative; z-index: 1; }
+.wrapper {
+  max-width: 1160px; margin: 0 auto; padding: 0 16px;
+}
+
+/* 페이지 카드 */
+.page-cards-section { padding: 72px 0 0; }
+.section-label-sm {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--lav-dark); margin-bottom: 8px;
+}
+.section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 28px; font-weight: 700; letter-spacing: -1px;
+  color: var(--dark); margin-bottom: 4px;
+}
+.divider-line {
+  width: 36px; height: 3px; border-radius: 2px; margin: 12px 0 32px;
+  background: linear-gradient(90deg, var(--lav-dark), var(--ice-mid));
+}
+
+.page-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.page-card {
+  border-radius: 16px; border: 1px solid var(--card-border);
+  background: var(--card-bg); backdrop-filter: blur(16px);
+  padding: 20px 22px; text-decoration: none; color: var(--dark);
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  display: flex; flex-direction: column; gap: 8px;
+  position: relative; overflow: hidden;
+}
+/* 모바일: 카드 가로 압축형 */
+@media (max-width: 760px) {
+  .sched-col  { order: 1; }
+  .overlay-col { order: 2; }
+  .data-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 760px) {
+  .page-cards { grid-template-columns: repeat(3, 1fr) !important; gap: 8px; }
+  .page-card { flex-direction: column; align-items: center; justify-content: center; padding: 12px 6px; gap: 5px; border-radius: 12px; text-align: center; min-height: 0; }
+  .card-icon { font-size: 20px; flex-shrink: 0; }
+  .card-title { font-size: 12px; margin: 0; font-weight: 700; }
+  .card-desc { display: none; }
+  .card-arrow { display: none; }
+}
+.page-card::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(135deg, rgba(201,184,245,.10), rgba(184,228,247,.08));
+  opacity: 0; transition: opacity .25s;
+}
+.page-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(155,132,232,.13), 0 4px 16px rgba(126,206,240,.10);
+  border-color: rgba(155,132,232,.38);
+}
+.page-card:hover::after { opacity: 1; }
+.card-icon { font-size: 24px; line-height: 1; }
+.card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: -.3px;
+}
+.card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+.card-arrow { font-size: 18px; color: var(--lav-dark); align-self: flex-end; transition: transform .25s; }
+.page-card:hover .card-arrow { transform: translateX(4px); }
+
+/* 일정 / 최근 곡 섹션 */
+.roadmap-section { padding: 56px 0 0; }
+.roadmap-list {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+}
+.rm-item {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 12px; border-radius: 14px;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  backdrop-filter: blur(10px); text-align: center;
+  transition: all .25s;
+}
+.rm-item:hover { transform: translateY(-2px); border-color: rgba(155,132,232,.40); box-shadow: 0 6px 20px rgba(155,132,232,.10); }
+.rm-item.done { background: linear-gradient(135deg, rgba(201,184,245,.15), rgba(184,228,247,.12)); border-color: rgba(155,132,232,.35); }
+.rm-num {
+  font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(155,132,232,.15); color: var(--lav-dark);
+  flex-shrink: 0;
+}
+.rm-item.done .rm-num { background: var(--lav-dark); color: #fff; }
+.rm-text { font-size: 12px; font-weight: 500; color: var(--dark); line-height: 1.4; }
+.rm-item.done .rm-text { color: var(--lav-dark); font-weight: 600; }
+@media (max-width: 768px) { .roadmap-list { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .roadmap-list { grid-template-columns: repeat(2, 1fr); } }
+
+.data-section { padding: 56px 0 80px; }
+.sec-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after { content:''; flex:1; height:1px; background: rgba(180,200,240,.40); }
+
+.sched-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.sched-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 16px; padding: 16px;
+  display: flex; flex-direction: column; gap: 6px;
+  backdrop-filter: blur(10px);
+  transition: all .25s;
+  box-shadow: 0 2px 10px rgba(155,132,232,.06);
+  position: relative; overflow: hidden;
+}
+.sched-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(91,184,232,.14);
+  border-color: rgba(126,206,240,.50);
+}
+.sched-card.today {
+  border-color: var(--ice-mid);
+  background: rgba(232,247,255,.85);
+}
+.sched-card-date {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.sched-card-d {
+  font-family:'Outfit',sans-serif; font-size:22px; font-weight:700; line-height:1;
+  color: var(--dark);
+}
+.sched-card-dow {
+  font-size:11px; font-weight:700; color:var(--muted);
+}
+.sched-card-title {
+  font-size:14px; font-weight:600; color:var(--dark); line-height:1.4; flex:1;
+}
+.sched-card-time {
+  font-size:12px; color:var(--muted);
+}
+.sched-card-badge {
+  font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px;
+  align-self: flex-start;
+}
+.sched-card.today::after {
+  content:'';
+  position:absolute; top:10px; right:10px;
+  width:8px; height:8px; border-radius:50%;
+  background:var(--ice-mid);
+  box-shadow:0 0 0 3px rgba(91,184,232,.25),0 0 8px rgba(91,184,232,.4);
+}
+@media (max-width: 760px) {
+  .sched-card-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .sched-card { padding: 12px; }
+  .sched-card-d { font-size: 18px; }
+}
+
+.overlay-list { display: flex; flex-direction: column; gap: 8px; }
+.ov-row {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 16px; padding: 12px 18px;
+  display: flex; align-items: center; gap: 14px;
+  backdrop-filter: blur(10px);
+  transition: all .25s;
+  box-shadow: 0 2px 10px rgba(155,132,232,.06);
+}
+.ov-row:hover { transform: translateY(-2px); border-color: rgba(126,206,240,.50); box-shadow: 0 8px 28px rgba(91,184,232,.12); }
+.ov-num { font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; color:var(--muted); min-width:20px; }
+.ov-thumb {
+  width:38px; height:38px; border-radius:10px;
+  background: linear-gradient(135deg, var(--ice-light), rgba(201,184,245,.20));
+  border:1px solid var(--card-border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0; transition: transform .25s;
+}
+.ov-row:hover .ov-thumb { transform: scale(1.1) rotate(-4deg); }
+.ov-title  { font-size:14px; font-weight:600; }
+.ov-artist { font-size:12px; color:var(--muted); margin-top:1px; }
+.ov-date   { margin-left:auto; font-size:11px; color:var(--muted); white-space:nowrap; }
+
+.empty-box {
+  background: var(--card-bg); border: 1.5px dashed var(--card-border);
+  border-radius: 16px; padding: 32px;
+  text-align:center; font-size:13px; color:var(--muted);
+  backdrop-filter: blur(8px);
+}
+.loading { text-align:center; padding:32px; font-size:13px; color:var(--muted); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  text-align: center; padding: 36px 24px 48px;
+  border-top: 1px solid rgba(180,200,240,.28);
+  font-size: 12px; color: var(--muted);
+}
+footer span {
+  background: linear-gradient(120deg, var(--lav-dark), var(--ice-mid));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+
+/* fade-up */
+.fade-up { opacity:0; transform:translateY(16px); transition:opacity .5s ease,transform .5s ease; }
+.fade-up.visible { opacity:1; transform:translateY(0); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--white); }
+::-webkit-scrollbar-thumb { background: var(--ice); border-radius: 3px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; height: auto; max-height: none; }
+  .hero-visual { height: 60vw; min-height: 240px; max-height: 380px; position: relative; }
+  .hero-visual::before { display: none; }
+  .hero-info { padding: 44px 32px 56px; }
+  .hero-name { font-size: clamp(44px,10vw,64px); }
+  .stats-row { gap: 24px; }
+  .link-grid { grid-template-columns: 1fr 1fr; }
+  .wrapper { padding: 0 16px; }
+  .hero-inner { margin: 0 20px; }
+  .header-inner { padding: 0 16px; }
+  nav a { padding: 6px 10px; font-size: 12px; }
+  .page-cards { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .link-grid { grid-template-columns: 1fr; }
+  nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<!-- 헤더 -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="./">MUSEOA ✦</a>
+    <nav>
+      <a href="./">홈</a>
+      <a href="./schedule/">스케줄</a>
+      <a href="#" target="_blank">노래책</a>
+      <a href="./work/">업보</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <!-- 왼쪽: 이미지 -->
+  <div class="hero-visual">
+    <img src="./assets/profile.jpg" alt="{{NAME}}"
+         onerror="this.style.background='linear-gradient(160deg,#B8E4F7,#C9B8F5,#F2C4DE)';this.style.minHeight='100%';">
+  </div>
+
+  <!-- 오른쪽: 정보 -->
+  <div class="hero-info">
+    <h1 class="hero-name">
+      <span class="name-main">{{NAME}}</span>
+      <span class="name-sub">MUSEOA ✦</span>
+    </h1>
+
+    <p class="hero-tagline">
+      {{CATCHPHRASE}}<br>
+      {{BIO_LINE_1}}<br>
+      {{BIO_LINE_2}}
+    </p>
+
+    <!-- 프로필 그리드 -->
+    <div class="profile-grid-hero">
+      <div class="pg-item"><span class="pg-label">생일</span><span class="pg-val">-</span></div>
+      <div class="pg-item"><span class="pg-label">국적</span><span class="pg-val">-</span></div>
+      <div class="pg-item"><span class="pg-label">MBTI</span><span class="pg-val">-</span></div>
+      <div class="pg-item"><span class="pg-label">데뷔</span><span class="pg-val">-</span></div>
+      <div class="pg-item"><span class="pg-label">방송</span><span class="pg-val">-</span></div>
+      <div class="pg-item"><span class="pg-label">컨텐츠</span><span class="pg-val">-</span></div>
+    </div>
+
+    <div class="link-grid">
+      <a class="link-btn btn-soop" href="#" target="_blank">
+        <div class="btn-icon">🎮</div>
+        <div>SOOP</div>
+      </a>
+      <a class="link-btn btn-x" href="#" target="_blank">
+        <div class="btn-icon">✕</div>
+        <div>@ID</div>
+      </a>
+      <a class="link-btn btn-yt" href="#" target="_blank">
+        <div class="btn-icon">▶</div>
+        <div>YouTube</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- 아랫 섹션들 -->
+<div class="below">
+
+  <!-- 페이지 카드 -->
+  <div class="page-cards-section fade-up">
+    <div class="wrapper">
+      <div class="section-label-sm">Pages</div>
+      <div class="section-title">둘러보기</div>
+      <div class="divider-line"></div>
+      <div class="page-cards">
+        <a class="page-card" href="./schedule/">
+          <div class="card-icon">🗓️</div>
+          <div class="card-title">스케줄</div>
+          <div class="card-desc">다가오는 방송 일정을 확인할 수 있어요.</div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="page-card" href="#">
+          <div class="card-icon">🎵</div>
+          <div class="card-title">노래책</div>
+          <div class="card-desc">방송에서 부른 곡들의 목록과 장르별 검색이 가능해요.</div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="page-card" href="./work/">
+          <div class="card-icon">📋</div>
+          <div class="card-title">업보</div>
+          <div class="card-desc">시청자들의 업보 기록이 담겨 있어요.</div>
+          <div class="card-arrow">→</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로드맵 -->
+  <div class="roadmap-section fade-up">
+    <div class="wrapper">
+      <div class="section-label-sm">Roadmap</div>
+      <div class="section-title">1년 안에 이루고 싶은 것들</div>
+      <div class="divider-line"></div>
+      <div class="roadmap-list">
+        <div class="rm-item"><span class="rm-num">1</span><span class="rm-text">목표 1</span></div>
+        <div class="rm-item"><span class="rm-num">2</span><span class="rm-text">목표 2</span></div>
+        <div class="rm-item"><span class="rm-num">3</span><span class="rm-text">목표 3</span></div>
+        <div class="rm-item"><span class="rm-num">4</span><span class="rm-text">목표 4</span></div>
+        <div class="rm-item"><span class="rm-num">5</span><span class="rm-text">목표 5</span></div>
+        <div class="rm-item"><span class="rm-num">6</span><span class="rm-text">목표 6</span></div>
+        <div class="rm-item"><span class="rm-num">7</span><span class="rm-text">목표 7</span></div>
+        <div class="rm-item"><span class="rm-num">8</span><span class="rm-text">목표 8</span></div>
+        <div class="rm-item"><span class="rm-num">9</span><span class="rm-text">목표 9</span></div>
+        <div class="rm-item"><span class="rm-num">10</span><span class="rm-text">목표 10</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 앞으로 일정 — 4열 카드 -->
+  <div class="data-section fade-up">
+    <div class="wrapper">
+      <div class="sec-label">앞으로 일정</div>
+      <div id="sched-list" class="sched-card-grid">
+        <div class="loading">불러오는 중...</div>
+      </div>
+      <div style="text-align:right;margin-top:14px;">
+        <a href="./schedule/" style="font-size:12px;color:var(--lav-dark);text-decoration:none;font-weight:600;">전체 보기 →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 <span>{{NAME}} MUSEOA</span> · All Rights Reserved</p>
+  <p style="margin-top:6px;font-size:11px;opacity:.5;">Powered by Cloudflare Pages</p>
+  <p style="margin-top:8px;font-size:11px;color:var(--muted);">Designed &amp; Developed by <strong style="color:var(--lav-dark);">아키텍트 크리에이티브</strong> · <a href="mailto:profile@soop.info" style="color:var(--lav-dark);text-decoration:none;">profile@soop.info</a></p>
+</footer>
+
+<script src="/js/supabase-config.js"></script>
+<script>
+/* 파티클 */
+(function(){
+  const colors=['#B8E4F7','#C9B8F5','#F2C4DE','#7ECEF0','#E8D5FF'];
+  const c=document.getElementById('particles');
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');p.className='particle';
+    const s=4+Math.random()*10;
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${12+Math.random()*18}s;animation-delay:${Math.random()*15}s;`;
+    c.appendChild(p);
+  }
+})();
+
+/* 통계 카운트업 */
+function countUp(el,target,suffix=''){
+  let curr=0;const step=Math.ceil(target/40);
+  const t=setInterval(()=>{curr=Math.min(curr+step,target);el.textContent=curr+suffix;if(curr>=target)clearInterval(t);},40);
+}
+
+const DOW=['일','월','화','수','목','금','토'];
+const TC={broadcast:'#5BB8E8',rest:'#9DB0C0',event:'#F9A8D4',collab:'#86EFAC',tournament:'#C9B8F5',other:'#B8E4F7'};
+const TL={broadcast:'방송',rest:'휴방',event:'이벤트',collab:'합방',tournament:'대회',other:'기타'};
+
+async function loadSchedule(){
+  const el=document.getElementById('sched-list');
+  try{
+    const today=new Date();today.setHours(0,0,0,0);
+    const todayStr=today.toISOString().split('T')[0];
+    const{data,error}=await supabaseClient.from('{{PREFIX}}_schedules').select('*').gte('event_date',todayStr).order('event_date').order('event_time').limit(4);
+    if(error)throw error;
+    if(!data||!data.length){el.innerHTML='<div class="empty-box">예정된 일정이 없어요 ❄️</div>';return;}
+    el.innerHTML=data.map(s=>{
+      const dt=new Date(s.event_date+'T00:00:00');
+      const isToday=s.event_date===todayStr;
+      const color=s.color||TC[s.event_type]||'#5BB8E8';
+      const label=TL[s.event_type]||s.event_type||'';
+      return `<div class="sched-card${isToday?' today':''}">
+        <div class="sched-card-date">
+          <div class="sched-card-d">${dt.getDate()}</div>
+          <div class="sched-card-dow">${DOW[dt.getDay()]}</div>
+        </div>
+        <div class="sched-card-title">${s.title}</div>
+        ${s.event_time?`<div class="sched-card-time">${s.event_time.slice(0,5)}</div>`:''}
+        <span class="sched-card-badge" style="background:${color}22;color:${color}">${label}</span>
+      </div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty-box">불러오지 못했어요</div>';}
+}
+
+async function loadOverlay(){
+  const el=document.getElementById('overlay-list');
+  try{
+    const{data,error}=await supabaseClient.from('{{PREFIX}}_recent_overlays').select('*').order('played_at',{ascending:false}).limit(5);
+    if(error)throw error;
+    if(!data||!data.length){el.innerHTML='<div class="empty-box">최근 오버레이 기록이 없어요 🎵</div>';return;}
+    el.innerHTML=data.map((s,i)=>{
+      const d=new Date(s.played_at);
+      return `<div class="ov-row"><span class="ov-num">0${i+1}</span><div class="ov-thumb">🎵</div><div><div class="ov-title">${s.song_title}</div><div class="ov-artist">${s.song_artist||''}</div></div><span class="ov-date">${d.getMonth()+1}/${d.getDate()}</span></div>`;
+    }).join('');
+  }catch(e){el.innerHTML='<div class="empty-box">불러오지 못했어요</div>';}
+}
+
+loadSchedule();
+
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.08});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

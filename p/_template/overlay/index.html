@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>뮤서아 오버레이</title>
+<title>{{NAME}} 오버레이</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Noto+Sans+KR:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -94,12 +94,12 @@ html, body {
 <div class="bar" id="bar">
   <div class="profile-wrap">
     <div class="profile-bg">
-      <img src="/assets/profile.jpg" alt="뮤서아" onerror="this.style.display='none'">
+      <img src="../assets/profile.jpg" alt="{{NAME}}" onerror="this.style.display='none'">
     </div>
   </div>
   <div class="song-info" id="songInfo">
     <div class="song-title-wrap" id="titleWrap">
-      <span class="song-title-text" id="titleText">🎵 뮤서아</span>
+      <span class="song-title-text" id="titleText">🎵 {{NAME}}</span>
     </div>
     <div class="song-artist" id="artistText"></div>
   </div>
@@ -137,13 +137,13 @@ function applyRolling(el, container) {
 
 async function fetchLatest() {
   try {
-    const{data:state}=await supabaseClient.from('musea_overlay_state').select('is_visible').eq('id',1).single();
+    const{data:state}=await supabaseClient.from('{{PREFIX}}_overlay_state').select('is_visible').eq('id',1).single();
     const visible=state?state.is_visible!==false:true;
     document.getElementById('bar').style.opacity=visible?'1':'0';
     if(!visible)return;
 
     const { data, error } = await supabaseClient
-      .from('musea_recent_overlays')
+      .from('{{PREFIX}}_recent_overlays')
       .select('*')
       .order('played_at', { ascending: false })
       .limit(1);
@@ -165,7 +165,7 @@ async function fetchLatest() {
     const artist = row.song_artist || '';
 
     titleEl.textContent = title;
-    artistEl.innerHTML = `<span class="artist-name">${artist}</span><span class="artist-sep">🎵</span><span class="singer-name">뮤서아</span>`;
+    artistEl.innerHTML = `<span class="artist-name">${artist}</span><span class="artist-sep">🎵</span><span class="singer-name">{{NAME}}</span>`;
 
     applyRolling(titleEl, titleWrap);
   } catch(e) {

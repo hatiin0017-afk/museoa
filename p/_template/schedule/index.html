@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>뮤서아 ❄️ 스케줄</title>
+<title>{{NAME}} ❄️ 스케줄</title>
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -76,10 +76,10 @@
 <body>
 <nav class="nav-bar">
   <div class="nav-inner-wrap">
-    <a href="/">홈</a>
-    <a href="/schedule/" class="active">스케줄</a>
-    <a href="https://www.songstudio.live/songbook/platform/@%EB%AE%A4%EC%84%9C%EC%95%84" target="_blank">노래책</a>
-    <a href="/work/">업보</a>
+    <a href="../">홈</a>
+    <a href="../schedule/" class="active">스케줄</a>
+    <a href="#" target="_blank">노래책</a>
+    <a href="../work/">업보</a>
   </div>
 </nav>
 <div class="page-wrap">
@@ -114,7 +114,7 @@
     <div id="modalDesc" style="font-size:13px;color:var(--text);line-height:1.7"></div>
   </div>
 </div>
-<footer class="page-footer">© 2026 뮤서아</footer>
+<footer class="page-footer">© 2026 {{NAME}}</footer>
 <script src="/js/supabase-config.js"></script>
 <script>
 const DOW=['일','월','화','수','목','금','토'];
@@ -127,7 +127,7 @@ async function loadMonth(){
   const s=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-01`;
   const last=new Date(currentYear,currentMonth+1,0).getDate();
   const e=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
-  try{const{data,error}=await supabaseClient.from('musea_schedules').select('*').gte('event_date',s).lte('event_date',e).order('event_date').order('event_time');if(error)throw error;schedules=data||[];}catch(err){schedules=[];}
+  try{const{data,error}=await supabaseClient.from('{{PREFIX}}_schedules').select('*').gte('event_date',s).lte('event_date',e).order('event_date').order('event_time');if(error)throw error;schedules=data||[];}catch(err){schedules=[];}
   renderCalendar();renderList();
 }
 function renderCalendar(){
