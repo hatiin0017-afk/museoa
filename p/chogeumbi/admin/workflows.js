@@ -33,7 +33,8 @@ function initWorkflows(){
       const remove=button('삭제',()=>{if(confirm(`${r.item} 배정을 삭제할까요? 남은 ${r.quantity}개와 완료 ${r.completed}개가 집계에서 제외됩니다. 처리 이력은 유지됩니다.`))A.commit(d=>{d.upbo=d.upbo.filter(row=>row.id!==r.id);});});remove.className='delete';
       const memo=node('div','');memo.className='upbo-private-memo';const label=node('label','비공개 메모'),input=document.createElement('textarea');input.rows=2;input.maxLength=1000;input.placeholder='스트리머·관리자만 볼 수 있어요';input.value=memoDrafts.get(r.id)??r.adminMemo??'';label.append(input);
       const saveMemo=button('메모 저장',async()=>{const value=input.value.trim();memoDrafts.set(r.id,value);const saved=await A.commit(d=>{const row=d.upbo.find(row=>row.id===r.id);if(!row)throw new Error('삭제된 업보입니다. 새로고침해 주세요.');row.adminMemo=value;});if(saved){memoDrafts.delete(r.id);renderUpbo();}});
-      saveMemo.disabled=input.value===(r.adminMemo||'');input.addEventListener('input',()=>{memoDrafts.set(r.id,input.value);saveMemo.disabled=input.value===(r.adminMemo||'');});memo.append(label,saveMemo);
+      const deleteMemo=button('메모 삭제',async()=>{const saved=await A.commit(d=>{const row=d.upbo.find(row=>row.id===r.id);if(!row)throw new Error('삭제된 업보입니다. 새로고침해 주세요.');delete row.adminMemo;});if(saved){memoDrafts.delete(r.id);renderUpbo();}});deleteMemo.className='delete';deleteMemo.disabled=!input.value&&!r.adminMemo;
+      saveMemo.disabled=input.value===(r.adminMemo||'');input.addEventListener('input',()=>{memoDrafts.set(r.id,input.value);saveMemo.disabled=input.value===(r.adminMemo||'');deleteMemo.disabled=!input.value&&!r.adminMemo;});memo.append(label,saveMemo,deleteMemo);
       const heading=node('div','');heading.className='upbo-card-heading';heading.append(info,memo);
       actions.append(plus,minus,done,ready,remove);card.append(heading,actions);list.append(card);
     });
