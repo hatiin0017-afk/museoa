@@ -42,5 +42,16 @@
     if(input.quantity<1)throw new Error('새 배정은 1개 이상 입력해 주세요.');
     const assigned=assign(data,member.id,type.id,input.season,input.quantity);assigned.sample=!!input.sample;assigned.status=input.status==='전달 완료'?'대기':input.status;
   }
-  window.CHOGEUMBI_MODEL={normalize,assign,finish,unassign,manual,categories};
+  function assignProfiles(data,profiles,typeId,season){
+    if(!season||!data.seasons.includes(season))throw new Error('배정할 시즌을 선택해 주세요.');
+    if(!data.taskTypes.some(t=>t.id===typeId&&t.active!==false&&!t.deleted))throw new Error('사용 중인 업보 종류를 선택해 주세요.');
+    const unique=new Map();for(const profile of profiles){const id=String(profile.viewerId||'').trim().toLowerCase(),nickname=String(profile.nickname||'').trim();if(!/^[a-z0-9_-]{2,40}$/.test(id)||!nickname)throw new Error('조회된 프로필 정보가 올바르지 않습니다.');unique.set(id,{viewerId:id,nickname});}
+    for(const profile of unique.values()){
+      let member=data.members.find(m=>m.viewerId.trim().toLowerCase()===profile.viewerId);
+      if(!member){member={id:crypto.randomUUID(),...profile};data.members.push(member);}else{member.nickname=profile.nickname;data.upbo.filter(r=>r.memberId===member.id).forEach(r=>r.nickname=profile.nickname);}
+      assign(data,member.id,typeId,season,1);
+    }
+    return unique.size;
+  }
+  window.CHOGEUMBI_MODEL={normalize,assign,finish,unassign,manual,categories,assignProfiles};
 })();

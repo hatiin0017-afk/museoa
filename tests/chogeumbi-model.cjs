@@ -29,3 +29,11 @@ assert.throws(()=>M.assign(cancel,cancel.members[0].id,cancel.taskTypes[0].id,'�
 assert.equal(M.normalize(JSON.parse(JSON.stringify(cancel))).taskTypes[0].deleted,true);
 const publicCopy=M.normalize({settings:cancel.settings,upbo:cancel.upbo,schedules:[]});assert.equal(publicCopy.settings.upboColors['방셀'],'#f4cfdf');
 console.log('PASS: assignment cancellation, completion preservation, retired type, public color projection');
+const bulk=M.normalize({settings:{},schedules:[],seasons:['s1','s2'],upbo:[{id:'existing',nickname:'old',viewerId:'USER',item:'방셀',season:'s1',quantity:2,completed:1,adminMemo:'keep',status:'대기'}]});
+const bulkType=bulk.taskTypes[0].id;
+assert.equal(M.assignProfiles(bulk,[{viewerId:'user',nickname:'new'},{viewerId:' USER ',nickname:'new'},{viewerId:'another',nickname:'second'}],bulkType,'s1'),2);
+assert.equal(bulk.members.length,2);assert.equal(bulk.upbo.length,2);assert.equal(bulk.upbo[0].quantity,3);assert.equal(bulk.upbo[0].completed,1);assert.equal(bulk.upbo[0].adminMemo,'keep');assert.equal(bulk.upbo[0].nickname,'new');assert.equal(bulk.history.length,2);
+M.assignProfiles(bulk,[{viewerId:'user',nickname:'new'}],bulkType,'s2');assert.equal(bulk.upbo.length,3);assert.equal(bulk.upbo[0].quantity,3);
+assert.throws(()=>M.assignProfiles(bulk,[{viewerId:'user',nickname:'new'}],bulkType,''));assert.throws(()=>M.assignProfiles(bulk,[{viewerId:'bad!',nickname:'bad'}],bulkType,'s1'));
+bulk.taskTypes[0].deleted=true;assert.throws(()=>M.assignProfiles(bulk,[{viewerId:'user',nickname:'new'}],bulkType,'s1'));
+console.log('PASS: bulk profile registration, case-insensitive deduplication, existing accumulation, memo/completion preservation, season isolation and validation');

@@ -88,14 +88,17 @@ function initWorkflows(){
   function renderTypeOverview(season){
     const target=$('#upbo-type-overview'),opened=new Set([...target.querySelectorAll('details[open]')].map(e=>e.dataset.typeId)),groups=new Map();target.replaceChildren();
     A.data.upbo.filter(r=>r.quantity>0&&(!season||r.season===season)).forEach(row=>{
-      const key=row.typeId||row.item;if(!groups.has(key))groups.set(key,{key,name:row.item,total:0,members:new Map()});const group=groups.get(key);group.total+=row.quantity;
-      const memberKey=row.memberId||row.viewerId;if(!group.members.has(memberKey))group.members.set(memberKey,{nickname:row.nickname,viewerId:row.viewerId,quantity:0});group.members.get(memberKey).quantity+=row.quantity;
+      const typeId=row.typeId||row.item,key=JSON.stringify([typeId,row.season]);if(!groups.has(key))groups.set(key,{key,typeId,season:row.season,name:row.item,total:0,members:new Map()});const group=groups.get(key);group.total+=row.quantity;
+      const memberKey=row.memberId||row.viewerId;if(!group.members.has(memberKey))group.members.set(memberKey,{nickname:row.nickname,viewerId:row.viewerId,quantity:0,rows:[]});group.members.get(memberKey).quantity+=row.quantity;group.members.get(memberKey).rows.push(row);
     });
     [...groups.values()].sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ko')).forEach(group=>{
       const details=node('details','');details.className='viewer-group';details.dataset.typeId=group.key;details.open=opened.has(group.key);
-      details.append(node('summary',`${group.name} · ${group.members.size}명 / 남음 ${group.total}개`));
-      const type=A.data.taskTypes.find(t=>t.id===group.key);
-      [...group.members.values()].sort((a,b)=>b.quantity-a.quantity||a.nickname.localeCompare(b.nickname,'ko')).forEach(member=>{const line=node('div','');line.className='overview-item';line.style.setProperty('--type-color',typeColor(type));line.append(node('strong',`${member.nickname} (${member.viewerId})`),node('span',`남음 ${member.quantity}개`));details.append(line);});target.append(details);
+      const summary=node('summary',`${group.name} · ${group.members.size}명 / 남음 ${group.total}개 `),badge=node('span',group.season);badge.className='upbo-season-badge';summary.append(badge);details.append(summary);
+      const type=A.data.taskTypes.find(t=>t.id===group.typeId);
+      [...group.members.values()].sort((a,b)=>b.quantity-a.quantity||a.nickname.localeCompare(b.nickname,'ko')).forEach(member=>{
+        const line=node('div','');line.className='overview-item type-viewer';line.style.setProperty('--type-color',typeColor(type));line.append(node('strong',`${member.nickname} (${member.viewerId}) · 남음 ${member.quantity}개`));
+        member.rows.forEach(row=>{const actions=node('div','');actions.className='type-viewer-actions';actions.append(node('span',`${row.season} · ${row.quantity}개`),button('−1 차감',()=>A.commit(d=>CHOGEUMBI_MODEL.unassign(d,row.id))),button('1개 처리',()=>A.commit(d=>CHOGEUMBI_MODEL.finish(d,row.id))));const remove=button('삭제',()=>{if(confirm(`${member.nickname} 님의 ${row.season} / ${row.item} 배정을 삭제할까요? 해당 배정만 삭제하고 처리 이력은 유지합니다.`))A.commit(d=>{d.upbo=d.upbo.filter(r=>r.id!==row.id);});});remove.className='delete';actions.append(remove);line.append(actions);});details.append(line);
+      });target.append(details);
     });
     if(!groups.size)target.append(node('p','선택한 시즌에 남은 업보가 없습니다.'));
   }
