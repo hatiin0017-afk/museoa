@@ -13,6 +13,7 @@ function initWorkflows(){
   $('#schedule-all').addEventListener('click',()=>{$('#schedule-filter').value='';filterSchedules();});
   $('#assign-member').addEventListener('change',renderUpbo);$('#assign-season').addEventListener('change',()=>{members();renderUpbo();});
   function typeColor(type){return /^#[0-9a-f]{6}$/i.test(type?.color||'')?type.color:'#c5e8c7';}
+  const memoDrafts=new Map();
   function renderUpbo(){
     const list=$('#upbo-list'),quick=$('#quick-types'),header=$('#selected-viewer');list.replaceChildren();quick.replaceChildren();header.replaceChildren();
     renderOverview($('#upbo-overview'),$('#assign-season').value);
@@ -30,7 +31,11 @@ function initWorkflows(){
       const done=button('1개 처리',()=>A.commit(d=>CHOGEUMBI_MODEL.finish(d,r.id)));done.disabled=r.quantity===0;
       const ready=button(r.status==='준비 완료'?'준비 취소':'준비완료',()=>A.commit(d=>{const row=d.upbo.find(x=>x.id===r.id);row.status=row.status==='준비 완료'?'대기':'준비 완료';}));ready.disabled=r.quantity===0;
       const remove=button('삭제',()=>{if(confirm(`${r.item} 배정을 삭제할까요? 남은 ${r.quantity}개와 완료 ${r.completed}개가 집계에서 제외됩니다. 처리 이력은 유지됩니다.`))A.commit(d=>{d.upbo=d.upbo.filter(row=>row.id!==r.id);});});remove.className='delete';
-      actions.append(plus,minus,done,ready,remove);card.append(info,actions);list.append(card);
+      const memo=node('div','');memo.className='upbo-private-memo';const label=node('label','비공개 메모'),input=document.createElement('textarea');input.rows=2;input.maxLength=1000;input.placeholder='스트리머·관리자만 볼 수 있어요';input.value=memoDrafts.get(r.id)??r.adminMemo??'';label.append(input);
+      const saveMemo=button('메모 저장',async()=>{const value=input.value.trim();memoDrafts.set(r.id,value);const saved=await A.commit(d=>{const row=d.upbo.find(row=>row.id===r.id);if(!row)throw new Error('삭제된 업보입니다. 새로고침해 주세요.');row.adminMemo=value;});if(saved){memoDrafts.delete(r.id);renderUpbo();}});
+      saveMemo.disabled=input.value===(r.adminMemo||'');input.addEventListener('input',()=>{memoDrafts.set(r.id,input.value);saveMemo.disabled=input.value===(r.adminMemo||'');});memo.append(label,saveMemo);
+      const heading=node('div','');heading.className='upbo-card-heading';heading.append(info,memo);
+      actions.append(plus,minus,done,ready,remove);card.append(heading,actions);list.append(card);
     });
     if(!rows.length)list.append(node('p','이 시즌에 배정된 업보가 없습니다. 아래 종류를 눌러 추가하세요.'));
     A.data.taskTypes.filter(t=>t.active!==false&&!t.deleted).forEach(t=>{const add=button(t.name+' +1',()=>A.commit(d=>CHOGEUMBI_MODEL.assign(d,member.id,t.id,season,1)));add.className='type-add';add.style.setProperty('--type-color',typeColor(t));add.disabled=!season;quick.append(add);});
