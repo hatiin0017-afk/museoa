@@ -1,10 +1,10 @@
 'use strict';
 function initInquiryAdmin(){
   const $=s=>document.querySelector(s),node=(tag,value)=>{const e=document.createElement(tag);e.textContent=value;return e;};let page=0,request=0;
-  const tab=$('[data-pane="upbo-inquiries"]'),dot=node('span','');dot.className='inquiry-unread-dot';dot.hidden=true;dot.setAttribute('aria-hidden','true');tab.append(dot);let badgeRequest=0;
+  const badges=[['[data-pane="upbo-inquiries"]','문의함'],['[data-tab="upbo"]','업보']].map(([selector,label])=>{const tab=$(selector),dot=node('span','');dot.className='inquiry-unread-dot';dot.hidden=true;dot.setAttribute('aria-hidden','true');tab.append(dot);return {tab,dot,label};});let badgeRequest=0;
   async function refreshBadge(){
     const current=++badgeRequest;
-    try{const count=await GEUMBI_INQUIRIES.unreadCount();if(current!==badgeRequest)return;dot.hidden=count===0;tab.setAttribute('aria-label',count?`문의함 · 새 문의 ${count}건`:'문의함');tab.title=count?`확인하지 않은 문의 ${count}건`:'';}catch{/* Keep the last known indicator when a refresh fails. */}
+    try{const count=await GEUMBI_INQUIRIES.unreadCount();if(current!==badgeRequest)return;badges.forEach(({tab,dot,label})=>{dot.hidden=count===0;tab.setAttribute('aria-label',count?`${label} · 새 문의 ${count}건`:label);tab.title=count?`확인하지 않은 문의 ${count}건`:'';});}catch{/* Keep the last known indicator when a refresh fails. */}
   }
   async function render(){
     refreshBadge();
