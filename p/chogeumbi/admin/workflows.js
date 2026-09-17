@@ -17,16 +17,17 @@ function initWorkflows(){
   function renderUpbo(){
     const list=$('#upbo-list'),quick=$('#quick-types'),header=$('#selected-viewer');list.replaceChildren();quick.replaceChildren();header.replaceChildren();
     renderOverview($('#upbo-overview'),$('#assign-season').value);
+    renderTypeOverview($('#assign-season').value);
     const member=A.data.members.find(m=>m.id===$('#assign-member').value),season=$('#assign-season').value.trim();
     if(!member){$('#upbo-count').textContent='먼저 시청자를 선택해 주세요.';$('#assigned-heading').hidden=true;return;}
     $('#assigned-heading').hidden=false;header.append(GEUMBI_SOOP.picture(member.viewerId,member.nickname),node('strong',member.nickname),node('small',member.viewerId));
-    const rows=A.data.upbo.filter(r=>r.memberId===member.id&&r.season===season);
-    $('#upbo-count').textContent=`${season||'시즌을 입력해 주세요'} · ${rows.length}종 · 남은 수량 ${rows.reduce((sum,r)=>sum+r.quantity,0)}개`;
+    const rows=A.data.upbo.filter(r=>r.memberId===member.id&&(!season||r.season===season));
+    $('#upbo-count').textContent=`${season||'전체 시즌'} · ${rows.length}건 · 남은 수량 ${rows.reduce((sum,r)=>sum+r.quantity,0)}개`;
     rows.forEach(r=>{
       const type=A.data.taskTypes.find(t=>t.id===r.typeId),card=node('div','');card.className='record';card.dataset.rowId=r.id;card.style.setProperty('--type-color',typeColor(type));
-      const info=node('div','');info.append(node('strong',r.item),node('p',r.status));const stats=node('p',`누적 ${r.allocated} · 처리 ${r.completed} · 남음 ${r.quantity}`);stats.className='counts';info.append(stats);
+      const info=node('div','');info.append(node('strong',r.item),node('p',`${!season?r.season+' · ':''}${r.status}`));const stats=node('p',`누적 ${r.allocated} · 처리 ${r.completed} · 남음 ${r.quantity}`);stats.className='counts';info.append(stats);
       const actions=node('div','');actions.className='quick-actions';
-      const plus=button('+1',()=>A.commit(d=>CHOGEUMBI_MODEL.assign(d,member.id,r.typeId,season,1)));plus.disabled=!type||type.deleted||type.active===false;
+      const plus=button('+1',()=>A.commit(d=>CHOGEUMBI_MODEL.assign(d,member.id,r.typeId,r.season,1)));plus.disabled=!type||type.deleted||type.active===false;
       const minus=button('−1',()=>A.commit(d=>CHOGEUMBI_MODEL.unassign(d,r.id)));minus.disabled=r.quantity===0;minus.title='배정 취소 (완료 횟수는 유지)';
       const done=button('1개 처리',()=>A.commit(d=>CHOGEUMBI_MODEL.finish(d,r.id)));done.disabled=r.quantity===0;
       const ready=button(r.status==='준비 완료'?'준비 취소':'준비완료',()=>A.commit(d=>{const row=d.upbo.find(x=>x.id===r.id);row.status=row.status==='준비 완료'?'대기':'준비 완료';}));ready.disabled=r.quantity===0;
@@ -39,6 +40,7 @@ function initWorkflows(){
       actions.append(plus,minus,done,ready,remove);card.append(heading,actions);list.append(card);
     });
     if(!rows.length)list.append(node('p','이 시즌에 배정된 업보가 없습니다. 아래 종류를 눌러 추가하세요.'));
+    if(!season)quick.append(node('p','새 업보를 배정하려면 시즌을 선택해 주세요.'));
     A.data.taskTypes.filter(t=>t.active!==false&&!t.deleted).forEach(t=>{const add=button(t.name+' +1',()=>A.commit(d=>CHOGEUMBI_MODEL.assign(d,member.id,t.id,season,1)));add.className='type-add';add.style.setProperty('--type-color',typeColor(t));add.disabled=!season;quick.append(add);});
     if(!quick.children.length)quick.append(node('p','업보 종류 탭에서 항목을 먼저 등록해 주세요.'));
   }
@@ -83,6 +85,20 @@ function initWorkflows(){
   $('#season-form').addEventListener('submit',async event=>{event.preventDefault();const name=event.target.elements.name.value.trim(),original=event.target.elements.original.value;if(!name)return;if(await A.commit(d=>{const seasons=new Set([...d.seasons,...d.upbo.map(r=>r.season)]);if(name!==original&&seasons.has(name))throw new Error('이미 있는 시즌 이름입니다. 다른 이름을 입력해 주세요.');if(original){d.seasons=d.seasons.filter(s=>s!==original);d.upbo.filter(r=>r.season===original).forEach(r=>r.season=name);d.history.filter(r=>r.season===original).forEach(r=>r.season=name);}if(!d.seasons.includes(name))d.seasons.push(name);})){event.target.reset();event.target.elements.original.value='';$('#season-save').textContent='시즌 추가';$('#assign-season').value=name;members();renderUpbo();}});
   ['stats-season','stats-type','stats-status','stats-sort'].forEach(id=>$('#'+id).addEventListener('change',renderStats));$('#stats-search').addEventListener('input',renderStats);
   $('#stats-reset').addEventListener('click',()=>{['stats-season','stats-type','stats-status','stats-search'].forEach(id=>$('#'+id).value='');$('#stats-sort').value='remaining-desc';renderStats();});
+  function renderTypeOverview(season){
+    const target=$('#upbo-type-overview'),opened=new Set([...target.querySelectorAll('details[open]')].map(e=>e.dataset.typeId)),groups=new Map();target.replaceChildren();
+    A.data.upbo.filter(r=>r.quantity>0&&(!season||r.season===season)).forEach(row=>{
+      const key=row.typeId||row.item;if(!groups.has(key))groups.set(key,{key,name:row.item,total:0,members:new Map()});const group=groups.get(key);group.total+=row.quantity;
+      const memberKey=row.memberId||row.viewerId;if(!group.members.has(memberKey))group.members.set(memberKey,{nickname:row.nickname,viewerId:row.viewerId,quantity:0});group.members.get(memberKey).quantity+=row.quantity;
+    });
+    [...groups.values()].sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ko')).forEach(group=>{
+      const details=node('details','');details.className='viewer-group';details.dataset.typeId=group.key;details.open=opened.has(group.key);
+      details.append(node('summary',`${group.name} · ${group.members.size}명 / 남음 ${group.total}개`));
+      const type=A.data.taskTypes.find(t=>t.id===group.key);
+      [...group.members.values()].sort((a,b)=>b.quantity-a.quantity||a.nickname.localeCompare(b.nickname,'ko')).forEach(member=>{const line=node('div','');line.className='overview-item';line.style.setProperty('--type-color',typeColor(type));line.append(node('strong',`${member.nickname} (${member.viewerId})`),node('span',`남음 ${member.quantity}개`));details.append(line);});target.append(details);
+    });
+    if(!groups.size)target.append(node('p','선택한 시즌에 남은 업보가 없습니다.'));
+  }
   function renderOverview(target,season,filteredRows=null,sort='remaining-desc'){
     target.replaceChildren();const rows=filteredRows||A.data.upbo.filter(r=>!season||r.season===season),groups=new Map();
     rows.forEach(r=>{if(!groups.has(r.memberId))groups.set(r.memberId,[]);groups.get(r.memberId).push(r);});
@@ -103,7 +119,7 @@ function initWorkflows(){
   function render(){
     const data=A.data,selected=schedule.elements.type.value||'소통';schedule.elements.type.replaceChildren();data.categories.forEach(c=>schedule.elements.type.append(new Option(c.name,c.name)));schedule.elements.type.value=selected;categoryChanged();
     const cl=$('#category-list');cl.replaceChildren();data.categories.forEach(c=>{const chip=button(c.name,()=>{$('#category-form').elements.name.value=c.name;$('#category-form').elements.color.value=c.color;});chip.style.background=c.color;cl.append(chip);});
-    const seasons=[...new Set([...data.seasons,...data.upbo.map(r=>r.season)])];for(const id of ['assign-season','stats-season']){const select=$('#'+id),previous=select.value;select.replaceChildren();if(id==='stats-season')select.append(new Option('전체 시즌',''));else if(!seasons.length)select.append(new Option('시즌을 먼저 등록해 주세요',''));seasons.forEach(s=>select.append(new Option(s,s)));if([...select.options].some(o=>o.value===previous))select.value=previous;}$('#season-list').replaceChildren();seasons.forEach(s=>{const row=node('div','');row.className='season-record';row.append(node('strong',s),button('이름 수정',()=>{const form=$('#season-form');form.elements.original.value=s;form.elements.name.value=s;$('#season-save').textContent='시즌 이름 저장';form.elements.name.focus();}));const remove=button('삭제',async()=>{const count=A.data.upbo.filter(r=>r.season===s).length;if(!confirm(`${s} 시즌을 삭제할까요? 업보 ${count}건과 이 시즌의 처리 이력이 함께 삭제되며 되돌릴 수 없습니다.`))return;if(await A.commit(d=>{d.seasons=d.seasons.filter(name=>name!==s);d.upbo=d.upbo.filter(r=>r.season!==s);d.history=d.history.filter(r=>r.season!==s);})){if($('#season-form').elements.original.value===s)$('#new-season').click();}});remove.className='delete';row.append(remove);$('#season-list').append(row);});members();
+    const seasons=[...new Set([...data.seasons,...data.upbo.map(r=>r.season)])];for(const id of ['assign-season','stats-season']){const select=$('#'+id),previous=select.value;select.replaceChildren();select.append(new Option('전체 시즌',''));seasons.forEach(s=>select.append(new Option(s,s)));if([...select.options].some(o=>o.value===previous))select.value=previous;}$('#season-list').replaceChildren();seasons.forEach(s=>{const row=node('div','');row.className='season-record';row.append(node('strong',s),button('이름 수정',()=>{const form=$('#season-form');form.elements.original.value=s;form.elements.name.value=s;$('#season-save').textContent='시즌 이름 저장';form.elements.name.focus();}));const remove=button('삭제',async()=>{const count=A.data.upbo.filter(r=>r.season===s).length;if(!confirm(`${s} 시즌을 삭제할까요? 업보 ${count}건과 이 시즌의 처리 이력이 함께 삭제되며 되돌릴 수 없습니다.`))return;if(await A.commit(d=>{d.seasons=d.seasons.filter(name=>name!==s);d.upbo=d.upbo.filter(r=>r.season!==s);d.history=d.history.filter(r=>r.season!==s);})){if($('#season-form').elements.original.value===s)$('#new-season').click();}});remove.className='delete';row.append(remove);$('#season-list').append(row);});members();
     const ml=$('#member-list');ml.replaceChildren();data.members.forEach(m=>{const row=node('div','');row.className='member-record';const edit=button(m.nickname+' · '+m.viewerId,()=>{$('#member-form').elements.nickname.value=m.nickname;$('#member-form').elements.viewerId.value=m.viewerId;});const remove=button('삭제',async()=>{const count=A.data.upbo.filter(r=>r.memberId===m.id).length;if(!confirm(`${m.nickname} 시청자와 연결된 업보 ${count}건을 삭제할까요? 처리 이력은 유지됩니다.`))return;if(await A.commit(d=>{d.upbo=d.upbo.filter(r=>r.memberId!==m.id);d.members=d.members.filter(member=>member.id!==m.id);})){if($('#member-form').elements.viewerId.value===m.viewerId)$('#member-form').reset();$('#member-search').value='';closeMembers();}});remove.className='delete';row.append(edit,remove);ml.append(row);});
     const tl=$('#type-list');tl.replaceChildren();data.taskTypes.filter(t=>!t.deleted).forEach(t=>{
       const card=node('div','');card.className='type-record';card.style.setProperty('--type-color',typeColor(t));card.append(node('strong',t.name));
