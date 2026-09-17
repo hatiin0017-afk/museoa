@@ -14,8 +14,8 @@ dialog{border:2px solid #a5c7a5;border-radius:20px;background:var(--cream);color
 .calendar button{line-height:18px;vertical-align:top}.calendar .event-chip{line-height:12px;padding:2px;margin-top:2px}.calendar .event-more{display:block;line-height:9px;margin-top:1px}
 .schedule-note strong{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.schedule-note span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.schedule-note b{flex-shrink:0}
 /* GFX typography sits directly on the artwork, with no information cards. */
-.hero-facts{left:35px;top:150px;width:195px;background:none;border:0;border-radius:0;padding:0;backdrop-filter:none;transform:rotate(-4deg)}
-.hero-facts>div{padding:0;margin:0 0 30px;border:0}.hero-facts>div:nth-child(2){margin-left:12px}.hero-facts>div:nth-child(3){margin-left:2px}.hero-facts>div:nth-child(4){margin-left:16px}
+.hero-facts{inset:0;width:auto;margin:0;background:none;border:0;border-radius:0;padding:0;backdrop-filter:none;transform:none;pointer-events:none}
+.hero-facts>div{position:absolute;padding:0;margin:0;border:0;width:190px;transform:rotate(-4deg)}.hero-facts>div:nth-child(1){right:25px;top:224px;width:165px;transform:rotate(5deg)}.hero-facts>div:nth-child(2){left:32px;top:211px}.hero-facts>div:nth-child(3){left:35px;top:325px}.hero-facts>div:nth-child(4){right:23px;top:482px;width:166px;transform:rotate(5deg)}
 .hero-facts dt{font:800 10px/1.5 monospace;letter-spacing:3px;color:#286d54;text-shadow:0 1px 0 #fffbe8}
 .hero-facts dd{margin:3px 0 0;font:900 38px/1.12 Arial,'Malgun Gothic',sans-serif;letter-spacing:-1.7px;color:#1b6048;text-shadow:2px 2px 0 #fffbe8,-1px -1px 0 #fffbe8}.hero-facts>div:nth-child(2) dd{font-size:29px}.hero-facts>div:nth-child(3) dd{font-size:49px;letter-spacing:1px}.hero-facts>div:last-child dd{font-size:24px;letter-spacing:-1px}
 .home .hello-sticker{top:55px;right:25px;width:200px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;transform:rotate(7deg);font-size:39px;letter-spacing:-2.5px;font-weight:900;line-height:1.22;color:#266d53;text-shadow:2px 2px 0 #fffbe8,-1px -1px 0 #fffbe8}
