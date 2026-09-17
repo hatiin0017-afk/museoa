@@ -22,6 +22,8 @@
   let snapshot=localStorage.getItem(GEUMBI.key);
   const fields={greeting:['메인 인사말',36],tagline:['메인 아래 멘트',70],birthday:['생일 (MM.DD)',5],debut:['데뷔일 (YYYY.MM.DD)',10],mbti:['MBTI',8],color:['대표 색상',20],scheduleKicker:['일정 상단 영문 멘트',35],scheduleBadge:['휴방 안내 영문 멘트',24],scheduleTitle:['일정 제목',22],scheduleSubtitle:['일정 소개 멘트',50],restNote:['휴방 안내 문구',50],luckMessage:['행운 버튼 메시지',65]};
   for(const [key,[label,max]]of Object.entries(fields)){const l=el('label',label),input=document.createElement('input');input.name=key;input.maxLength=max;input.required=true;l.append(input);$('#setting-fields').append(l);}
+  const introFields={introTopLeft:['상단 왼쪽 문구',40,'CHOGEUMBI / PERSONAL CHANNEL'],introTopRight:['상단 오른쪽 문구',20,'VOL. 01 ↗'],introKicker:['제목 위 작은 문구',40,'WELCOME TO MY WORLD'],introTitleFirst:['큰 제목 첫째 줄',14,'MAKE IT'],introTitleSecond:['큰 제목 둘째 줄',14,'LUCKY.'],introEnter:['입장 버튼 문구',24,'초금비의 세상으로'],introEnterEnglish:['입장 버튼 영문 문구',24,'CLICK TO ENTER']};
+  for(const [key,[label,max,fallback]]of Object.entries(introFields)){const l=el('label',label),input=document.createElement('input');input.name=key;input.maxLength=max;input.value=data.settings[key]??fallback;l.append(input);$('#intro-setting-fields').append(l);}
   const forms={schedules:$('#schedule-form'),outfits:$('#outfit-form')};
   const entries=(form)=>Object.fromEntries(new FormData(form));
   async function save(next){

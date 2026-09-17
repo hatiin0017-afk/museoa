@@ -11,16 +11,16 @@
   <link rel="stylesheet" href="./home-gfx.css">
   <link rel="stylesheet" href="./revision.css">
   <script src="./model.js" defer></script><script src="./supabase-config.js" defer></script><script src="./cloud.js" defer></script><script src="./data.js" defer></script><script src="./soop.js" defer></script>
-  <script src="./app.js" defer></script>
+  <script src="./inquiries.js" defer></script><script src="./inquiry-form.js" defer></script><script src="./app.js" defer></script>
 </head>
 <body>
 <div id="fit"><main id="stage">
   <section id="intro" class="view intro" aria-label="초금비 인트로">
     <a class="intro-entry" href="#home" aria-label="초금비 메인 페이지 입장">
       <img src="./assets/main2.png" alt="팬 캐릭터를 안고 웃는 금비" class="intro-art">
-      <div class="intro-top"><span>CHOGEUMBI / PERSONAL CHANNEL</span><span>VOL. 01 ↗</span></div>
+      <div class="intro-top"><span data-setting="introTopLeft">CHOGEUMBI / PERSONAL CHANNEL</span><span data-setting="introTopRight">VOL. 01 ↗</span></div>
       <div class="intro-label">A LITTLE LUCK, A LOT OF FUN.</div>
-      <div class="intro-bottom"><span class="intro-kicker">WELCOME TO MY WORLD</span><h1>MAKE IT<br><i>LUCKY.</i><span>✳</span></h1><div class="enter"><span>초금비의 세상으로</span><strong>CLICK TO ENTER</strong><b>↗</b></div></div>
+      <div class="intro-bottom"><span class="intro-kicker" data-setting="introKicker">WELCOME TO MY WORLD</span><h1><b class="intro-title-line" data-setting="introTitleFirst">MAKE IT</b><br><i data-setting="introTitleSecond">LUCKY.</i><span>✳</span></h1><div class="enter"><span data-setting="introEnter">초금비의 세상으로</span><strong data-setting="introEnterEnglish">CLICK TO ENTER</strong><b>↗</b></div></div>
     </a>
   </section>
   <div id="shell" hidden>
@@ -54,7 +54,7 @@
       <p id="schedule-data-note" class="data-note"></p>
     </section>
     <section id="upbo" class="view page" hidden aria-labelledby="upbo-title">
-      <div class="section-heading"><span>03 / REWARD CHECKLIST</span><h2 id="upbo-title" tabindex="-1">양갱이 업보 보관함<span>♡</span></h2><p>룰렛 당첨 보상과 남은 숙제를 확인하는 곳이에요.</p></div>
+      <div class="section-heading"><span>03 / REWARD CHECKLIST</span><h2 id="upbo-title" tabindex="-1">양갱이 업보 보관함</h2><button type="button" id="open-inquiry">업보 문의</button><p>룰렛 당첨 보상과 남은 숙제를 확인하는 곳이에요.</p></div>
       <div class="upbo-filters"><label>시즌<select id="upbo-season"><option value="">전체 시즌</option></select></label><label>시청자 검색<input id="upbo-search" type="search" placeholder="닉네임 또는 아이디" maxlength="60"></label></div>
       <p id="upbo-summary" class="data-note" role="status"></p><div id="upbo-list" class="upbo-list"></div><div id="upbo-pages" class="list-pages"></div>
       <p class="data-note">방셀 등 룰렛 당첨 보상의 남은 수량과 준비 상태를 확인해 주세요.</p>
@@ -65,5 +65,5 @@
 </main></div>
 <dialog id="schedule-dialog" aria-labelledby="selected-day"><button id="close-schedule" class="dialog-close" aria-label="일정 상세 닫기">×</button><h2 id="selected-day"></h2><div id="selected-events" class="event-list"></div></dialog>
 <dialog id="outfit-dialog" aria-labelledby="outfit-dialog-title"><button id="close-outfit" aria-label="의상 크게 보기 닫기">×</button><h2 id="outfit-dialog-title"></h2><img alt=""><p></p></dialog>
-<dialog id="upbo-dialog" aria-labelledby="upbo-dialog-title"><button id="close-upbo" class="dialog-close" aria-label="업보 상세 닫기">×</button><div id="upbo-dialog-person"></div><div id="upbo-dialog-items"></div></dialog>
+<dialog id="inquiry-dialog" aria-labelledby="inquiry-title"><button type="button" id="close-inquiry" class="dialog-close" aria-label="문의 닫기">×</button><h2 id="inquiry-title">업보 문의</h2><p>문의는 관리자만 확인할 수 있어요.</p><form id="inquiry-form"><label>닉네임<input name="nickname" maxlength="40" required autocomplete="nickname"></label><label>내용<textarea name="content" maxlength="2000" rows="6" required></textarea></label><p id="inquiry-status" role="status"></p><button type="submit">문의 보내기</button></form></dialog><dialog id="upbo-dialog" aria-labelledby="upbo-dialog-title"><button id="close-upbo" class="dialog-close" aria-label="업보 상세 닫기">×</button><div id="upbo-dialog-person"></div><div id="upbo-dialog-items"></div></dialog>
 </body></html>

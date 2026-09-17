@@ -17,6 +17,9 @@ context.window=context;vm.createContext(context);vm.runInContext(fs.readFileSync
  failUpload=true;assert.equal(await api.upload(),false);assert.equal(primary.disabled,false);assert.equal(uploads,2);
  state.outfits=[{image:url}];await api.clean(url);assert.equal(removes,0);assert.equal(state.imageCleanup.length,1);
  state.outfits=[];deny=true;await api.clean(url);assert.equal(state.imageCleanup.length,1);
+ state.settings={introImage:url};const before=removes;await api.clean(url);assert.equal(removes,before);state.settings={};
+ failUpload=false;assert.equal(await api.uploadFile({type:'image/png',size:100}),url);
+ await assert.rejects(()=>api.uploadFile({type:'text/html',size:100}));
  deny=false;await api.clean(url);assert.equal(state.imageCleanup.length,0);assert.equal(removes,2);
  console.log('PASS: managed path restriction, upload URL assignment, upload failure recovery, shared image preservation, cleanup retry');
 })().catch(e=>{console.error(e);process.exitCode=1;});

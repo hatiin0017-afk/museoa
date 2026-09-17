@@ -4,7 +4,14 @@
   let data = GEUMBI.load();
   const $ = selector => document.querySelector(selector);
   const text = (tag, value, cls) => { const e = document.createElement(tag); e.textContent = value; if (cls) e.className = cls; return e; };
-  function applySettings() { document.querySelectorAll('[data-setting]').forEach(e => { const v = data.settings[e.dataset.setting]; if (v !== undefined) e.textContent = v; }); }
+  const settingDefaults=Object.fromEntries([...document.querySelectorAll('[data-setting]')].map(e=>[e.dataset.setting,e.textContent]));
+  function applySettings() {
+    document.querySelectorAll('[data-setting]').forEach(e => { e.textContent=data.settings[e.dataset.setting]??settingDefaults[e.dataset.setting]; });
+    $('.intro-art').src=GEUMBI.imageURL(data.settings.introImage)||'./assets/main2.png';
+    const main=GEUMBI.imageURL(data.settings.mainImage);$('.character img').src=main||'./assets/main.png';$('.character').classList.toggle('custom-image',!!main);
+    const background=GEUMBI.imageURL(data.settings.mainBackground),hero=$('#hero-screen');
+    hero.style.backgroundImage=background?`url(${JSON.stringify(background)})`:'';hero.classList.toggle('custom-background',!!background);
+  }
   applySettings();
   $('#preview-label').hidden = !GEUMBI.local;
   const stage = document.querySelector('#stage');
@@ -147,6 +154,7 @@
     scheduleDialog.showModal();scrollTo({left:x,top:y,behavior:'instant'});positionSchedule();
   }
   scheduleDialog.addEventListener('close',()=>{const target=scheduleAnchor?.isConnected?scheduleAnchor:calendar.querySelector('[aria-pressed=true]');target?.focus({preventScroll:true});scheduleAnchor=null;scheduleRect=null;});
+  scheduleDialog.addEventListener('click',event=>{if(event.target!==scheduleDialog)return;const rect=scheduleDialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)scheduleDialog.close();});
   addEventListener('scroll',positionSchedule,{passive:true});addEventListener('resize',positionSchedule);window.visualViewport?.addEventListener('resize',positionSchedule);
   addEventListener('hashchange',()=>{if(scheduleDialog.open)scheduleDialog.close();});
   let outfitPage=0, upboPage=0;
