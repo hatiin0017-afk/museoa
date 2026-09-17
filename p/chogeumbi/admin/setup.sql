@@ -69,6 +69,11 @@ begin
   if expected_revision is distinct from current_revision then
     raise exception '다른 창에서 데이터가 변경되었습니다.' using errcode='40001';
   end if;
+  if exists (
+    select 1 from jsonb_array_elements(new_payload->'outfits') outfit
+    join jsonb_array_elements(coalesce((select payload->'imageCleanup' from public.chogeumbi_state where id=1),'[]'::jsonb)) pending
+      on outfit->>'image'=pending->>'image'
+  ) then raise exception '삭제 대기 중인 이미지입니다. 새 파일로 등록해 주세요.' using errcode='22023'; end if;
   update public.chogeumbi_state set payload=new_payload,revision=current_revision+1,updated_at=now() where id=1;
   return current_revision+1;
 end;
@@ -86,6 +91,19 @@ create policy chogeumbi_image_insert on storage.objects for insert to authentica
   and (storage.foldername(name))[2]='chogeumbi'
   and exists(select 1 from public.chogeumbi_editors where user_id=(select auth.uid()))
 );
+
+-- 등록된 관리자는 이 프로필의 업로드 이미지만 정리할 수 있습니다.
+drop policy if exists chogeumbi_image_read_admin on storage.objects;
+create policy chogeumbi_image_read_admin on storage.objects for select to authenticated using (
+  bucket_id='chogeumbi' and (storage.foldername(name))[2]='chogeumbi'
+  and exists(select 1 from public.chogeumbi_editors where user_id=(select auth.uid()))
+);
+drop policy if exists chogeumbi_image_delete on storage.objects;
+create policy chogeumbi_image_delete on storage.objects for delete to authenticated using (
+  bucket_id='chogeumbi' and (storage.foldername(name))[2]='chogeumbi'
+  and exists(select 1 from public.chogeumbi_editors where user_id=(select auth.uid()))
+);
+
 commit;
 
 -- 관리자 등록 (최초 1회): Authentication > Users에서 관리자 계정을 생성하고,

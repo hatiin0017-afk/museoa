@@ -19,3 +19,13 @@ assert.throws(()=>M.assign(d,d.members[0].id,d.taskTypes[0].id,'시즌 1',1.5));
 const round=M.normalize(JSON.parse(JSON.stringify(d)));assert.equal(round.upbo[0].completed,7);assert.equal(round.upbo[0].allocated,8);
 assert.equal(round.history.length,6);
 console.log('PASS: migration, accumulation, completion, overspend rejection, season isolation, manual merge, reopen, persistence');
+
+const cancel=M.normalize(JSON.parse(JSON.stringify(round)));
+M.unassign(cancel,'old');assert.equal(cancel.upbo.find(r=>r.id==='old').completed,7);assert.equal(cancel.upbo.find(r=>r.id==='old').quantity,0);assert.equal(cancel.upbo.find(r=>r.id==='old').allocated,7);
+assert.throws(()=>M.unassign(cancel,'old'));
+const newRow=cancel.upbo.find(r=>r.season==='시즌 2');M.unassign(cancel,newRow.id);assert.equal(cancel.upbo.some(r=>r.id===newRow.id),false);
+cancel.taskTypes[0].color='#f4cfdf';cancel.taskTypes[0].deleted=true;cancel.taskTypes[0].active=false;M.normalize(cancel);
+assert.throws(()=>M.assign(cancel,cancel.members[0].id,cancel.taskTypes[0].id,'시즌 1',1));
+assert.equal(M.normalize(JSON.parse(JSON.stringify(cancel))).taskTypes[0].deleted,true);
+const publicCopy=M.normalize({settings:cancel.settings,upbo:cancel.upbo,schedules:[]});assert.equal(publicCopy.settings.upboColors['방셀'],'#f4cfdf');
+console.log('PASS: assignment cancellation, completion preservation, retired type, public color projection');
