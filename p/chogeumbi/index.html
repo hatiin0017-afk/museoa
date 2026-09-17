@@ -9,55 +9,60 @@
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./home-gfx.css">
+  <link rel="stylesheet" href="./revision.css">
+  <script src="./model.js" defer></script><script src="./data.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
 <div id="fit"><main id="stage">
   <section id="intro" class="view intro" aria-label="초금비 인트로">
     <a class="intro-entry" href="#home" aria-label="초금비 메인 페이지 입장">
-      <img src="./assets/intro-popart-v1.png" alt="초록 머리와 노란 브릿지, 무지갯빛 선글라스의 초금비 팝아트" class="intro-art">
+      <img src="./assets/main2.png" alt="팬 캐릭터를 안고 웃는 금비" class="intro-art">
       <div class="intro-top"><span>CHOGEUMBI / PERSONAL CHANNEL</span><span>VOL. 01 ↗</span></div>
       <div class="intro-label">A LITTLE LUCK, A LOT OF FUN.</div>
       <div class="intro-bottom"><span class="intro-kicker">WELCOME TO MY WORLD</span><h1>MAKE IT<br><i>LUCKY.</i><span>✳</span></h1><div class="enter"><span>초금비의 세상으로</span><strong>CLICK TO ENTER</strong><b>↗</b></div></div>
     </a>
   </section>
   <div id="shell" hidden>
-    <header class="masthead"><a href="#home" class="brand" aria-label="초금비 홈">초금비<span>CHOGEUMBI</span></a><span class="edition">THE LUCKY CHANNEL<br>EST. 2023 — SOOP</span><a href="#intro" class="round" aria-label="인트로로 돌아가기">↗</a></header>
+    <header class="masthead"><a href="#home" class="brand" aria-label="초금비 홈">초금비<span>CHOGEUMBI</span></a><a class="header-station" href="https://www.sooplive.com/station/chogeumbi" target="_blank" rel="noopener noreferrer" aria-label="SOOP 방송국 새 창으로 열기">⌂ <span>방송국</span></a><span class="edition">THE LUCKY CHANNEL<br>EST. 2023 — SOOP</span><a href="#intro" class="round" aria-label="인트로로 돌아가기">↗</a></header>
     <div class="ticker" aria-hidden="true">✳ GOOD LUCK TO YOU! <span>모두에게 행복이 가득하길</span> ✳ GOOD LUCK TO YOU! <span>모두에게 행복이 가득하길</span></div>
-    <nav class="tabs" aria-label="프로필 메뉴"><a href="#home" data-route="home">⌂ <span>메인</span></a><a href="#profile" data-route="profile">✿ <span>자기소개</span></a><a href="#schedule" data-route="schedule">▦ <span>일정</span></a><a href="#upbo" data-route="upbo">♡ <span>업보</span></a></nav>
+    <nav class="tabs" aria-label="프로필 메뉴"><a href="#home" data-route="home">⌂ <span>메인</span></a><a href="#outfits" data-route="outfits">✿ <span>의상 앨범</span></a><a href="#schedule" data-route="schedule">▦ <span>일정</span></a><a href="#upbo" data-route="upbo">♡ <span>업보</span></a></nav>
     <section id="home" class="view page home" hidden aria-labelledby="home-title">
       <div class="machine"><div class="machine-bar"><span><i class="led"></i> CHOGEUMBI.EXE</span><span>− &nbsp; □ &nbsp; ✕</span></div>
         <div class="hero-screen" id="hero-screen">
-          <div class="hero-type"><span>YOUR DAILY DOSE OF</span><h2 id="home-title">LUCKY<br><em>CHAMELEON!</em></h2></div>
-          <div class="character"><img src="./assets/main.png" alt="초록 머리와 노란 브릿지, 장난스럽게 윙크하는 초금비"></div>
-          <div class="side-label">PLAYER 01 / CHOGEUMBI</div>
-          <div class="hello-sticker">안녕,<br>양갱이!<span>♡ NICE TO MEET YOU</span></div>
+          <h2 id="home-title" class="sr-only">금비의 작은 세상</h2>
+          <div id="luck-particles" aria-hidden="true"></div>
+          <div class="character"><img src="./assets/main.png" alt="초록 머리와 노란 브릿지의 금비"></div>
+          <div class="hello-sticker" data-setting="greeting">안녕, 양갱이!</div>
+          <dl class="hero-facts"><div><dt>BIRTHDAY</dt><dd data-setting="birthday">07.16</dd></div><div><dt>FIRST STREAM</dt><dd data-setting="debut">2023.12.11</dd></div><div><dt>MBTI</dt><dd data-setting="mbti">ISTP</dd></div><div><dt>MY COLOR</dt><dd data-setting="color">초록 + 노랑</dd></div></dl>
           <button class="luck-sticker" id="luck-button" aria-label="오늘의 행운 받기"><span>GOOD LUCK</span>행운 받기 ↗</button>
-          <div class="nameplate"><span>변신은 자유롭게, 행복은 가득하게.</span><strong>초금비</strong><small>#소통 &nbsp; #스팀종겜 &nbsp; #카멜레온RP</small></div>
+          <div class="nameplate"><span>작은 행복을 모으는 곳</span><strong>초금비</strong><small>WITH 양갱이</small></div>
         </div>
-        <div class="machine-bottom"><span>HAPPINESS LEVEL</span><div class="meter"><i></i></div><b>100%</b><span>♥</span></div>
+        <div class="machine-bottom"><span>HAPPINESS LEVEL</span><div class="meter" role="progressbar" aria-label="행운 충전" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div><b id="luck-value">0%</b><span>♥</span></div>
       </div>
-      <div class="home-strip"><span class="mini-clover">✳</span><div><small>A NOTE FOR YOU</small><p>모두에게 행복이 가득하길 🍀</p></div><a class="station" href="https://www.sooplive.com/station/chogeumbi" target="_blank" rel="noopener noreferrer">방송국 놀러가기 ↗</a></div>
-      <div class="quick-grid"><a href="#profile"><small>01 / ABOUT ME</small><strong>초금비 사용설명서 <span>↗</span></strong><p>밝음 + 장난기 + 카멜레온</p></a><a href="#schedule"><small>02 / ON MY CALENDAR</small><strong>우리 언제 만나? <span>↗</span></strong><p>토요일은 충전하는 날!</p></a></div>
+      <div class="home-social-panel"><p data-setting="tagline">모두에게 행복이 가득하길 🍀</p><div class="socials"><a href="https://www.sooplive.com/station/chogeumbi" target="_blank" rel="noopener noreferrer">SOOP ↗</a><a href="https://x.com/chogeumbi_soop" target="_blank" rel="noopener noreferrer">X ↗</a><a href="https://www.youtube.com/@초금비" target="_blank" rel="noopener noreferrer">YouTube ↗</a><a href="https://cafe.naver.com/chogeumbi" target="_blank" rel="noopener noreferrer">팬카페 ↗</a></div></div>
     </section>
-    <section id="profile" class="view page" hidden aria-labelledby="profile-title">
-      <div class="section-heading"><span>01 / ABOUT THE PLAYER</span><h2 id="profile-title" tabindex="-1">초금비 사용설명서<span>✿</span></h2><p>색다른 모습, 언제나 같은 초금비.</p></div>
-      <div class="profile-feature"><div class="portrait"><img src="./assets/main.png" alt="초금비 캐릭터 전신"></div><div class="profile-intro"><span class="pill">SOOP · VIRTUAL STREAMER</span><h3>안녕, 나는<br><em>초금비!</em></h3><p>🍀 모두에게 행복이 가득하길 🍀</p><div class="tags"><span>밝음</span><span>장난기 많음</span><span>카멜레온RP</span></div><b>FAN NAME <span>양갱이 ♡</span></b></div></div>
-      <dl class="facts"><div><dt>BIRTHDAY</dt><dd>07.16 <small>생일</small></dd></div><div><dt>FIRST STREAM</dt><dd>2023.12.11 <small>데뷔</small></dd></div><div><dt>MY COLOR</dt><dd><i class="swatch green"></i> 초록 + <i class="swatch yellow"></i> 노랑</dd></div><div><dt>CONTENTS</dt><dd>소통 · 스팀 종합게임</dd></div><div><dt>MUSIC</dt><dd>K-POP <small>가끔 노래해요</small></dd></div><div><dt>AGENCY</dt><dd>개인 <small>(버블란)</small></dd></div></dl>
-      <div class="link-panel"><span>LET'S STAY CONNECTED</span><div class="socials"><a href="https://www.sooplive.com/station/chogeumbi" target="_blank" rel="noopener noreferrer">SOOP ↗</a><a href="https://x.com/chogeumbi_soop" target="_blank" rel="noopener noreferrer">X ↗</a><a href="https://www.youtube.com/@초금비" target="_blank" rel="noopener noreferrer">YouTube ↗</a><a href="https://cafe.naver.com/chogeumbi" target="_blank" rel="noopener noreferrer">팬카페 ↗</a></div></div>
+    <section id="outfits" class="view page" hidden aria-labelledby="outfits-title">
+      <div class="section-heading"><span>01 / GEUMBI'S WARDROBE</span><h2 id="outfits-title">금비의 의상 앨범<span>✿</span></h2><p>오늘은 어떤 금비를 만나볼까요?</p></div>
+      <div id="outfit-grid" class="outfit-grid"></div><div id="outfit-pages" class="list-pages"></div>
     </section>
     <section id="schedule" class="view page" hidden aria-labelledby="schedule-title">
-      <div class="section-heading"><span>02 / SAVE THE DATE</span><h2 id="schedule-title" tabindex="-1">우리 언제 만나?<span>▦</span></h2><p>함께할 날을 기다리는 중!</p></div>
-      <div class="schedule-note"><strong>BATTERY CHARGING…</strong><span>매주 토요일은 고정 휴방이에요.</span><b>▰▰▰▱</b></div>
+      <div class="section-heading"><span data-setting="scheduleKicker">02 / SAVE THE DATE</span><h2 id="schedule-title" tabindex="-1" data-setting="scheduleTitle">우리 언제 만나?</h2><p data-setting="scheduleSubtitle">함께할 날을 기다리는 중!</p></div>
+      <div class="schedule-note"><strong data-setting="scheduleBadge">BATTERY CHARGING…</strong><span data-setting="restNote">매주 토요일은 고정 휴방이에요.</span><b>▰▰▰▱</b></div>
       <div class="calendar-box"><div class="month-nav"><button id="prev-month" aria-label="이전 달">←</button><h3 id="month-title" aria-live="polite"></h3><button id="next-month" aria-label="다음 달">→</button><button id="today-month">이번 달</button></div><div class="weekdays" aria-hidden="true"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div><div id="calendar" class="calendar" aria-label="월간 일정"></div><div class="calendar-legend"><span>● 오늘</span><span>▨ 정기 휴방</span><span>✿ 기념일</span></div></div>
-      <div class="day-detail" aria-live="polite"><span>SELECTED DAY</span><h3 id="selected-day"></h3><p id="selected-note"></p></div><a class="wide-link" href="https://www.sooplive.com/station/chogeumbi" target="_blank" rel="noopener noreferrer">자세한 방송 공지는 SOOP에서 확인해 주세요 <b>↗</b></a>
+      <div class="mini-week"><div class="mini-week-heading"><span>WEEKLY SCHEDULE</span><h3 id="week-title"></h3></div><div id="week-events" class="week-grid"></div></div>
+      <p id="schedule-data-note" class="data-note"></p>
     </section>
     <section id="upbo" class="view page" hidden aria-labelledby="upbo-title">
-      <div class="section-heading"><span>03 / OUR LITTLE PROMISES</span><h2 id="upbo-title" tabindex="-1">양갱이 업보 보관함<span>♡</span></h2><p>차곡차곡 모아둘, 우리들의 약속.</p></div>
-      <div class="upbo-window"><div class="machine-bar"><span>YANGGAENG_ARCHIVE</span><span>♡ ♡ ♡</span></div><div class="empty-archive"><div class="archive-icon">♡<span>0</span></div><span class="pill">WAITING FOR OUR FIRST STORY</span><h3>아직 기록된 업보가 없어요</h3><p>양갱이와의 약속이 생기면<br>이곳에서 함께 확인해요.</p><a href="https://cafe.naver.com/chogeumbi" target="_blank" rel="noopener noreferrer">양갱이 팬카페로 ↗</a></div></div><div class="upbo-note"><span>✳</span><p>조금 장난스럽고, 아주 다정한<br><strong>우리만의 기록이 될 거예요.</strong></p></div>
+      <div class="section-heading"><span>03 / REWARD CHECKLIST</span><h2 id="upbo-title" tabindex="-1">양갱이 업보 보관함<span>♡</span></h2><p>룰렛 당첨 보상과 남은 숙제를 확인하는 곳이에요.</p></div>
+      <div class="upbo-filters"><label>시즌<select id="upbo-season"><option value="">전체 시즌</option></select></label><label>시청자 검색<input id="upbo-search" type="search" placeholder="닉네임 또는 아이디" maxlength="60"></label></div>
+      <p id="upbo-summary" class="data-note" role="status"></p><div id="upbo-list" class="upbo-list"></div><div id="upbo-pages" class="list-pages"></div>
+      <p class="data-note">방셀 등 룰렛 당첨 보상의 남은 수량과 준비 상태를 확인해 주세요.</p>
     </section>
     <footer><a href="#home">✳ CHOGEUMBI</a><span>MADE OF GREEN & GOOD LUCK</span><span>양갱이와 함께 ♡</span></footer>
   </div>
-  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="preview-label" hidden>로컬 테스트 · 예시 데이터 포함</div><div id="toast" role="status" aria-live="polite"></div>
 </main></div>
+<dialog id="schedule-dialog" aria-labelledby="selected-day"><button id="close-schedule" class="dialog-close" aria-label="일정 상세 닫기">×</button><h2 id="selected-day"></h2><div id="selected-events" class="event-list"></div></dialog>
+<dialog id="outfit-dialog" aria-labelledby="outfit-dialog-title"><button id="close-outfit" aria-label="의상 크게 보기 닫기">×</button><h2 id="outfit-dialog-title"></h2><img alt=""><p></p></dialog>
 </body></html>
