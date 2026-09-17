@@ -14,9 +14,13 @@ function initWorkflows(){
   $('#assign-member').addEventListener('change',renderUpbo);$('#assign-season').addEventListener('change',()=>{members();renderUpbo();});
   function typeColor(type){return /^#[0-9a-f]{6}$/i.test(type?.color||'')?type.color:'#c5e8c7';}
   const memoDrafts=new Map();
+  function memoLine(value){
+    const memo=node('p',value);memo.className='overview-memo';memo.title=value;
+    return memo;
+  }
   function renderUpbo(){
     const list=$('#upbo-list'),quick=$('#quick-types'),header=$('#selected-viewer');list.replaceChildren();quick.replaceChildren();header.replaceChildren();
-    renderOverview($('#upbo-overview'),$('#assign-season').value);
+    renderOverview($('#upbo-overview'),$('#assign-season').value,null,'remaining-desc',true);
     renderTypeOverview($('#assign-season').value);
     const member=A.data.members.find(m=>m.id===$('#assign-member').value),season=$('#assign-season').value.trim();
     if(!member){$('#upbo-count').textContent='먼저 시청자를 선택해 주세요.';$('#assigned-heading').hidden=true;return;}
@@ -97,17 +101,21 @@ function initWorkflows(){
       const type=A.data.taskTypes.find(t=>t.id===group.typeId);
       [...group.members.values()].sort((a,b)=>b.quantity-a.quantity||a.nickname.localeCompare(b.nickname,'ko')).forEach(member=>{
         const line=node('div','');line.className='overview-item type-viewer';line.style.setProperty('--type-color',typeColor(type));line.append(node('strong',`${member.nickname} (${member.viewerId}) · 남음 ${member.quantity}개`));
-        member.rows.forEach(row=>{const actions=node('div','');actions.className='type-viewer-actions';actions.append(node('span',`${row.season} · ${row.quantity}개`),button('−1 차감',()=>A.commit(d=>CHOGEUMBI_MODEL.unassign(d,row.id))),button('1개 처리',()=>A.commit(d=>CHOGEUMBI_MODEL.finish(d,row.id))));const remove=button('삭제',()=>{if(confirm(`${member.nickname} 님의 ${row.season} / ${row.item} 배정을 삭제할까요? 해당 배정만 삭제하고 처리 이력은 유지합니다.`))A.commit(d=>{d.upbo=d.upbo.filter(r=>r.id!==row.id);});});remove.className='delete';actions.append(remove);line.append(actions);});details.append(line);
+        member.rows.forEach(row=>{const actions=node('div','');actions.className='type-viewer-actions';actions.append(node('span',`${row.season} · ${row.quantity}개`),button('−1 차감',()=>A.commit(d=>CHOGEUMBI_MODEL.unassign(d,row.id))),button('1개 처리',()=>A.commit(d=>CHOGEUMBI_MODEL.finish(d,row.id))));const remove=button('삭제',()=>{if(confirm(`${member.nickname} 님의 ${row.season} / ${row.item} 배정을 삭제할까요? 해당 배정만 삭제하고 처리 이력은 유지합니다.`))A.commit(d=>{d.upbo=d.upbo.filter(r=>r.id!==row.id);});});remove.className='delete';actions.append(remove);line.append(actions);if(row.adminMemo)line.append(memoLine(row.adminMemo));});details.append(line);
       });target.append(details);
     });
     if(!groups.size)target.append(node('p','선택한 시즌에 남은 업보가 없습니다.'));
   }
-  function renderOverview(target,season,filteredRows=null,sort='remaining-desc'){
-    target.replaceChildren();const rows=filteredRows||A.data.upbo.filter(r=>!season||r.season===season),groups=new Map();
+  function renderOverview(target,season,filteredRows=null,sort='remaining-desc',hideEmpty=false){
+    target.replaceChildren();let rows=filteredRows||A.data.upbo.filter(r=>!season||r.season===season);
+    if(hideEmpty)rows=rows.filter(r=>r.quantity>0);
+    const groups=new Map();
     rows.forEach(r=>{if(!groups.has(r.memberId))groups.set(r.memberId,[]);groups.get(r.memberId).push(r);});
     [...groups.values()].sort((a,b)=>{if(sort==='name')return a[0].nickname.localeCompare(b[0].nickname,'ko');const field=sort==='completed-desc'?'completed':'quantity',delta=b.reduce((n,r)=>n+r[field],0)-a.reduce((n,r)=>n+r[field],0);return (sort==='remaining-asc'?-delta:delta)||a[0].nickname.localeCompare(b[0].nickname,'ko');}).forEach(group=>{
       const first=group[0],details=node('details','');details.className='viewer-group';const summary=node('summary',`${first.nickname} (${first.viewerId}) · ${group.length}종 / 남음 ${group.reduce((n,r)=>n+r.quantity,0)}개`);details.append(summary);
-      group.forEach(r=>{const line=node('div','');line.className='overview-item';const type=A.data.taskTypes.find(t=>t.id===r.typeId);line.style.setProperty('--type-color',typeColor(type));line.append(node('strong',r.item),node('span',`${r.season} · 남음 ${r.quantity} / 처리 ${r.completed}`));details.append(line);});
+      group.forEach(r=>{const line=node('div','');line.className='overview-item';const type=A.data.taskTypes.find(t=>t.id===r.typeId);line.style.setProperty('--type-color',typeColor(type));
+        const main=node('div','');main.className='overview-main';main.append(node('strong',r.item));if(r.adminMemo)main.append(memoLine(r.adminMemo));
+        line.append(main,node('span',`${r.season} · 남음 ${r.quantity} / 처리 ${r.completed}`));details.append(line);});
       details.append(button('이 시청자 관리',()=>{const m=A.data.members.find(m=>m.id===first.memberId);if(!m)return;$('#assign-season').value=season||first.season;members();selectMember(m);$('#upbo [data-pane="upbo-assign"]').click();$('#assign-member').focus();}));target.append(details);
     });
     if(!groups.size)target.append(node('p','배정된 업보가 없습니다.'));
