@@ -116,13 +116,17 @@
       const [y,m,d] = event.date.split('-').map(Number);
       const dow = ['일','월','화','수','목','금','토'][new Date(y,m-1,d).getDay()];
       const row = text('button','','upcoming-row'); row.type='button'; row.style.setProperty('--chip',color(event.color));
-      const when = text('div','','upcoming-when');
-      when.append(text('strong',`${m}/${d}`), text('small',`${dow} · ${event.time || (event.type==='휴방'?'종일':'시간 미정')}`));
-      const body = text('div','','upcoming-body');
-      body.append(text('strong',event.title), text('small',`${event.type}${event.sample ? ' · 테스트' : ''}`));
-      row.append(when, body);
-      if (event.date === todayKey) row.append(text('span','TODAY','upcoming-today'));
-      row.setAttribute('aria-label',`${m}월 ${d}일 ${event.title}, 일정 상세 보기`);
+      row.classList.toggle('is-today', event.date === todayKey);
+      const when = event.time || (event.type === '휴방' ? '종일' : '시간 미정');
+      row.append(
+        text('span',`${m}/${d}`,'u-date'),
+        text('span',dow,'u-dow'),
+        text('span',when,'u-time'),
+        text('span',event.type,'u-type'),
+        text('span',event.title,'u-title'),
+        text('span',`${event.sample ? '테스트 · ' : ''}${event.description || ''}`,'u-desc')
+      );
+      row.setAttribute('aria-label',`${m}월 ${d}일 ${dow}요일 ${when} ${event.type} ${event.title}, 일정 상세 보기`);
       row.addEventListener('click',()=>{ year=y; month=m-1; selected=d; renderCalendar(); showSchedule(row); });
       host.append(row);
     });
