@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const context={window:{}};vm.runInNewContext(fs.readFileSync('p/chogeumbi/luck.js','utf8'),context);const L=context.window.GEUMBI_LUCK;
+assert.equal(L.pick({luckMessage:'기존 멘트'},'click'),'기존 멘트');
+assert.equal(L.pick({},'complete'),'행복 충전 완료! 양갱이에게 행운 가득 ♡');
+const settings={luck:{click:{mode:'random',messages:['과정 A','과정 B'],fixedIndex:0},complete:{mode:'fixed',messages:['결과 A','결과 B'],fixedIndex:1}}};
+assert.equal(L.pick(settings,'click',()=>0),'과정 A');assert.equal(L.pick(settings,'click',()=>.99),'과정 B');assert.equal(L.pick(settings,'complete',()=>0),'결과 B');
+settings.luck.click.mode='fixed';settings.luck.complete.mode='random';assert.equal(L.pick(settings,'click',()=>.99),'과정 A');assert.equal(L.pick(settings,'complete',()=>0),'결과 A');assert.equal(L.pick(settings,'complete',()=>.99),'결과 B');
+assert.equal(L.pick({luckMessage:'fallback',luck:{click:{messages:[]}}},'click'),'fallback');
+assert.equal(L.pick({luck:{click:{mode:'fixed',messages:['only'],fixedIndex:100}}},'click'),'only');
+console.log('PASS: legacy preservation, independent process/result modes, random selection, fixed selection, empty and invalid-index fallback');

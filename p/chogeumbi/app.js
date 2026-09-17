@@ -65,7 +65,7 @@
   $('#luck-button').addEventListener('click', () => {
     if (celebrating) return;
     setLuck(Math.min(100, luck + 20));
-    showToast(luck === 100 ? '행복 충전 완료! 양갱이에게 행운 가득 ♡' : data.settings.luckMessage);
+    showToast(GEUMBI_LUCK.pick(data.settings,luck===100?'complete':'click'));
     if (luck !== 100) return;
     celebrating = true; $('#luck-button').setAttribute('aria-disabled', 'true');
     if (!reducedMotion.matches) for (let i = 0; i < 20; i++) {
