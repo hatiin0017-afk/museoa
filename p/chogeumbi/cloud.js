@@ -22,8 +22,11 @@
     if(admin){
       const {data:{user},error}=await db.auth.getUser();
       if(error||!user)throw new Error('관리자 로그인이 필요합니다.');
+      const editor=await db.from('chogeumbi_editors').select('user_id').eq('user_id',user.id).maybeSingle();
+      if(editor.error)throw new Error(message(editor.error));
+      if(!editor.data)throw new Error('로그인은 완료됐지만 관리자 명단에 등록되지 않은 계정입니다. SQL Editor에서 이 계정의 관리자 등록 후 새로고침해 주세요.');
       const result=await db.from('chogeumbi_state').select('payload,revision').eq('id',1).single();
-      if(result.error)throw new Error(result.error.code==='PGRST116'?'관리자 권한 또는 초기 데이터를 확인해 주세요.':message(result.error));
+      if(result.error)throw new Error(result.error.code==='PGRST116'?'관리자 권한은 확인됐지만 초기 데이터가 없습니다. setup.sql 실행 상태를 확인해 주세요.':message(result.error));
       return result.data;
     }
     const {data,error}=await db.rpc('chogeumbi_public');if(error)throw new Error(message(error));return {payload:data};

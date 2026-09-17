@@ -18,7 +18,7 @@
       if(!session){login.hidden=false;await GEUMBI_CLOUD.read();connection.textContent='서버 연결 완료. 관리자 계정으로 로그인해 주세요.';return;}
       $('#admin-logout').hidden=false;data=await GEUMBI.sync(true);connection.textContent='연결 완료 · '+session.user.email;
       client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){document.querySelector('#editor').hidden=true;connection.textContent='로그인이 만료되었습니다. 다시 로그인해 주세요.';login.hidden=false;}});
-    }catch(error){connection.textContent=error.message;login.hidden=false;return;}
+    }catch(error){connection.textContent=error.message;login.hidden=!$('#admin-logout').hidden;return;}
   }
   $('#editor').hidden=false;
   let snapshot=localStorage.getItem(GEUMBI.key);
