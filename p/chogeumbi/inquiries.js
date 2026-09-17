@@ -17,5 +17,9 @@
     if(GEUMBI.local){const rows=localRows(),row=rows.find(r=>r.id===id);if(!row)throw new Error('문의를 찾을 수 없습니다.');row.status=status;localStorage.setItem(key,JSON.stringify(rows));return;}
     const db=await GEUMBI_CLOUD.client(),result=await db.from('chogeumbi_inquiries').update({status}).eq('id',id).select('id').single();if(result.error)throw failure(result.error);
   }
-  window.GEUMBI_INQUIRIES={submit,list,update};
+  async function unreadCount(){
+    if(GEUMBI.local)return localRows().filter(row=>row.status==='new').length;
+    const db=await GEUMBI_CLOUD.client(),result=await db.from('chogeumbi_inquiries').select('id',{count:'exact',head:true}).eq('status','new');if(result.error)throw failure(result.error);return result.count||0;
+  }
+  window.GEUMBI_INQUIRIES={submit,list,update,unreadCount};
 })();

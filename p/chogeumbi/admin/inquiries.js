@@ -1,7 +1,13 @@
 'use strict';
 function initInquiryAdmin(){
   const $=s=>document.querySelector(s),node=(tag,value)=>{const e=document.createElement(tag);e.textContent=value;return e;};let page=0,request=0;
+  const tab=$('[data-pane="upbo-inquiries"]'),dot=node('span','');dot.className='inquiry-unread-dot';dot.hidden=true;dot.setAttribute('aria-hidden','true');tab.append(dot);let badgeRequest=0;
+  async function refreshBadge(){
+    const current=++badgeRequest;
+    try{const count=await GEUMBI_INQUIRIES.unreadCount();if(current!==badgeRequest)return;dot.hidden=count===0;tab.setAttribute('aria-label',count?`문의함 · 새 문의 ${count}건`:'문의함');tab.title=count?`확인하지 않은 문의 ${count}건`:'';}catch{/* Keep the last known indicator when a refresh fails. */}
+  }
   async function render(){
+    refreshBadge();
     const current=++request,status=$('#inquiry-filter').value;$('#inquiry-admin-status').textContent='불러오는 중…';
     try{const result=await GEUMBI_INQUIRIES.list(status,page);if(current!==request)return;const pages=Math.ceil(result.count/20);if(page>0&&page>=pages){page=Math.max(0,pages-1);return render();}
       const list=$('#inquiry-admin-list');list.replaceChildren();
@@ -11,5 +17,8 @@ function initInquiryAdmin(){
   }
   $('#inquiry-filter').addEventListener('change',()=>{page=0;render();});$('#inquiry-refresh').addEventListener('click',render);$('#inquiry-prev').addEventListener('click',()=>{if(page>0){page--;render();}});$('#inquiry-next').addEventListener('click',()=>{page++;render();});
   document.querySelector('[data-pane="upbo-inquiries"]').addEventListener('click',render);
+  refreshBadge();addEventListener('focus',refreshBadge);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshBadge();});
+  addEventListener('storage',event=>{if(event.key==='chogeumbi.preview.inquiries.v1')refreshBadge();});
+  setInterval(()=>{if(!document.hidden)refreshBadge();},30000);
 }
 if(window.GEUMBI_ADMIN)initInquiryAdmin();else addEventListener('geumbi-admin-ready',initInquiryAdmin,{once:true});
