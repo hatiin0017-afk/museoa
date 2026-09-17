@@ -73,9 +73,10 @@
   const calendar = $('#calendar');
   const dateKey = day => `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   const color = value => /^#[0-9a-f]{6}$/i.test(value) ? value : '#c5e8c7';
+  function isRestDay(day){return new Date(year,month,day).getDay()===Number(data.settings.restDay)&&!rowsFor(dateKey(day)).some(e=>e.type!=='휴방');}
   function notesFor(day) {
     const notes = [];
-    if (Number(data.settings.restDay) >= 0 && new Date(year,month,day).getDay() === Number(data.settings.restDay)) notes.push(data.settings.restNote);
+    if (isRestDay(day)) notes.push(data.settings.restNote);
     const birthday = /^([0-9]{2})[.]([0-9]{2})$/.exec(data.settings.birthday);
     if (birthday && month+1 === Number(birthday[1]) && day === Number(birthday[2])) notes.push('금비 생일');
     const debut = /^([0-9]{4})[.]([0-9]{2})[.]([0-9]{2})$/.exec(data.settings.debut);
@@ -109,7 +110,7 @@
       if(events.length>2)cell.append(text('small',`+${events.length-2}개 더 보기`));
       if(!events.length)cell.append(text('small',i===Number(data.settings.restDay)?'정기 휴방':'—'));
       cell.setAttribute('aria-label',`${key}, ${events.length}개 일정 상세 보기`);
-      cell.addEventListener('click',()=>{year=date.getUTCFullYear();month=date.getUTCMonth();selected=date.getUTCDate();renderCalendar();$('#schedule-dialog').showModal();});week.append(cell);
+      cell.addEventListener('click',()=>{const rect=cell.getBoundingClientRect();year=date.getUTCFullYear();month=date.getUTCMonth();selected=date.getUTCDate();renderCalendar();showSchedule(cell,rect);});week.append(cell);
     }
 
   }
@@ -122,11 +123,11 @@
       const button=text('button',day); button.type='button'; button.dataset.day=day;
       const notes=notesFor(day), events=rowsFor(dateKey(day));
       button.setAttribute('aria-label',`${year}년 ${month+1}월 ${day}일${notes.length?', '+notes.join(', '):''}${events.length?', '+events.map(e=>e.time+' '+e.title).join(', '):''}`);
-      if (new Date(year,month,day).getDay()===Number(data.settings.restDay)) button.classList.add('rest');
+      if (isRestDay(day)) button.classList.add('rest');
       if (year===today.y&&month===today.m&&day===today.d) {button.classList.add('today');button.setAttribute('aria-current','date');}
       if (events.length) { const chip=text('span',`${events[0].time} ${events[0].title}`,'event-chip');chip.style.setProperty('--chip',color(events[0].color));button.append(chip);if(events.length>1)button.append(text('span',`+${events.length-1}개`,'event-more')); }
       else if(notes.length) button.append(text('small',notes.some(n=>n!==data.settings.restNote)?'기념일':'휴방'));
-      button.addEventListener('click',()=>{selectDay(day);$('#schedule-dialog').showModal();}); calendar.append(button);
+      button.addEventListener('click',()=>{selectDay(day);showSchedule(button);}); calendar.append(button);
     }
     selectDay(Math.min(selected,count));
     $('#schedule-data-note').textContent=GEUMBI.local?'로컬 테스트 일정입니다. 실제 방송 공지가 아닙니다.':'수동 등록 일정 · 방송국 공지 자동 연동은 지원하지 않습니다.';
@@ -134,6 +135,20 @@
   function changeMonth(delta) { const next=new Date(year,month+delta,1);year=next.getFullYear();month=next.getMonth();selected=1;renderCalendar(); }
   $('#prev-month').addEventListener('click',()=>changeMonth(-1));$('#next-month').addEventListener('click',()=>changeMonth(1));
   $('#today-month').addEventListener('click',()=>{ today=currentDate();year=today.y;month=today.m;selected=today.d;renderCalendar(); });
+  const scheduleDialog=$('#schedule-dialog');let scheduleAnchor=null,scheduleRect=null,scheduleScroll=0;
+  function positionSchedule(){
+    if(!scheduleDialog.open||!scheduleRect)return;
+    const rect=scheduleAnchor?.isConnected?scheduleAnchor.getBoundingClientRect():{top:scheduleRect.top+scheduleScroll-scrollY,height:scheduleRect.height};
+    const viewport=window.visualViewport,top=viewport?.offsetTop||0,height=viewport?.height||innerHeight,dialogHeight=scheduleDialog.getBoundingClientRect().height;
+    scheduleDialog.style.top=Math.max(top+12,Math.min(rect.top+rect.height/2-dialogHeight/2,top+height-dialogHeight-12))+'px';
+  }
+  function showSchedule(anchor,rect=anchor.getBoundingClientRect()){
+    scheduleAnchor=anchor;scheduleRect=rect;scheduleScroll=scrollY;const x=scrollX,y=scrollY;
+    scheduleDialog.showModal();scrollTo({left:x,top:y,behavior:'instant'});positionSchedule();
+  }
+  scheduleDialog.addEventListener('close',()=>{const target=scheduleAnchor?.isConnected?scheduleAnchor:calendar.querySelector('[aria-pressed=true]');target?.focus({preventScroll:true});scheduleAnchor=null;scheduleRect=null;});
+  addEventListener('scroll',positionSchedule,{passive:true});addEventListener('resize',positionSchedule);window.visualViewport?.addEventListener('resize',positionSchedule);
+  addEventListener('hashchange',()=>{if(scheduleDialog.open)scheduleDialog.close();});
   let outfitPage=0, upboPage=0;
   function pager(target,page,count,callback) {
     target.replaceChildren(); if(count<=1)return;
