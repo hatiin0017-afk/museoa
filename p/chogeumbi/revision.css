@@ -14,14 +14,37 @@ dialog{border:2px solid #a5c7a5;border-radius:20px;background:var(--cream);color
 .calendar button{line-height:18px;vertical-align:top}.calendar .event-chip{line-height:12px;padding:2px;margin-top:2px}.calendar .event-more{display:block;line-height:9px;margin-top:1px}
 .schedule-note strong{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.schedule-note span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.schedule-note b{flex-shrink:0}
 /* GFX typography sits directly on the artwork, with no information cards. */
+/* Upright GFX lettering: independent float and pointer depth. */
 .hero-facts{inset:0;width:auto;margin:0;background:none;border:0;border-radius:0;padding:0;backdrop-filter:none;transform:none;pointer-events:none}
-.hero-facts>div{position:absolute;padding:0;margin:0;border:0;width:190px;transform:rotate(-4deg)}.hero-facts>div:nth-child(1){right:25px;top:224px;width:165px;transform:rotate(5deg)}.hero-facts>div:nth-child(2){left:32px;top:211px}.hero-facts>div:nth-child(3){left:35px;top:325px}.hero-facts>div:nth-child(4){right:23px;top:482px;width:166px;transform:rotate(5deg)}
-.hero-facts dt{font:800 10px/1.5 monospace;letter-spacing:3px;color:#286d54;text-shadow:0 1px 0 #fffbe8}
-.hero-facts dd{margin:3px 0 0;font:900 38px/1.12 Arial,'Malgun Gothic',sans-serif;letter-spacing:-1.7px;color:#1b6048;text-shadow:2px 2px 0 #fffbe8,-1px -1px 0 #fffbe8}.hero-facts>div:nth-child(2) dd{font-size:29px}.hero-facts>div:nth-child(3) dd{font-size:49px;letter-spacing:1px}.hero-facts>div:last-child dd{font-size:24px;letter-spacing:-1px}
-.home .hello-sticker{top:55px;right:25px;width:200px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;transform:rotate(7deg);font-size:39px;letter-spacing:-2.5px;font-weight:900;line-height:1.22;color:#266d53;text-shadow:2px 2px 0 #fffbe8,-1px -1px 0 #fffbe8}
-.home .hello-sticker:after{content:'HELLO, MY LUCKY!';display:block;margin-top:12px;font:700 9px/1.5 monospace;letter-spacing:2px;color:#427e61}
-.home .nameplate{left:34px;bottom:36px;width:290px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;transform:rotate(-7deg)}
-.home .nameplate>span{font-size:12px;letter-spacing:1px;color:#3e7657;text-shadow:1px 1px #fffbe8}.home .nameplate strong{font-size:80px;line-height:1.2;margin:5px 0;letter-spacing:-5px;color:#fff9d9;-webkit-text-stroke:1px #296849;paint-order:stroke fill;text-shadow:3px 4px 0 #296849}.home .nameplate small{font:700 10px monospace;letter-spacing:4px;color:#296849}
+.hero-facts>div{position:absolute;padding:0;margin:0;border:0;width:190px;pointer-events:auto;--depth:-.8;--phase:-1s}
+.hero-facts>div:nth-child(1){right:29px;top:232px;width:165px;--depth:1.1;--phase:-3s}
+.hero-facts>div:nth-child(2){left:32px;top:207px;--phase:-5s}
+.hero-facts>div:nth-child(3){left:35px;top:337px;--depth:-1.2;--phase:-2s}
+.hero-facts>div:nth-child(4){right:27px;top:482px;width:166px;--depth:.7;--phase:-4s}
+.hero-facts dt{display:flex;align-items:center;gap:8px;font:800 10px/1.5 monospace;letter-spacing:2.3px;color:#286d54;text-shadow:0 1px 0 #fffbe8}
+.hero-facts dt:before{content:'';width:6px;height:6px;background:#4c8d64;box-shadow:3px 3px 0 #e4ee9b}
+.hero-facts dd{width:max-content;max-width:100%;margin:6px 0 0;font:900 40px/1.12 Arial,'Malgun Gothic',sans-serif;letter-spacing:-1.7px;color:#1b6048;-webkit-text-stroke:3px #fffbe8;paint-order:stroke fill;text-shadow:2px 3px 0 #b7d38f;transform-origin:left center;transition:scale .25s ease,color .25s ease}
+.hero-facts>div:nth-child(2) dd{font-size:28px;letter-spacing:-1px}
+.hero-facts>div:nth-child(3) dd{font-size:54px;letter-spacing:1px}
+.hero-facts>div:last-child dd{font-size:24px;letter-spacing:-1px}
+.hero-facts>div:after{content:'';display:block;margin-top:10px;width:45px;height:3px;background:linear-gradient(90deg,#528769 65%,transparent 65% 78%,#b4c66d 78%);transition:width .25s ease}
+.home .hello-sticker{top:58px;right:29px;width:200px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;font-size:40px;letter-spacing:-2px;font-weight:900;line-height:1.25;color:#266d53;-webkit-text-stroke:3px #fffbe8;paint-order:stroke fill;text-shadow:2px 3px 0 #bfd797;--depth:1.3;--phase:-2s}
+.home .hello-sticker:after{content:'HELLO, MY LUCKY!';display:block;margin-top:14px;font:700 9px/1.5 monospace;letter-spacing:2px;color:#427e61;-webkit-text-stroke:0;text-shadow:none}
+.home .nameplate{left:34px;bottom:36px;width:290px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;--depth:-.5;--phase:-4s}
+.home .nameplate>span{font-size:12px;letter-spacing:1px;color:#3e7657;text-shadow:1px 1px #fffbe8}
+.home .nameplate strong{font-size:80px;line-height:1.2;margin:5px 0;letter-spacing:-5px;color:#fff9d9;-webkit-text-stroke:2px #296849;paint-order:stroke fill;text-shadow:3px 4px 0 #296849;transform-origin:left center;transition:scale .25s ease}
+.home .nameplate small{font:700 10px monospace;letter-spacing:4px;color:#296849}
+.home .hello-sticker,.home .nameplate,.hero-facts>div{transform:none;translate:calc(var(--dx,0px) * var(--depth)) calc(var(--dy,0px) * var(--depth));transition:translate .35s ease-out;animation:gfx-float 6s ease-in-out var(--phase) infinite}
+@keyframes gfx-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@media(hover:hover) and (pointer:fine){
+  .hero-facts>div:hover,.home .hello-sticker:hover,.home .nameplate:hover{animation-play-state:paused}
+  .hero-facts>div:hover dd,.home .nameplate:hover strong{scale:1.045;color:#397747}
+  .hero-facts>div:hover:after{width:80px}
+}
+@media(prefers-reduced-motion:reduce){
+  .home .hello-sticker,.home .nameplate,.hero-facts>div{animation:none;transform:none;translate:none;transition:none}
+  .hero-facts dd,.home .nameplate strong{scale:none!important}
+}
 .upbo-card{padding:18px 22px}.upbo-card .reward{margin:16px 0}
 .mini-week{margin-top:14px;border:1px solid #aac3a1;border-radius:10px;background:#eef2df;padding:12px}.mini-week-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.mini-week-heading>span{font:700 10px monospace;letter-spacing:2px}.mini-week-heading h3{font-size:16px;margin:0}.week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.week-day{height:114px;min-width:0;overflow:hidden;padding:8px 5px;background:#fffdf0;border:1px solid #ccdabd;border-radius:6px;text-align:left}.week-day.selected{border:2px solid #4c805d}.week-day strong{display:block;font-size:12px;margin-bottom:10px}.week-day small{font-size:10px;display:block;margin-top:5px}.mini-event{display:block;font-size:10px;line-height:14px;background:var(--chip);color:#234d39;padding:3px 4px;margin-top:5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dialog-close{position:absolute;right:14px;top:12px;width:44px;height:44px;background:#e4edce;border:0;border-radius:50%;font-size:30px}#schedule-dialog{width:580px}#schedule-dialog .event-list{height:auto;max-height:60vh;overflow:auto}#schedule-dialog .event-row{padding:15px}#schedule-dialog .event-row strong{font-size:18px}#schedule-dialog .event-row p{font-size:15px}
 #outfits .section-heading{height:165px;padding-top:16px}#outfits .outfit-grid{height:728px;grid-template-rows:repeat(2,353px);align-content:start}#outfits .outfit-card .outfit-image{height:231px}#outfits .outfit-card p{font-size:14px;min-height:42px;max-height:42px}#outfit-pages{height:48px;margin-top:14px}
