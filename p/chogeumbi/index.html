@@ -50,12 +50,12 @@
       <div class="section-heading"><span data-setting="scheduleKicker">02 / SAVE THE DATE</span><h2 id="schedule-title" tabindex="-1" data-setting="scheduleTitle">우리 언제 만나?</h2><p data-setting="scheduleSubtitle">함께할 날을 기다리는 중!</p></div>
       <div class="schedule-note"><strong data-setting="scheduleBadge">BATTERY CHARGING…</strong><span data-setting="restNote">매주 토요일은 고정 휴방이에요.</span><b>▰▰▰▱</b></div>
       <div class="calendar-box"><div class="month-nav"><button id="prev-month" aria-label="이전 달">←</button><h3 id="month-title" aria-live="polite"></h3><button id="next-month" aria-label="다음 달">→</button><button id="today-month">이번 달</button></div><div class="weekdays" aria-hidden="true"><span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span></div><div id="calendar" class="calendar" aria-label="월간 일정"></div><div class="calendar-legend"><span>● 오늘</span><span>▨ 정기 휴방</span><span>✿ 기념일</span></div></div>
-      <div class="mini-week"><div class="mini-week-heading"><span>WEEKLY SCHEDULE</span><h3 id="week-title"></h3></div><div id="week-events" class="week-grid"></div></div>
-      <p id="schedule-data-note" class="data-note"></p>
+      <div class="upcoming"><div class="upcoming-heading"><span>UPCOMING</span><h3 id="upcoming-title">다가오는 일정</h3></div><div id="upcoming-events" class="upcoming-list"></div></div>
+      <p id="schedule-data-note" class="data-note" hidden></p>
     </section>
     <section id="upbo" class="view page" hidden aria-labelledby="upbo-title">
       <div class="section-heading"><span>03 / REWARD CHECKLIST</span><h2 id="upbo-title" tabindex="-1">양갱이 업보 보관함</h2><button type="button" id="open-inquiry">업보 문의</button><p>룰렛 당첨 보상과 남은 숙제를 확인하는 곳이에요.</p></div>
-      <form id="upbo-search-form" class="upbo-filters"><label>시청자 검색<input id="upbo-search" type="search" placeholder="내 SOOP 아이디를 입력해 주세요" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" required></label><button type="submit">검색</button></form>
+      <form id="upbo-search-form" class="upbo-filters"><label>시청자 검색<input id="upbo-search" type="search" placeholder="아이디 또는 닉네임을 입력해 주세요" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="upbo-suggest" required><ul id="upbo-suggest" class="upbo-suggest" role="listbox" aria-label="검색 후보" hidden></ul></label><button type="submit">검색</button></form>
       <p id="upbo-summary" class="data-note" role="status" hidden></p><div id="upbo-result" hidden><div id="upbo-person"></div><div id="upbo-items" tabindex="0" role="region" aria-label="검색한 시청자의 업보 내역"></div></div>
       <p class="data-note">방셀 등 룰렛 당첨 보상의 남은 수량과 준비 상태를 확인해 주세요.</p>
     </section>
