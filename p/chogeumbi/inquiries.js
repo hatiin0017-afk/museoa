@@ -21,5 +21,11 @@
     if(GEUMBI.local)return localRows().filter(row=>row.status==='new').length;
     const db=await GEUMBI_CLOUD.client(),result=await db.from('chogeumbi_inquiries').select('id',{count:'exact',head:true}).eq('status','new');if(result.error)throw failure(result.error);return result.count||0;
   }
-  window.GEUMBI_INQUIRIES={submit,list,update,unreadCount};
+  async function remove(id){
+    if(GEUMBI.local){const rows=localRows(),row=rows.find(r=>r.id===id);if(!row||!['read','done'].includes(row.status))throw new Error('확인한 문의만 삭제할 수 있습니다. 새로고침해 주세요.');localStorage.setItem(key,JSON.stringify(rows.filter(r=>r.id!==id)));return;}
+    const db=await GEUMBI_CLOUD.client(),result=await db.from('chogeumbi_inquiries').delete().eq('id',id).in('status',['read','done']).select('id');
+    if(result.error)throw new Error('문의 삭제에 실패했습니다. 삭제 권한 설정(inquiries-delete.sql)과 연결을 확인해 주세요.');
+    if(!result.data?.length)throw new Error('삭제할 수 있는 문의가 없습니다. 상태와 관리자 권한을 확인한 뒤 새로고침해 주세요.');
+  }
+  window.GEUMBI_INQUIRIES={submit,list,update,unreadCount,remove};
 })();

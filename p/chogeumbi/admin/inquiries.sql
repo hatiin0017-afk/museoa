@@ -13,6 +13,10 @@ alter table public.chogeumbi_inquiries enable row level security;
 revoke all on public.chogeumbi_inquiries from anon,authenticated;
 grant select on public.chogeumbi_inquiries to authenticated;
 grant update(status) on public.chogeumbi_inquiries to authenticated;
+grant delete on public.chogeumbi_inquiries to authenticated;
+drop policy if exists chogeumbi_inquiries_delete on public.chogeumbi_inquiries;
+create policy chogeumbi_inquiries_delete on public.chogeumbi_inquiries for delete to authenticated
+  using (status in ('read','done') and exists(select 1 from public.chogeumbi_editors where user_id=(select auth.uid())));
 drop policy if exists chogeumbi_inquiries_admin on public.chogeumbi_inquiries;
 create policy chogeumbi_inquiries_admin on public.chogeumbi_inquiries for select to authenticated
   using (exists(select 1 from public.chogeumbi_editors where user_id=(select auth.uid())));
