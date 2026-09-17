@@ -157,7 +157,7 @@
   scheduleDialog.addEventListener('click',event=>{if(event.target!==scheduleDialog)return;const rect=scheduleDialog.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)scheduleDialog.close();});
   addEventListener('scroll',positionSchedule,{passive:true});addEventListener('resize',positionSchedule);window.visualViewport?.addEventListener('resize',positionSchedule);
   addEventListener('hashchange',()=>{if(scheduleDialog.open)scheduleDialog.close();});
-  let outfitPage=0, upboPage=0;
+  let outfitPage=0;
   function pager(target,page,count,callback) {
     target.replaceChildren(); if(count<=1)return;
     const prev=text('button','← 이전'), next=text('button','다음 →');prev.disabled=page===0;next.disabled=page>=count-1;
@@ -177,53 +177,27 @@
     if(!data.outfits.length)grid.append(text('p','의상 앨범을 준비하고 있어요.','upbo-empty'));
     pager($('#outfit-pages'),outfitPage,pages,p=>{outfitPage=p;renderOutfits();});
   }
-  const upboDialog=$('#upbo-dialog');let upboAnchor=null;
-  function positionUpbo(){
-    if(!upboDialog.open||!upboAnchor)return;
-    const rect=upboAnchor.getBoundingClientRect(),height=upboDialog.getBoundingClientRect().height;
-    const viewport=window.visualViewport,offset=viewport?.offsetTop||0,space=viewport?.height||innerHeight;
-    const y=Math.max(offset+12,Math.min(rect.top+rect.height/2-height/2,offset+space-height-12));
-    upboDialog.style.top=y+'px';
-  }
-  $('#close-upbo').addEventListener('click',()=>upboDialog.close());
-  upboDialog.addEventListener('click',e=>{if(e.target!==upboDialog)return;const r=upboDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)upboDialog.close();});
-  upboDialog.addEventListener('close',()=>{if(upboAnchor?.isConnected)upboAnchor.focus({preventScroll:true});upboAnchor=null;});
-  addEventListener('resize',positionUpbo);addEventListener('scroll',positionUpbo,{passive:true});window.visualViewport?.addEventListener('resize',positionUpbo);
-  addEventListener('hashchange',()=>{if(upboDialog.open)upboDialog.close();});
-  function showUpbo(member,anchor){
-    upboAnchor=anchor;const person=$('#upbo-dialog-person');person.replaceChildren(GEUMBI_SOOP.picture(member.viewerId,member.nickname));
-    const name=text('div','');const title=text('h2',member.nickname);title.id='upbo-dialog-title';name.append(title,text('small',member.viewerId));person.append(name);
-    const items=$('#upbo-dialog-items');items.replaceChildren();
-    member.rows.forEach(row=>{const entry=text('div','','upbo-detail-row'),info=text('div','');info.append(text('strong',row.item),text('small',`${row.season} · ${row.status}${row.sample?' · 테스트':''}`));entry.style.setProperty('--type-color',color(data.settings.upboColors?.[row.item]));entry.append(info,text('b','× '+row.quantity));items.append(entry);});
-    const pageX=scrollX,pageY=scrollY;
-    upboDialog.style.top=Math.max(12,anchor.getBoundingClientRect().top)+'px';upboDialog.showModal();
-    window.scrollTo({left:pageX,top:pageY,behavior:'instant'});positionUpbo();
-    GEUMBI_SOOP.lookup(member.viewerId).then(profile=>{if(profile&&upboDialog.open&&upboAnchor===anchor)title.textContent=profile.nickname;});
-  }
-  function renderUpbo(refreshSeasons=false) {
-    const season=$('#upbo-season');
-    if(refreshSeasons){const selected=season.value;season.replaceChildren(new Option('전체 시즌',''));[...new Set(data.upbo.map(e=>e.season))].sort().forEach(s=>season.append(new Option(s,s)));if([...season.options].some(o=>o.value===selected))season.value=selected;}
-    const q=$('#upbo-search').value.trim().toLocaleLowerCase(),groups=new Map();
-    data.upbo.filter(e=>e.quantity>0&&(!season.value||e.season===season.value)).forEach(row=>{
-      const id=row.viewerId.trim().toLowerCase();if(!groups.has(id))groups.set(id,{viewerId:row.viewerId,nickname:GEUMBI_SOOP.nickname(row.viewerId,row.nickname),rows:[]});groups.get(id).rows.push(row);
+  let searchedViewerId='';
+  function renderUpbo(){
+    const result=$('#upbo-result'),person=$('#upbo-person'),list=$('#upbo-items'),summary=$('#upbo-summary');
+    person.replaceChildren();list.replaceChildren();result.hidden=true;summary.hidden=!searchedViewerId;summary.textContent='';
+    if(!searchedViewerId)return;
+    const rows=data.upbo.filter(row=>row.viewerId.trim().toLowerCase()===searchedViewerId&&row.quantity>0);
+    if(!rows.length){summary.textContent='해당 아이디에 남은 업보가 없어요. SOOP 아이디를 확인해 주세요.';return;}
+    const member=rows[0],name=text('strong',GEUMBI_SOOP.nickname(member.viewerId,member.nickname)),copy=text('div','','viewer-copy');
+    copy.append(name,text('small',member.viewerId));person.append(GEUMBI_SOOP.picture(member.viewerId,member.nickname),copy);
+    rows.sort((a,b)=>a.season.localeCompare(b.season,'ko')||a.item.localeCompare(b.item,'ko')).forEach(row=>{
+      const entry=text('div','','upbo-detail-row'),info=text('div','');info.append(text('strong',row.item),text('small',`${row.season} · ${row.status}${row.sample?' · 테스트':''}`));
+      entry.style.setProperty('--type-color',color(data.settings.upboColors?.[row.item]));entry.append(info,text('b','× '+row.quantity));list.append(entry);
     });
-    const members=[...groups.values()].filter(m=>!q||`${m.nickname} ${m.viewerId}`.toLocaleLowerCase().includes(q));
-    const pages=Math.ceil(members.length/12);upboPage=Math.max(0,Math.min(upboPage,pages-1));const list=$('#upbo-list');list.replaceChildren();
-    members.slice(upboPage*12,upboPage*12+12).forEach(member=>{
-      const chip=text('button','','viewer-chip');chip.style.setProperty('--type-color',color(data.settings.upboColors?.[member.rows[0]?.item]));chip.type='button';chip.setAttribute('aria-haspopup','dialog');
-      const copy=text('span','','viewer-copy'),name=text('strong',member.nickname),quantity=member.rows.reduce((total,r)=>total+r.quantity,0);
-      copy.append(name,text('small',`남은 업보 ${quantity}개`));chip.append(GEUMBI_SOOP.picture(member.viewerId,member.nickname),copy,text('span','↗','viewer-arrow'));
-      chip.addEventListener('click',()=>showUpbo(member,chip));list.append(chip);
-      GEUMBI_SOOP.lookup(member.viewerId).then(profile=>{if(profile&&chip.isConnected){member.nickname=profile.nickname;name.textContent=profile.nickname;}});
-    });
-    if(!members.length)list.append(text('p',q||season.value?'검색 결과가 없어요.':'남은 업보가 없어요.','upbo-empty'));
-    $('#upbo-summary').textContent=(GEUMBI.local?'로컬 테스트 · ':'')+`${members.length}명의 양갱이 · 칩을 누르면 상세 내역을 볼 수 있어요.`;
-    pager($('#upbo-pages'),upboPage,pages,p=>{upboPage=p;renderUpbo();});
+    summary.textContent=`남은 업보 ${rows.reduce((total,row)=>total+row.quantity,0)}개`;result.hidden=false;
+    GEUMBI_SOOP.lookup(member.viewerId).then(profile=>{if(profile&&name.isConnected)name.textContent=profile.nickname;});
   }
-  $('#upbo-search').addEventListener('input',()=>{upboPage=0;renderUpbo();});$('#upbo-season').addEventListener('change',()=>{upboPage=0;renderUpbo();});
-  function refresh() { try {data=GEUMBI.load();applySettings();renderCalendar();renderOutfits();renderUpbo(true);} catch {showToast('저장된 데이터를 읽지 못했어요. 관리 화면에서 확인해 주세요.');} }
+  $('#upbo-search-form').addEventListener('submit',event=>{event.preventDefault();searchedViewerId=$('#upbo-search').value.trim().toLowerCase();renderUpbo();});
+  $('#upbo-search').addEventListener('input',()=>{searchedViewerId='';renderUpbo();});
+  function refresh() { try {data=GEUMBI.load();applySettings();renderCalendar();renderOutfits();renderUpbo();} catch {showToast('저장된 데이터를 읽지 못했어요. 관리 화면에서 확인해 주세요.');} }
   addEventListener('storage',e=>{if(e.key===GEUMBI.key)refresh();});addEventListener('chogeumbi-data',refresh);
-  renderCalendar();renderOutfits();renderUpbo(true);
+  renderCalendar();renderOutfits();renderUpbo();
   if(!GEUMBI.local){
     let syncing=false;
     async function syncPublic(){if(syncing)return;syncing=true;try{await GEUMBI.sync();refresh();}catch{$('#schedule-data-note').textContent='일정을 불러오지 못했어요. 잠시 후 새로고침해 주세요.';}finally{syncing=false;}}
