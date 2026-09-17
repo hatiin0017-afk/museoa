@@ -1,5 +1,5 @@
 'use strict';
-(() => {
+function initWorkflows(){
   const A=window.GEUMBI_ADMIN;if(!A)return;
   const $=s=>document.querySelector(s), node=(tag,text)=>{const n=document.createElement(tag);n.textContent=text;return n;};
   const button=(label,action)=>{const b=node('button',label);b.type='button';b.addEventListener('click',action);return b;};
@@ -26,4 +26,5 @@
     document.querySelectorAll('#outfit-list .record').forEach((card,i)=>{const move=direction=>A.commit(d=>{const next=i+direction;if(next<0||next>=d.outfits.length)return;[d.outfits[i],d.outfits[next]]=[d.outfits[next],d.outfits[i]];});const up=button('↑',()=>move(-1)),down=button('↓',()=>move(1));up.setAttribute('aria-label',data.outfits[i].name+' 위로');down.setAttribute('aria-label',data.outfits[i].name+' 아래로');up.disabled=i===0;down.disabled=i===data.outfits.length-1;card.append(up,down);});
   }
   addEventListener('geumbi-admin-render',render);render();
-})();
+}
+if(window.GEUMBI_ADMIN)initWorkflows();else addEventListener('geumbi-admin-ready',initWorkflows,{once:true});

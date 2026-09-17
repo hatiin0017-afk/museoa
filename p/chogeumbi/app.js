@@ -95,7 +95,7 @@
     const detail = $('#selected-events'); detail.replaceChildren(); const notes = notesFor(day);
     notes.forEach(n => detail.append(text('p',n,'event-empty')));
     rowsFor(dateKey(day)).forEach(e => detail.append(eventRow(e)));
-    if (!detail.children.length) detail.append(text('p',GEUMBI.local ? '등록된 일정이 없어요.' : '일정 등록을 준비하고 있어요.','event-empty'));
+    if (!detail.children.length) detail.append(text('p',GEUMBI.local ? '등록된 일정이 없어요.' : '등록된 일정이 없어요.','event-empty'));
     const start = new Date(Date.UTC(year,month,day)); start.setUTCDate(start.getUTCDate()-start.getUTCDay());
     const end = new Date(start); end.setUTCDate(end.getUTCDate()+6);
     const from = start.toISOString().slice(0,10), to = end.toISOString().slice(0,10);
@@ -161,7 +161,7 @@
     const rows=data.upbo.filter(e=>(!season.value||e.season===season.value)&&(!q||`${e.nickname} ${e.viewerId}`.toLocaleLowerCase().includes(q)));
     const pages=Math.ceil(rows.length/6);upboPage=Math.max(0,Math.min(upboPage,pages-1));const list=$('#upbo-list');list.replaceChildren();
     rows.slice(upboPage*6,upboPage*6+6).forEach(e=>{const card=text('article','','upbo-card');if(e.sample)card.append(text('span','테스트','sample'));card.append(text('h3',e.nickname),text('small',`${e.viewerId} · ${e.season}`));const reward=text('div','','reward');reward.append(text('span',e.item),text('strong','× '+e.quantity));card.append(reward,text('span',e.status,'status'));list.append(card);});
-    if(!rows.length)list.append(text('p',data.upbo.length?'검색 결과가 없어요.':GEUMBI.local?'등록된 업보가 없어요.':'업보 보관함을 준비하고 있어요.','upbo-empty'));
+    if(!rows.length)list.append(text('p',data.upbo.length?'검색 결과가 없어요.':GEUMBI.local?'등록된 업보가 없어요.':'등록된 업보가 없어요.','upbo-empty'));
     $('#upbo-summary').textContent=(GEUMBI.local?'로컬 테스트 · ':'')+(data.upbo.length?`검색 결과 ${rows.length}건`:'');
     pager($('#upbo-pages'),upboPage,pages,p=>{upboPage=p;renderUpbo();});
   }
@@ -169,4 +169,10 @@
   function refresh() { try {data=GEUMBI.load();applySettings();renderCalendar();renderOutfits();renderUpbo(true);} catch {showToast('저장된 데이터를 읽지 못했어요. 관리 화면에서 확인해 주세요.');} }
   addEventListener('storage',e=>{if(e.key===GEUMBI.key)refresh();});addEventListener('chogeumbi-data',refresh);
   renderCalendar();renderOutfits();renderUpbo(true);
+  if(!GEUMBI.local){
+    let syncing=false;
+    async function syncPublic(){if(syncing)return;syncing=true;try{await GEUMBI.sync();refresh();}catch{$('#schedule-data-note').textContent='일정을 불러오지 못했어요. 잠시 후 새로고침해 주세요.';}finally{syncing=false;}}
+    syncPublic();addEventListener('focus',syncPublic);
+    setInterval(()=>{if(!document.hidden)syncPublic();},60000);
+  }
 })();

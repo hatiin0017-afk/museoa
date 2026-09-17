@@ -1,4 +1,4 @@
-# 초금비 프로필 — 2026-09-17 로컬 수정본
+# 초금비 프로필 — 2026-09-17 Supabase 연결
 
 ## 실행
 
@@ -29,13 +29,25 @@ python -m http.server 8770 --bind 127.0.0.1
 
 ## 데이터와 운영 연결 상태
 
-**현재 로컬 테스트 구현입니다. 운영 DB 및 관리자 인증 연결은 미완료입니다.**
+프로젝트 `axbmfxhidogarnelfxdx`의 공개 anon 키를 `supabase-config.js`에 연결했습니다. 기본 주소는 localhost를 포함해 운영 DB를 사용합니다. `admin/setup.sql` 실행과 관리자 계정 등록이 필요하며, 초기 설정 전에는 해당 상태를 화면에 표시합니다.
 
-`localhost`, `127.0.0.1`, `[::1]`에서만 브라우저 localStorage에 저장합니다. 같은 브라우저/동일 origin의 공개 화면에 반영됩니다. 다른 PC/브라우저/포트로 공유되지 않습니다. 로컬 데이터 백업·복원 버튼을 제공합니다.
+- `admin/`: 이메일/비밀번호 로그인 → 관리자 명단 확인 → 서버 데이터 편집.
+- `admin/?preview=sample&saved=1`: localhost에서만 기존 로컬 데이터 편집. 운영 서버에 쓰지 않습니다.
+- `?preview=sample#schedule`: 로컬의 고정 샘플 표시. `&saved=1`을 붙이면 로컬 관리자에서 저장한 데이터를 표시합니다.
+- 운영에서는 예시를 자동 생성/이전하지 않습니다. 일정·업보 예시 추가는 관리자가 명시적으로 누를 때만 저장됩니다.
+- 서버 저장은 관리자 검사와 revision 비교를 수행합니다. 다른 창이 먼저 저장했으면 덮어쓰지 않고 오류를 표시합니다. 실패 시 기존 데이터와 입력을 유지합니다.
+- 공개 RPC는 설정·일정·의상·공개 업보 항목만 반환합니다. 전체 시청자 명부와 처리 이력은 관리자만 읽습니다.
+- 공개 페이지는 처음 열 때, 다시 포커스될 때, 활성 탭에서 60초마다 데이터를 갱신합니다.
+- 로그인 세션은 탭의 sessionStorage에 저장합니다. 비밀번호/서비스 키는 코드나 localStorage에 저장하지 않습니다.
 
-새 로컬 저장소에는 테스트 일정 7개와 업보 6개가 제공됩니다. 테스트 여부는 화면에 표시됩니다. 관리 화면에서 예시 추가/테스트 항목 삭제가 가능합니다. 운영 도메인에서는 테스트 데이터가 생성되지 않으며 관리 편집은 비활성화됩니다.
+### 최초 설정
 
-자료의 Supabase 프로젝트 주소는 이번 확인 시 DNS 조회 실패했고, service_role 항목은 “저장 안 함”으로 명시되어 있었습니다. 새 연결 정보 확인 후 초금비 전용 데이터 및 관리자 권한 구조를 연결해야 합니다. 외부 DB 변경, Git 푸시, 배포는 하지 않았습니다. 공용 `js/supabase-config.js`와 다른 프로필은 수정하지 않았습니다.
+1. Supabase SQL Editor에서 `admin/setup.sql` 전체 실행.
+2. Authentication → Users에서 관리자 이메일 계정을 생성하고 이메일 인증 상태 확인.
+3. SQL 하단의 관리자 등록 문장을 실제 이메일로 바꿔 실행. 등록 조회 결과가 1행인지 확인.
+4. `admin/`에서 그 계정으로 로그인하고 저장/새로고침/이미지 업로드 확인.
+
+기존 `storage-setup.sql`은 이전 이미지 전용 준비안입니다. 신규 설정은 **setup.sql만** 사용합니다. 기존 다른 프로필과 공용 설정 파일은 수정하지 않습니다.
 
 ## 확인한 항목
 
@@ -52,7 +64,7 @@ python -m http.server 8770 --bind 127.0.0.1
 
 ## GFX 문구 / 샘플 보기
 
-메인 소개의 카드 배경을 제거하고 크기·기울기·외곽선을 조합한 GFX 타이포그래피로 변경했습니다.
+메인 소개의 카드 배경을 제거하고 크기·외곽선·그림자를 조합한 수평 GFX 타이포그래피로 변경했습니다. 문구별 부유/마우스 반응/호버 강조를 적용하며 동작 줄이기 환경에서는 정지합니다.
 `?preview=sample#schedule` 또는 `?preview=sample#upbo`는 로컬에서 저장 데이터와 별개로 일정 7건·업보 6건을 표시합니다. 저장 데이터는 덮어쓰지 않습니다.
 
 ## 관리자 확장 (2026-09-17)
@@ -69,10 +81,13 @@ python -m http.server 8770 --bind 127.0.0.1
 
 ### Supabase 이미지 업로드
 
-관리 → 의상 앨범 → Supabase Storage 연결에서 실제 프로젝트 URL, 공개 anon/publishable 키, 공개 버킷, 관리자 이메일/비밀번호로 로그인합니다. 비밀번호와 세션은 localStorage에 보관하지 않습니다. 공개 URL/키/버킷 설정만 로컬 저장합니다. service_role/secret 키는 입력을 거부합니다.
+운영 관리 로그인 계정으로 PNG/JPG/WebP 8MB 이하 파일을 `chogeumbi` 버킷에 업로드합니다. 파일 경로는 `사용자UUID/chogeumbi/파일UUID.확장자`이며, 등록된 관리자 본인 경로만 업로드할 수 있습니다. 공개 이미지 읽기를 확인한 후 URL을 의상 폼에 넣습니다. **의상 저장**을 눌러 서버에 연결해야 합니다. 운영 데이터에는 base64 이미지를 저장하지 않습니다.
 
-PNG/JPG/WebP 8MB 이하 파일을 업로드한 뒤 공개 이미지 접근까지 확인하고 URL을 의상 폼에 넣습니다. 이후 **의상 저장**으로 반영합니다. 1MB 초과 이미지는 localStorage 직접 저장을 제한하고 Storage 업로드를 사용합니다. 버킷 생성/권한 준비용 `admin/storage-setup.sql`은 미실행 상태입니다.
+공식 API 참고: [upload](https://supabase.com/docs/reference/javascript/file-buckets-upload), [getPublicUrl](https://supabase.com/docs/reference/javascript/file-buckets-getpublicurl), [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security).
 
-공식 API 참고: [upload](https://supabase.com/docs/reference/javascript/file-buckets-upload), [getPublicUrl](https://supabase.com/docs/reference/javascript/file-buckets-getpublicurl).
+### 연결 구현 검증
 
-실제 업로드/운영 인증은 프로젝트 주소 DNS 실패로 미검증입니다. 로그인하지 않은 상태의 업로드 차단 메시지는 확인했습니다. 의상 메타데이터, 일정, 업보 저장은 여전히 로컬이며 타 PC 동기화/운영 DB 반영은 미완료입니다. 푸시·배포는 하지 않았습니다.
+- `node tests/chogeumbi-model.cjs`: 누적/처리/시즌 분리/기존 데이터 정규화 통과.
+- `node tests/chogeumbi-cloud.cjs`: 원격/로컬 분리, 서버 로드, revision 전달, 저장 실패 시 기존 상태 보존 통과.
+- 격리 PGlite PostgreSQL (`D:\profile\qa-pg\test-schema.cjs`): SQL 재실행, 익명 비공개 접근 차단, 비관리자 저장 차단, 공개 필드 제한, 충돌 거부, 업로드 소유자 제한 통과. 실제 Supabase 인증/Storage 검증을 대체하지 않습니다.
+- 새 프로젝트 Auth API 응답 확인. 실제 DB 초기 설정 완료 및 공개 RPC 200 응답, 익명 관리자 테이블 접근 거부를 확인했습니다. 관리자 로그인/업로드 완료 검증은 대기 중입니다.

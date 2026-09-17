@@ -1,6 +1,8 @@
 'use strict';
 (() => {
-  const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  const local = isLocalHost && new URLSearchParams(location.search).get('preview') === 'sample';
+  let remoteData=null, revision=null;
   const key = 'chogeumbi.preview.v1';
   const defaults = {
     settings: { greeting: '안녕, 양갱이!', tagline: '모두에게 행복이 가득하길 🍀', birthday: '07.16', debut: '2023.12.11', mbti: 'ISTP', color: '초록 + 노랑', scheduleKicker: '02 / SAVE THE DATE', scheduleBadge: 'BATTERY CHARGING…', scheduleTitle: '우리 언제 만나?', scheduleSubtitle: '함께할 날을 기다리는 중!', restNote: '매주 토요일은 고정 휴방이에요.', restDay: 6, luckMessage: '오늘도 금비와 웃는 하루 ♡' },
@@ -31,25 +33,29 @@
     };
   }
   function load() {
-    if (!local) return CHOGEUMBI_MODEL.normalize(structuredClone(defaults));
-    if (new URLSearchParams(location.search).get('preview') === 'sample') return CHOGEUMBI_MODEL.normalize({ ...structuredClone(defaults), ...samples() });
+    if (!local) return CHOGEUMBI_MODEL.normalize({...structuredClone(defaults),...structuredClone(remoteData||{}),settings:{...defaults.settings,...remoteData?.settings}});
+    if (new URLSearchParams(location.search).get('preview') === 'sample' && !new URLSearchParams(location.search).has('saved')) return CHOGEUMBI_MODEL.normalize({ ...structuredClone(defaults), ...samples() });
     const raw = localStorage.getItem(key);
     if (!raw) return CHOGEUMBI_MODEL.normalize({ ...structuredClone(defaults), ...samples() });
     const saved = JSON.parse(raw);
     return CHOGEUMBI_MODEL.normalize({ ...structuredClone(defaults), ...saved, settings:{...defaults.settings, ...saved.settings} });
   }
-  function save(data) {
-    if (!local) throw new Error('운영 DB 연결이 준비되지 않았습니다.');
+  async function save(data) {
+    if (!local) {
+      const nextRevision=await GEUMBI_CLOUD.save(data,revision);
+      remoteData=structuredClone(data);revision=nextRevision;dispatchEvent(new Event('chogeumbi-data'));return;
+    }
     localStorage.setItem(key, JSON.stringify(data));
     dispatchEvent(new Event('chogeumbi-data'));
   }
   function imageURL(value) {
     if (typeof value !== 'string') return '';
-    if (/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value)) return local ? value : '';
+    if (/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(value)) return value;
     if (/^\.\/assets\/[\w.-]+$/.test(value)) return new URL(value, new URL('../', document.currentScript?.src || location.href)).href;
     try { const u = new URL(value); return u.protocol === 'https:' ? u.href : ''; } catch { return ''; }
   }
   // Capture the profile root before document.currentScript is cleared.
   const root = new URL('./', document.currentScript.src);
-  window.GEUMBI = { local, key, defaults, samples, today, load, save, imageURL: value => /^\.\/assets\/[\w.-]+$/.test(value || '') ? new URL(value, root).href : imageURL(value) };
+  async function sync(admin=false){const result=await GEUMBI_CLOUD.read(admin);remoteData=result.payload;revision=result.revision??null;return load();}
+  window.GEUMBI = { local, isLocalHost, sync, key, defaults, samples, today, load, save, imageURL: value => /^\.\/assets\/[\w.-]+$/.test(value || '') ? new URL(value, root).href : imageURL(value) };
 })();
