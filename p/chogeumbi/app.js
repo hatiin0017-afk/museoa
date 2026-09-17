@@ -181,7 +181,7 @@
     const season=$('#upbo-season');
     if(refreshSeasons){const selected=season.value;season.replaceChildren(new Option('전체 시즌',''));[...new Set(data.upbo.map(e=>e.season))].sort().forEach(s=>season.append(new Option(s,s)));if([...season.options].some(o=>o.value===selected))season.value=selected;}
     const q=$('#upbo-search').value.trim().toLocaleLowerCase(),groups=new Map();
-    data.upbo.filter(e=>!season.value||e.season===season.value).forEach(row=>{
+    data.upbo.filter(e=>e.quantity>0&&(!season.value||e.season===season.value)).forEach(row=>{
       const id=row.viewerId.trim().toLowerCase();if(!groups.has(id))groups.set(id,{viewerId:row.viewerId,nickname:GEUMBI_SOOP.nickname(row.viewerId,row.nickname),rows:[]});groups.get(id).rows.push(row);
     });
     const members=[...groups.values()].filter(m=>!q||`${m.nickname} ${m.viewerId}`.toLocaleLowerCase().includes(q));
@@ -193,7 +193,7 @@
       chip.addEventListener('click',()=>showUpbo(member,chip));list.append(chip);
       GEUMBI_SOOP.lookup(member.viewerId).then(profile=>{if(profile&&chip.isConnected){member.nickname=profile.nickname;name.textContent=profile.nickname;}});
     });
-    if(!members.length)list.append(text('p',data.upbo.length?'검색 결과가 없어요.':'등록된 업보가 없어요.','upbo-empty'));
+    if(!members.length)list.append(text('p',q||season.value?'검색 결과가 없어요.':'남은 업보가 없어요.','upbo-empty'));
     $('#upbo-summary').textContent=(GEUMBI.local?'로컬 테스트 · ':'')+`${members.length}명의 양갱이 · 칩을 누르면 상세 내역을 볼 수 있어요.`;
     pager($('#upbo-pages'),upboPage,pages,p=>{upboPage=p;renderUpbo();});
   }
