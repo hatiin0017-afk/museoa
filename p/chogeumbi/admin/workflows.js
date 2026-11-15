@@ -25,7 +25,7 @@ function initWorkflows(){
     const member=A.data.members.find(m=>m.id===$('#assign-member').value),season=$('#assign-season').value.trim();
     if(!member){$('#upbo-count').textContent='먼저 시청자를 선택해 주세요.';$('#assigned-heading').hidden=true;return;}
     $('#assigned-heading').hidden=false;header.append(GEUMBI_SOOP.picture(member.viewerId,member.nickname),node('strong',member.nickname),node('small',member.viewerId));
-    const rows=A.data.upbo.filter(r=>r.memberId===member.id&&(!season||r.season===season));
+    const rows=A.data.upbo.filter(r=>r.memberId===member.id&&r.quantity>0&&(!season||r.season===season));
     $('#upbo-count').textContent=`${season||'전체 시즌'} · ${rows.length}건 · 남은 수량 ${rows.reduce((sum,r)=>sum+r.quantity,0)}개`;
     rows.forEach(r=>{
       const type=A.data.taskTypes.find(t=>t.id===r.typeId),card=node('div','');card.className='record';card.dataset.rowId=r.id;card.style.setProperty('--type-color',typeColor(type));
@@ -43,7 +43,7 @@ function initWorkflows(){
       const heading=node('div','');heading.className='upbo-card-heading';heading.append(info,memo);
       actions.append(plus,minus,done,ready,remove);card.append(heading,actions);list.append(card);
     });
-    if(!rows.length)list.append(node('p','이 시즌에 배정된 업보가 없습니다. 아래 종류를 눌러 추가하세요.'));
+    if(!rows.length)list.append(node('p','이 시즌에 남은 업보가 없습니다. 아래 종류를 눌러 추가하세요.'));
     if(!season)quick.append(node('p','새 업보를 배정하려면 시즌을 선택해 주세요.'));
     A.data.taskTypes.filter(t=>t.active!==false&&!t.deleted).forEach(t=>{const add=button(t.name+' +1',()=>A.commit(d=>CHOGEUMBI_MODEL.assign(d,member.id,t.id,season,1)));add.className='type-add';add.style.setProperty('--type-color',typeColor(t));add.disabled=!season;quick.append(add);});
     if(!quick.children.length)quick.append(node('p','업보 종류 탭에서 항목을 먼저 등록해 주세요.'));
