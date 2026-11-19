@@ -27,25 +27,8 @@ function turn(previous,next){
   const underneath=leaves[forward?previous:next];
   leaves[previous].hidden=false;
   cover.style.zIndex='1';
-  const options={
-    duration:420,
-    easing:'cubic-bezier(.32,.04,.16,1)',
-    fill:'both'
-  };
-  const coverFrames=[
-    {transform:'translateX(101%)',boxShadow:'-4px 0 12px #394f740d'},
-    {transform:'translateX(0)',boxShadow:'-2px 0 6px #394f741a'}
-  ];
-  const underneathFrames=[
-    {transform:'translateX(0)'},
-    {transform:'translateX(-4%)'}
-  ];
-  if(!forward){
-    coverFrames.reverse();
-    underneathFrames.reverse();
-  }
-  const slide=cover.animate(coverFrames,options);
-  motion=[slide,underneath.animate(underneathFrames,options)];
+  motion=slideSheets(cover,underneath,forward);
+  const slide=motion[0];
   slide.onfinish=()=>{if(motion.includes(slide))settle()};
 
 }
