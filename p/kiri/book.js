@@ -15,8 +15,29 @@ fold.setAttribute('class','fold-art');
 fold.setAttribute('aria-hidden','true');
 fold.setAttribute('viewBox','0 0 1000 1000');
 fold.setAttribute('preserveAspectRatio','none');
-fold.innerHTML='<defs><linearGradient id="paper"><stop stop-color="#aebbd0"/><stop offset=".38" stop-color="#e5eaf4"/><stop offset=".78" stop-color="#fff"/><stop offset="1" stop-color="#e4e9f4"/></linearGradient></defs><path fill="#496386" opacity=".12"/><path fill="url(#paper)"/>';
-const [shadow,crease]=fold.querySelectorAll('path');
+fold.innerHTML=`
+  <defs>
+    <linearGradient id="paper-light" gradientUnits="userSpaceOnUse" x1="-1" x2="0">
+      <stop stop-color="#aaa9bd"/><stop offset=".14" stop-color="#dedde4"/>
+      <stop offset=".41" stop-color="#fffdf0"/><stop offset=".70" stop-color="#faf8ef"/>
+      <stop offset=".94" stop-color="#d8d7df"/><stop offset="1" stop-color="#bcbacb"/>
+    </linearGradient>
+    <pattern id="paper-ruling" width="96" height="29" patternUnits="userSpaceOnUse">
+      <path d="M0 28.4 Q48 26.8 96 28.4" fill="none" stroke="#abb7ce" stroke-width="1" opacity=".52"/>
+      <path d="m8 6 2 .3m15 8 1.6 -.4m13 -3 2 .5m16 10 2 -.3m22 -16 1.6 .4" stroke="#afa7a2" opacity=".34" fill="none"/>
+    </pattern>
+    <filter id="lift-shadow" x="-90%" width="280%" y="-10%" height="120%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+  </defs>
+  <path class="cast" fill="#3f4164" filter="url(#lift-shadow)"/>
+  <path class="reverse" fill="url(#paper-light)"/>
+  <path class="ruling" fill="url(#paper-ruling)"/>
+  <path class="rim" fill="none" stroke="#fffef6" stroke-width="2.3"/>
+`;
+const shadow=fold.querySelector('.cast'),back=fold.querySelector('.reverse');
+const ruling=fold.querySelector('.ruling'),rim=fold.querySelector('.rim');
+const light=fold.querySelector('#paper-light'),pattern=fold.querySelector('#paper-ruling');
 let active=-1, frame=0;
 
 function settle(){
@@ -37,13 +58,13 @@ function turn(previous,next){
   stage.append(fold);
   const start=performance.now();
   function paint(now){
-    const elapsed=Math.min(1,(now-start)/780);
+    const elapsed=Math.min(1,(now-start)/880);
     const eased=elapsed*elapsed*(3-2*elapsed);
     const t=forward?eased:1-eased;
     const bow=Math.sin(Math.PI*t);
     const center=1000*(1-t);
     const top=center+165*bow,bottom=center-185*bow;
-    const mid=center+70*bow,width=78*bow;
+    const mid=center+70*bow,width=170*bow;
     const toPercent=n=>(n/10)+'%';
     const points=['0 0',toPercent(top)+' 0'];
     for(let i=1;i<=24;i++){
@@ -52,8 +73,17 @@ function turn(previous,next){
     }
     upper.style.clipPath='polygon('+points.join(',')+',0 100%)';
     const edge='M '+top+' 0 Q '+mid+' 500 '+bottom+' 1000';
-    crease.setAttribute('d',edge+' Q '+(mid-width*1.7)+' 540 '+(top-width*.24)+' 0 Z');
-    shadow.setAttribute('d',edge+' Q '+(mid+width*.65)+' 490 '+(top+width*.15)+' 0 Z');
+    const sheetBack=edge+' L '+(bottom-width*.88)+' 1000 Q '+(mid-width*1.16)+' 510 '+(top-width*.52)+' 0 Z';
+    back.setAttribute('d',sheetBack);
+    ruling.setAttribute('d',sheetBack);
+    rim.setAttribute('d',edge);
+    rim.style.opacity=bow;
+    // Keep the light and the fine rules attached to the moving sheet.
+    light.setAttribute('gradientTransform','matrix('+Math.max(width,1)+' 0 '+((bottom-top)/1000)+' 1 '+top+' 0)');
+    pattern.setAttribute('patternTransform','translate('+center+' 0) skewY('+(-6*bow)+') scale('+(1-.28*bow)+' 1)');
+    const lift=width*.46;
+    shadow.setAttribute('d',edge+' L '+(bottom+lift*.65)+' 1000 Q '+(mid+lift)+' 500 '+(top+lift*.25)+' 0 Z');
+    shadow.style.opacity=.26*bow;
     if(elapsed<1)frame=requestAnimationFrame(paint);else settle();
   }
   paint(start);
