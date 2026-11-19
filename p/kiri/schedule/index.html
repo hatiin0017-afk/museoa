@@ -3,22 +3,44 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>키리 · 방송 일정</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#eff7ff;color:#364f80;font:600 15px "Malgun Gothic",sans-serif}button,a{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #5251ab;outline-offset:2px}main{max-width:940px;margin:auto;overflow:hidden;border:2px solid #91bff2;border-radius:26px;background:linear-gradient(140deg,#d3edffbb,#f5faffdd),repeating-conic-gradient(#bee0fd 0 25%,#e7f5ff 0 50%) 0 0/34px 34px;min-height:920px}.hero{position:relative;aspect-ratio:1122/351;background:url('../assets/schedule.png') top center/100% auto no-repeat}.hero a{position:absolute;right:3%;top:24%;height:13%;width:13%}.sheet{margin:0 3% 28px;padding:24px 3% 18px;border:2px solid white;border-radius:20px;background:repeating-linear-gradient(#fffeff 0 29px,#eaf2ff 30px);box-shadow:1px 5px 0 #bad3f2}.bar,.pager,.tabs,footer,.detailhead{display:flex;align-items:center}.bar{justify-content:space-between;gap:8px;margin-bottom:24px}.tabs{gap:3px;border-radius:30px;background:#e6f0ff;padding:4px}.tabs button,.pager button{border:0;background:transparent}.tabs button{border-radius:24px;padding:8px 18px;color:#4e6387}.tabs [aria-pressed=true]{background:#4279bd;color:white}.sample{font-size:12px;color:#637091}.cols{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}.card{position:relative;border:1.5px solid #aec9ed;border-radius:18px;padding:20px;background:#fff;box-shadow:0 3px 0 #ddeafb}.tape:before{content:"";position:absolute;top:-9px;left:calc(50% - 36px);width:72px;height:17px;transform:rotate(-3deg);background:repeating-linear-gradient(125deg,#9ee0d2 0 6px,#d4f5e8 7px 12px);opacity:.9}.pager{justify-content:space-between;gap:8px}.pager button{background:#eef5ff;color:#497eb9;border-radius:50%;width:34px;height:34px;font-size:20px}.pager strong{font-size:19px}.grid{display:grid;grid-template-columns:repeat(7,1fr);margin-top:12px;text-align:center;align-items:center}.weekday{font-size:12px;padding:5px}.day{border:0;background:transparent;height:44px;border-radius:14px;position:relative;font-size:15px}.day:hover{background:#e9f5ff}.day[aria-pressed=true]{background:#d2f2ed;box-shadow:inset 0 0 0 2px #5aaea3}.dot:after{content:"";position:absolute;bottom:5px;left:calc(50% - 2px);width:5px;height:5px;border-radius:50%;background:#588dcc}.rest.dot:after{background:#a48ed4}.sun{color:#b6537e}.sat{color:#377bbb}.legend{margin:14px 0 0;font-size:12px;color:#68748c}.detail{background:linear-gradient(160deg,white,#f5faff)}h2{margin:12px 0 18px;font-size:23px;letter-spacing:-1px}.detailhead{justify-content:space-between}.icon{width:45px;height:45px;object-fit:contain}.event{background:#edf8ff;border-radius:12px;padding:14px;margin:8px 0}.event strong{display:block;margin:5px 0}.event small,.tag{color:#456783;font-size:12px}.tag{background:#ddf6ee;border-radius:15px;padding:4px 10px;white-space:nowrap}.off{background:#f2edfa}.off .tag,.tag.resting{background:#eae1f8;color:#745b92}.week{padding:20px 22px}.week .pager{margin:0 0 16px}.row{display:grid;grid-template-columns:100px 60px 1fr auto;align-items:center;gap:12px;min-height:49px;padding:7px 12px;border-top:1px dashed #cbd9ee}.row.active{border-radius:10px;background:#ebfaf7}.row time{font-variant-numeric:tabular-nums}.row .date{color:#56678a}.row .date b{color:#325d94}.empty{color:#738398;font-size:14px}footer{justify-content:center;gap:12px;color:#7186ab;font-size:12px;margin-top:16px}footer img{width:24px;height:24px;object-fit:contain}[hidden]{display:none!important}
-.sheet{display:grid;grid-template-columns:minmax(0,1fr)}
-.views{display:grid;isolation:isolate;overflow:clip;overflow-clip-margin:10px}
-#month,#week{grid-area:1/1}
-#month{background:#fffeff}
-#month[hidden],#week[hidden]{visibility:hidden;pointer-events:none}
-#month[hidden]{display:grid!important}
-#week[hidden]{display:block!important}
-#week{min-height:441px}
-#month>.tape{display:flex;flex-direction:column}
-#grid{flex:1;grid-template-rows:auto repeat(6,minmax(44px,1fr))}
-
-.canvas{overflow:clip;position:relative;width:min(100%,940px);aspect-ratio:940/920;margin-inline:auto}
-.canvas main{position:absolute;inset:0 auto auto 0;width:940px;transform-origin:top left}
+@font-face{font-family:Gaegu;src:url('../assets/Gaegu-Bold.ttf');font-weight:700;font-display:swap}
+*{box-sizing:border-box}
+body{margin:0;background:#eff7ff;color:#354e79;font:600 16px/1.4 system-ui,sans-serif}
+.canvas{position:relative;width:min(100%,940px);aspect-ratio:940/920;margin:auto;overflow:clip}
+main{position:absolute;inset:0 auto auto 0;width:940px;height:920px;transform-origin:top left;background:url('../assets/schedule.png') center/100% 100% no-repeat}
+.hero a{position:absolute;top:6%;right:2%;width:13%;height:4.5%}
+button{font:inherit;color:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible{outline:3px solid #776dc1;outline-offset:1px}
+.sheet{position:absolute;inset:33.6% 12% 13.8% 13%;display:grid;grid-template-rows:auto 1fr;gap:16px}
+.bar,.tabs,.pager{display:flex;align-items:center}
+.bar,.pager{justify-content:space-between}
+.tabs{gap:8px}
+.tabs button,.pager button{border:1px solid #bbcbe4;background:#fffaf6;border-radius:14px}
+.tabs button{font:700 23px/1 Gaegu,sans-serif;padding:7px 14px;box-shadow:0 2px 0 #cbd5e9}
+.tabs [aria-pressed=true]{background:#ffe7f2;border-color:#dfacc9;color:#89456c}
+.sample,.legend,.detailhead{font-size:13px;color:#677791}
+.views{display:grid;isolation:isolate;overflow:clip}
+#month,#week{grid-area:1/1;min-width:0;padding:8px 2px}
+.views.moving>section{background:#fbf9f5}
+.views [hidden]{visibility:hidden;pointer-events:none}
+#month{display:grid;grid-template-columns:1.15fr 1fr;gap:22px}
+#month[hidden]{display:grid}#week[hidden]{display:block}
+.card{min-width:0}
+.pager strong,h2{font:700 31px/1.2 Gaegu,sans-serif;color:#405991}
+.pager button{width:36px;height:32px;background:#eef5ff;font-size:19px}
+.grid{margin-top:14px;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:auto repeat(6,44px);text-align:center;align-items:center}
+.weekday{font:700 20px Gaegu,sans-serif}
+.day{position:relative;border:0;border-radius:13px;height:38px;background:transparent}
+.day:hover{background:#e5f1ff}.day[aria-pressed=true]{background:#ffdfec;box-shadow:inset 0 0 0 1.5px #e59aba}
+.dot:after{content:'';position:absolute;bottom:3px;left:calc(50% - 2px);width:5px;height:5px;border-radius:50%;background:#648cc2}.rest.dot:after{background:#a391c6}
+.sun{color:#a95176}.sat{color:#4578aa}.legend{margin:8px 0}
+.detail{border-left:2px dashed #ced8e8;padding-left:20px}.detailhead{margin-top:5px}
+h2{margin:7px 0 18px}.event{position:relative;margin:10px 2px;padding:10px 12px;background:#e8f6fa;border:1px dashed #a8cbd7;border-radius:12px}
+.event strong,.event small{display:block}.event strong{font:700 24px Gaegu,sans-serif}.off{background:#f0eafa}.tag{font:700 18px Gaegu,sans-serif;color:#526c93}.resting{color:#8a659a}
+.week .pager{margin-bottom:12px}.row{display:grid;grid-template-columns:104px 70px 1fr 44px;align-items:center;padding:5px 12px;min-height:46px;border-bottom:1px dashed #c3cfe1;gap:10px}
+.row.active{background:#ffe7f0;border-radius:12px}.row strong{font:700 23px Gaegu,sans-serif}.row time{font-variant-numeric:tabular-nums}.empty{color:#6d7d95}
 </style>
-<div class="canvas"><main><header class="hero" aria-label="키리 방송 일정"><a href="../profile/index.html" aria-label="상세 프로필 시안 보기"></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><div class="views"><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend">● 방송　<span style="color:#8765aa">● 휴방</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small><img class="icon" src="../assets/music.png" alt=""></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section></div><footer><img src="../assets/heart-small.png" alt="">키리의 방송 일정<img src="../assets/note-top.png" alt=""></footer></div></main></div>
+<div class="canvas"><main><header class="hero" aria-label="키리 방송 일정"><a href="../profile/index.html" aria-label="상세 프로필 보기"></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><div class="views"><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend">● 방송　<span style="color:#8765aa">● 휴방</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section></div></div></main></div>
 <script src="../page-motion.js"></script>
 <script>
 const canvas = document.querySelector('.canvas');
@@ -51,6 +73,8 @@ function switchView(toWeek){
   if(toWeek===weekly)return;
   movement.forEach(effect=>effect.cancel());
   movement=[];
+  const views=document.querySelector('.views');
+  views.classList.remove('moving');
   const month=$('month'),week=$('week');
   const outgoing=weekly?week:month;
   weekly=toWeek;
@@ -60,12 +84,14 @@ function switchView(toWeek){
   week.inert=!weekly;
   week.style.zIndex='';
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  views.classList.add('moving');
   outgoing.hidden=false;
   week.style.zIndex='1';
   movement=slideSheets(week,month,weekly);
   const slide=movement[0];
   slide.onfinish=()=>{
     if(movement[0]!==slide)return;
+    views.classList.remove('moving');
     outgoing.hidden=true;
     week.style.zIndex='';
     movement.forEach(effect=>effect.cancel());
