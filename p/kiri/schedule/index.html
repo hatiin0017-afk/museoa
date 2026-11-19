@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>키리 · 방송 일정</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eff7ff;color:#364f80;font:600 15px "Malgun Gothic",sans-serif}button,a{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #5251ab;outline-offset:2px}main{max-width:940px;margin:auto;overflow:hidden;border:2px solid #91bff2;border-radius:26px;background:linear-gradient(140deg,#d3edffbb,#f5faffdd),repeating-conic-gradient(#bee0fd 0 25%,#e7f5ff 0 50%) 0 0/34px 34px;min-height:920px}.hero{position:relative;aspect-ratio:1122/351;background:url('../assets/schedule.png') top center/100% auto no-repeat}.hero a{position:absolute;right:3%;top:24%;height:13%;width:13%}.sheet{margin:0 3% 28px;padding:24px 3% 18px;border:2px solid white;border-radius:20px;background:repeating-linear-gradient(#fffeff 0 29px,#eaf2ff 30px);box-shadow:1px 5px 0 #bad3f2}.bar,.pager,.tabs,footer,.detailhead{display:flex;align-items:center}.bar{justify-content:space-between;gap:8px;margin-bottom:24px}.tabs{gap:3px;border-radius:30px;background:#e6f0ff;padding:4px}.tabs button,.pager button{border:0;background:transparent}.tabs button{border-radius:24px;padding:8px 18px;color:#4e6387}.tabs [aria-pressed=true]{background:#4279bd;color:white}.sample{font-size:12px;color:#637091}.cols{display:grid;grid-template-columns:1.1fr 1fr;gap:18px}.card{position:relative;border:1.5px solid #aec9ed;border-radius:18px;padding:20px;background:#fff;box-shadow:0 3px 0 #ddeafb}.tape:before{content:"";position:absolute;top:-9px;left:calc(50% - 36px);width:72px;height:17px;transform:rotate(-3deg);background:repeating-linear-gradient(125deg,#9ee0d2 0 6px,#d4f5e8 7px 12px);opacity:.9}.pager{justify-content:space-between;gap:8px}.pager button{background:#eef5ff;color:#497eb9;border-radius:50%;width:34px;height:34px;font-size:20px}.pager strong{font-size:19px}.grid{display:grid;grid-template-columns:repeat(7,1fr);margin-top:12px;text-align:center;align-items:center}.weekday{font-size:12px;padding:5px}.day{border:0;background:transparent;height:44px;border-radius:14px;position:relative;font-size:15px}.day:hover{background:#e9f5ff}.day[aria-pressed=true]{background:#d2f2ed;box-shadow:inset 0 0 0 2px #5aaea3}.dot:after{content:"";position:absolute;bottom:5px;left:calc(50% - 2px);width:5px;height:5px;border-radius:50%;background:#588dcc}.rest.dot:after{background:#a48ed4}.sun{color:#b6537e}.sat{color:#377bbb}.legend{margin:14px 0 0;font-size:12px;color:#68748c}.detail{background:linear-gradient(160deg,white,#f5faff)}h2{margin:12px 0 18px;font-size:23px;letter-spacing:-1px}.detailhead{justify-content:space-between}.icon{width:45px;height:45px;object-fit:contain}.event{background:#edf8ff;border-radius:12px;padding:14px;margin:8px 0}.event strong{display:block;margin:5px 0}.event small,.tag{color:#456783;font-size:12px}.tag{background:#ddf6ee;border-radius:15px;padding:4px 10px;white-space:nowrap}.off{background:#f2edfa}.off .tag,.tag.resting{background:#eae1f8;color:#745b92}.week{padding:20px 22px}.week .pager{margin:0 0 16px}.row{display:grid;grid-template-columns:100px 60px 1fr auto;align-items:center;gap:12px;min-height:49px;padding:7px 12px;border-top:1px dashed #cbd9ee}.row.active{border-radius:10px;background:#ebfaf7}.row time{font-variant-numeric:tabular-nums}.row .date{color:#56678a}.row .date b{color:#325d94}.empty{color:#738398;font-size:14px}footer{justify-content:center;gap:12px;color:#7186ab;font-size:12px;margin-top:16px}footer img{width:24px;height:24px;object-fit:contain}[hidden]{display:none!important}
+.sheet{display:grid;grid-template-columns:minmax(0,1fr)}
+#month,#week{grid-area:2/1}
+#month[hidden],#week[hidden]{visibility:hidden;pointer-events:none}
+#month[hidden]{display:grid!important}
+#week[hidden]{display:block!important}
+#week{min-height:441px}
+#month>.tape{display:flex;flex-direction:column}
+#grid{flex:1;grid-template-rows:auto repeat(6,minmax(44px,1fr))}
+
+.canvas{overflow:clip;position:relative;width:min(100%,940px);aspect-ratio:940/920;margin-inline:auto}
+.canvas main{position:absolute;inset:0 auto auto 0;width:940px;transform-origin:top left}
+</style>
+<div class="canvas"><main><header class="hero" aria-label="키리 방송 일정"><a href="../profile/index.html" aria-label="상세 프로필 시안 보기"></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend">● 방송　<span style="color:#8765aa">● 휴방</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small><img class="icon" src="../assets/music.png" alt=""></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section><footer><img src="../assets/heart-small.png" alt="">키리의 방송 일정<img src="../assets/note-top.png" alt=""></footer></div></main></div>
+<script>
+const canvas = document.querySelector('.canvas');
+const page = canvas.querySelector('main');
+function fitCanvas() {
+  const scale = canvas.getBoundingClientRect().width / 940;
+  page.style.transform = 'scale(' + scale + ')';
+  canvas.style.height = page.offsetHeight * scale + 'px';
+}
+const fitObserver = new ResizeObserver(fitCanvas);
+fitObserver.observe(canvas);
+fitObserver.observe(page);
+fitCanvas();
+const events={16:[['20:00','피아노 신청곡']],17:[['','휴방']],18:[['19:30','노래 연습실']],19:[['20:00','피아노 연주'],['21:30','신청곡 앵콜']],20:[['20:00','노래방']],21:[['18:00','주말 합주']],22:[['','휴방']]};
+let selected=new Date(2026,10,19), weekly=location.hash==='#week';
+const $=id=>document.getElementById(id),days='일월화수목금토', shift=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n),label=d=>(d.getMonth()+1)+'월 '+d.getDate()+'일',list=d=>d.getFullYear()===2026&&d.getMonth()===10?events[d.getDate()]||[]:[];
+function render(){
+ const y=selected.getFullYear(),m=selected.getMonth(),d=selected.getDate();
+ $('month').hidden=weekly;$('week').hidden=!weekly;$('monthly').setAttribute('aria-pressed',!weekly);$('weekly').setAttribute('aria-pressed',weekly);
+ $('ym').textContent=y+'년 '+(m+1)+'월';$('chosen').textContent=label(selected)+' '+days[selected.getDay()]+'요일';
+ const items=list(selected);$('entries').innerHTML=items.map(([t,s])=>'<div class="event '+(t?'':'off')+'"><span class="tag">'+(t?'방송':'휴방')+'</span><strong>'+s+'</strong><small>'+(t||'예정된 방송을 쉬어요.')+'</small></div>').join('')||'<p class="empty">등록된 일정이 없어요.</p>';
+ let html=[...days].map(v=>'<span class="weekday">'+v+'</span>').join('')+'<span></span>'.repeat(new Date(y,m,1).getDay());
+ for(let i=1;i<=new Date(y,m+1,0).getDate();i++){const date=new Date(y,m,i),items=list(date);html+='<button class="day '+(items.length?'dot ':'')+(items.length&&!items[0][0]?'rest ':'')+(['sun','','','','','','sat'][date.getDay()])+'" aria-label="'+label(date)+'" aria-pressed="'+(d===i)+'" data-day="'+i+'">'+i+'</button>'}
+ $('grid').innerHTML=html;const mon=shift(selected,-((selected.getDay()+6)%7)),sun=shift(mon,6);
+ $('range').textContent=mon.getFullYear()+'년 '+label(mon)+' – '+label(sun);
+ $('rows').innerHTML=Array.from({length:7},(_,i)=>{const date=shift(mon,i),items=list(date);return '<div class="row '+(+date===+selected?'active':'')+'"><span class="date"><b>'+days[date.getDay()]+'</b>　'+(date.getMonth()+1)+'.'+date.getDate()+'</span><time>'+items.map(v=>v[0]||'—').join('<br>')+'</time><strong>'+(items.map(v=>v[1]).join('<br>')||'일정 없음')+'</strong>'+(items.length?'<span class="tag '+(items[0][0]?'':'resting')+'">'+(items[0][0]?'방송':'휴방')+'</span>':'')+'</div>'}).join('');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='weekly'||b.id==='monthly'){weekly=b.id==='weekly';history.replaceState(null,'',weekly?'#week':'#month')}else if(b.dataset.day){selected=new Date(selected.getFullYear(),selected.getMonth(),Number(b.dataset.day))}else if(b.dataset.move){const n=Number(b.dataset.move);selected=weekly?shift(selected,7*n):new Date(selected.getFullYear(),selected.getMonth()+n,1)}render();if(b.dataset.day)$('grid').querySelector('[aria-pressed=true]').focus()});render();
+</script></html>
+
