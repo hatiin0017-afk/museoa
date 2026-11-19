@@ -22,21 +22,32 @@ function settle(){
 }
 
 function turn(previous,next){
-  const outgoing=leaves[previous], incoming=leaves[next];
-  const direction=next>previous?1:-1;
-  outgoing.hidden=false;
-  incoming.style.zIndex='1';
-  const timing={duration:330,easing:'cubic-bezier(.22,.67,.24,1)'};
-  const exit=outgoing.animate([
-    {transform:'translateX(0)',filter:'blur(0)'},
-    {transform:'translateX('+(-direction*12)+'px)',filter:'blur(1.5px)'}
-  ],{...timing,fill:'forwards'});
-  const enter=incoming.animate([
-    {transform:'translateX('+direction*24+'px)',opacity:0,filter:'blur(2px)'},
-    {transform:'translateX(0)',opacity:1,filter:'blur(0)'}
-  ],timing);
-  motion=[exit,enter];
-  enter.onfinish=()=>{if(active===next && motion.includes(enter))settle()};
+  const forward=next>previous;
+  const cover=leaves[forward?next:previous];
+  const underneath=leaves[forward?previous:next];
+  leaves[previous].hidden=false;
+  cover.style.zIndex='1';
+  const options={
+    duration:420,
+    easing:'cubic-bezier(.32,.04,.16,1)',
+    fill:'both'
+  };
+  const coverFrames=[
+    {transform:'translateX(101%)',boxShadow:'-4px 0 12px #394f740d'},
+    {transform:'translateX(0)',boxShadow:'-2px 0 6px #394f741a'}
+  ];
+  const underneathFrames=[
+    {transform:'translateX(0)'},
+    {transform:'translateX(-4%)'}
+  ];
+  if(!forward){
+    coverFrames.reverse();
+    underneathFrames.reverse();
+  }
+  const slide=cover.animate(coverFrames,options);
+  motion=[slide,underneath.animate(underneathFrames,options)];
+  slide.onfinish=()=>{if(motion.includes(slide))settle()};
+
 }
 
 function openPage(){
