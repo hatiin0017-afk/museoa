@@ -23,7 +23,7 @@ table{border-collapse:collapse;background:#fff;width:100%;font-size:.92em}td,th{
 .book header{top:4.45%;height:6.35%;left:.32%;right:.32%;background:linear-gradient(180deg,#fff 0%,#eff7ff 100%);border-bottom:3px solid #a9d8f7}
 .book .brand{display:flex;align-items:center;gap:.4em;background:none;width:29%;height:100%;color:#6584c2;font:700 clamp(22px,4cqw,40px)/1 Gaegu,sans-serif;text-shadow:1px 2px white}
 .brand:before{content:'';width:26%;aspect-ratio:1;background:url(assets/fan.png) center/contain no-repeat;mix-blend-mode:multiply}
-.stage{position:absolute;inset:10.8% .35% .35%;overflow:clip;perspective:1500px;background:#d8efff}
+.stage{position:absolute;inset:10.8% .35% .35%;overflow:clip;background:#d8efff}
 .leaf{position:absolute;inset:0;overflow:hidden;transform-origin:left center}.leaf[hidden]{display:none!important}
 .leaf .sheet{position:absolute;bottom:-.4cqw;left:-.35cqw;width:100cqw;height:124.955cqw;animation:none}
 
@@ -47,7 +47,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 .work .members{overflow:visible;gap:13px 12px;padding:10px 4px 6px}
 .folder{line-height:1.15;padding:8px 5px 5px}.folder .avatar{width:clamp(34px,4.8cqw,46px);height:auto;aspect-ratio:1}
 .folder-pager:not([hidden]){display:flex;justify-content:center;gap:12px;align-items:center}.folder-pager button{border:1px solid #a6bfdb;background:white;color:#445e84;border-radius:15px;padding:4px 12px}.folder-pager button:disabled{opacity:.45}
-.fold-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.work::after{content:"";position:absolute;inset:0;pointer-events:none;background:url(assets/song.png) center/100% 100% no-repeat;mask-image:linear-gradient(transparent 92.6%,black 93.6%)}
 
 .book-frame{width:min(100%,940px);aspect-ratio:1122/1402;position:relative;margin-inline:auto;overflow:clip}
 .book-frame>.book{position:absolute;top:0;left:0;width:940px;margin:0;border-radius:24px;transform-origin:top left}
