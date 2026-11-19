@@ -18,13 +18,12 @@ fold.setAttribute('preserveAspectRatio','none');
 fold.innerHTML=`
   <defs>
     <linearGradient id="paper-light" gradientUnits="userSpaceOnUse" x1="-1" x2="0">
-      <stop stop-color="#aaa9bd"/><stop offset=".14" stop-color="#dedde4"/>
-      <stop offset=".41" stop-color="#fffdf0"/><stop offset=".70" stop-color="#faf8ef"/>
-      <stop offset=".94" stop-color="#d8d7df"/><stop offset="1" stop-color="#bcbacb"/>
+      <stop stop-color="#f3f0e8"/><stop offset=".68" stop-color="#fbfaf4"/>
+      <stop offset="1" stop-color="#e2e0dc"/>
     </linearGradient>
     <pattern id="paper-ruling" width="96" height="29" patternUnits="userSpaceOnUse">
-      <path d="M0 28.4 Q48 26.8 96 28.4" fill="none" stroke="#abb7ce" stroke-width="1" opacity=".52"/>
-      <path d="m8 6 2 .3m15 8 1.6 -.4m13 -3 2 .5m16 10 2 -.3m22 -16 1.6 .4" stroke="#afa7a2" opacity=".34" fill="none"/>
+      <path d="M0 28.4 Q48 26.8 96 28.4" fill="none" stroke="#abb7ce" stroke-width="1" opacity=".28"/>
+      <path d="m8 6 2 .3m15 8 1.6 -.4m13 -3 2 .5m16 10 2 -.3m22 -16 1.6 .4" stroke="#afa7a2" opacity=".22" fill="none"/>
     </pattern>
     <filter id="lift-shadow" x="-90%" width="280%" y="-10%" height="120%">
       <feGaussianBlur stdDeviation="7"/>
@@ -33,7 +32,7 @@ fold.innerHTML=`
   <path class="cast" fill="#3f4164" filter="url(#lift-shadow)"/>
   <path class="reverse" fill="url(#paper-light)"/>
   <path class="ruling" fill="url(#paper-ruling)"/>
-  <path class="rim" fill="none" stroke="#fffef6" stroke-width="2.3"/>
+  <path class="rim" fill="none" stroke="#a8a7ad" stroke-width="1"/>
 `;
 const shadow=fold.querySelector('.cast'),back=fold.querySelector('.reverse');
 const ruling=fold.querySelector('.ruling'),rim=fold.querySelector('.rim');
@@ -58,32 +57,45 @@ function turn(previous,next){
   stage.append(fold);
   const start=performance.now();
   function paint(now){
-    const elapsed=Math.min(1,(now-start)/880);
-    const eased=elapsed*elapsed*(3-2*elapsed);
-    const t=forward?eased:1-eased;
-    const bow=Math.sin(Math.PI*t);
-    const center=1000*(1-t);
-    const top=center+165*bow,bottom=center-185*bow;
-    const mid=center+70*bow,width=170*bow;
-    const toPercent=n=>(n/10)+'%';
-    const points=['0 0',toPercent(top)+' 0'];
-    for(let i=1;i<=24;i++){
-      const y=i/24,x=(1-y)**2*top+2*(1-y)*y*mid+y*y*bottom;
-      points.push(toPercent(x)+' '+(100*y)+'%');
+    const elapsed=Math.min(1,(now-start)/940);
+    const clock=forward?elapsed:1-elapsed;
+    // A small dog-ear forms before the upper edge starts to travel.
+    const ease=v=>v*v*(3-2*v);
+    const lift=ease(Math.min(clock/.24,1));
+    const sweep=ease(Math.max(0,(clock-.15)/.85));
+    const bottom=1000-86*lift-1160*sweep;
+    const slant=810*(1-sweep)+72;
+    const bow=74*Math.sin(Math.PI*sweep);
+    const hinge=y=>bottom+slant*(1-y)+bow*Math.sin(Math.PI*y);
+    const face=['0 0'],seam=[],freeEdge=[],penumbra=[];
+    for(let i=0;i<=48;i++){
+      const y=i/48,x=hinge(y),height=y*1000;
+      face.push(Math.max(0,Math.min(x,1000))/10+'% '+y*100+'%');
+      // Start exactly at the right edge where the fold enters the sheet.
+      if(x>1000)continue;
+      if(!seam.length && i>0){
+        const entry=height-(1000-x)/(hinge(y-1/48)-x)*1000/48;
+        const tip='1000 '+entry;
+        seam.push(tip);freeEdge.push(tip);penumbra.push(tip);
+      }
+      const loose=1000-x;
+      const curl=loose/(1+loose/180);
+      seam.push(x+' '+height);
+      freeEdge.push((x-.85*curl)+' '+(height-.76*curl*slant/882));
+      penumbra.push((x+.19*curl)+' '+(height+.06*curl));
     }
-    upper.style.clipPath='polygon('+points.join(',')+',0 100%)';
-    const edge='M '+top+' 0 Q '+mid+' 500 '+bottom+' 1000';
-    const sheetBack=edge+' L '+(bottom-width*.88)+' 1000 Q '+(mid-width*1.16)+' 510 '+(top-width*.52)+' 0 Z';
-    back.setAttribute('d',sheetBack);
-    ruling.setAttribute('d',sheetBack);
-    rim.setAttribute('d',edge);
-    rim.style.opacity=bow;
-    // Keep the light and the fine rules attached to the moving sheet.
-    light.setAttribute('gradientTransform','matrix('+Math.max(width,1)+' 0 '+((bottom-top)/1000)+' 1 '+top+' 0)');
-    pattern.setAttribute('patternTransform','translate('+center+' 0) skewY('+(-6*bow)+') scale('+(1-.28*bow)+' 1)');
-    const lift=width*.46;
-    shadow.setAttribute('d',edge+' L '+(bottom+lift*.65)+' 1000 Q '+(mid+lift)+' 500 '+(top+lift*.25)+' 0 Z');
-    shadow.style.opacity=.26*bow;
+    upper.style.clipPath='polygon('+face.join(',')+',0 100%)';
+    const edge='M '+seam.join(' L ');
+    const paper=edge+' L '+freeEdge.reverse().join(' L ')+' Z';
+    back.setAttribute('d',paper);
+    ruling.setAttribute('d',paper);
+    rim.setAttribute('d','M '+freeEdge.join(' L '));
+    rim.style.opacity=.4*lift;
+    const top=hinge(0);
+    light.setAttribute('gradientTransform','matrix(130 0 '+(-slant/1000)+' 1 '+top+' 0)');
+    pattern.setAttribute('patternTransform','translate('+bottom+' 0) skewY('+(-8*lift*(1-sweep))+')');
+    shadow.setAttribute('d',edge+' L '+penumbra.reverse().join(' L ')+' Z');
+    shadow.style.opacity=.19*lift;
     if(elapsed<1)frame=requestAnimationFrame(paint);else settle();
   }
   paint(start);
