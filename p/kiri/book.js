@@ -8,6 +8,23 @@ fitBook();
 const leaves=[...document.querySelectorAll('.leaf')];
 const links=[...document.querySelectorAll('header a')];
 const titles=['메인','상세 프로필','업보책','노래책'];
+const folio=book.querySelector('.folio');
+function markSpread(index){
+  folio.querySelector('.folio-count').textContent=(index+1)+' / '+leaves.length;
+  for(const [relation,step] of [['prev',-1],['next',1]]){
+    const link=folio.querySelector('[rel="'+relation+'"]');
+    const target=index+step;
+    if(leaves[target]){
+      link.href='#'+leaves[target].dataset.page;
+      link.setAttribute('aria-label',(step<0?'이전 장, ':'다음 장, ')+titles[target]);
+      link.removeAttribute('aria-hidden');
+    }else{
+      link.removeAttribute('href');
+      link.removeAttribute('aria-label');
+      link.setAttribute('aria-hidden','true');
+    }
+  }
+}
 function routeIndex(){
   return Math.max(0,leaves.findIndex(leaf=>'#'+leaf.dataset.page===location.hash));
 }
@@ -19,6 +36,7 @@ async function openPage(){
   const next=routeIndex();
   const request=++navigation;
   const name=leaves[next].dataset.page;
+  markSpread(next);
   links.forEach(link=>{
     if(link.hash==='#'+name)link.setAttribute('aria-current','page');
     else link.removeAttribute('aria-current');

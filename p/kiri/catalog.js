@@ -160,7 +160,13 @@ function setupFilters(labels, render) {
     list.replaceChildren(...matches.slice(folderPage*perPage,(folderPage+1)*perPage).map(user=>{
       const li=elem('li'),button=elem('button',null,'folder');
       button.dataset.id=user.id;button.setAttribute('aria-haspopup','dialog');
-      button.append(photo(user),elem('strong',user.name),elem('small','@'+user.id),elem('span','업보 '+rewards(user).reduce((sum,row)=>sum+row[2],0)+'개','stamp'));
+      const items=rewards(user);
+      button.append(photo(user),elem('strong',user.name),elem('small','@'+user.id),elem('span','업보 '+items.reduce((sum,row)=>sum+row[2],0)+'개','stamp'));
+      if(matches.length<=2){
+        const preview=elem('span',null,'folder-slips');
+        for(const [,name,qty] of items.slice(0,2))preview.append(elem('span',name+' ×'+qty));
+        button.append(preview);
+      }
       button.onclick=()=>show(user);li.append(button);return li;
     }));
     if(!matches.length)list.append(elem('li','검색 결과가 없어요.'));
