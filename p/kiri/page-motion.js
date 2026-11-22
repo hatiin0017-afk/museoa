@@ -1,6 +1,6 @@
 function slideSheets(cover, underneath, forward){
   const options={
-    duration:420,
+    duration:300,
     easing:'cubic-bezier(.32,.04,.16,1)',
     fill:'both'
   };
@@ -19,7 +19,7 @@ function slideSheets(cover, underneath, forward){
   }
   const softening=[
     {filter:'blur(0px)'},
-    {filter:'blur(1.6px)',offset:.43},
+    {filter:'blur(0.8px)',offset:.43},
     {filter:'blur(0px)'}
   ];
   return [

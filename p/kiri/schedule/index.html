@@ -7,7 +7,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:#eff7ff;color:#354e79;font:600 16px/1.4 system-ui,sans-serif}
 .canvas{position:relative;width:min(100%,940px);aspect-ratio:940/920;margin:auto;overflow:clip}
-main{position:absolute;inset:0 auto auto 0;width:940px;height:920px;transform-origin:top left;background:url('../assets/schedule.png') center/100% 100% no-repeat}
+main{position:absolute;inset:0 auto auto 0;width:940px;height:920px;transform-origin:top left;background:url('../assets/schedule.webp') center/100% 100% no-repeat}
 .hero a{position:absolute;top:6%;right:2%;width:13%;height:4.5%}
 button{font:inherit;color:inherit;cursor:pointer}
 a:focus-visible,button:focus-visible{outline:3px solid #776dc1;outline-offset:1px}
@@ -18,7 +18,7 @@ a:focus-visible,button:focus-visible{outline:3px solid #776dc1;outline-offset:1p
 .tabs button,.pager button{border:1px solid #bbcbe4;background:#fffaf6;border-radius:14px}
 .tabs button{font:700 23px/1 Gaegu,sans-serif;padding:7px 14px;box-shadow:0 2px 0 #cbd5e9}
 .tabs [aria-pressed=true]{background:#ffe7f2;border-color:#dfacc9;color:#89456c}
-.sample,.legend,.detailhead{font-size:13px;color:#677791}
+.sample,.legend,.detailhead{font-size:14px;color:#566881}
 .views{display:grid;isolation:isolate;overflow:clip}
 #month,#week{grid-area:1/1;min-width:0;padding:8px 2px}
 .views.moving>section{background:#fbf9f5}
@@ -41,12 +41,17 @@ a:focus-visible,button:focus-visible{outline:3px solid #776dc1;outline-offset:1p
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:13px;height:13px;border-radius:50%}
 .detail{border-left:2px dashed #ced8e8;padding-left:20px}.detailhead{margin-top:5px}
-h2{margin:7px 0 18px}.event{position:relative;margin:10px 2px;padding:10px 12px;background:#e8f6fa;border:1px dashed #a8cbd7;border-radius:12px}
-.event strong,.event small{display:block}.event strong{font:700 24px Gaegu,sans-serif}.off{background:#f0eafa}.tag{font:700 18px Gaegu,sans-serif;color:#526c93}.resting{color:#8a659a}
+h2{margin:7px 0 18px}
+.event{margin:0 2px;padding:10px 0 12px 13px;border-left:3px solid #a8cbd7}
+.event+.event{margin-top:12px}
+.event time{display:block;color:#455e7a;font-variant-numeric:tabular-nums;font-size:16px}
+.event strong{display:block;font:700 26px/1.25 Gaegu,sans-serif}
+.event.off{border-color:#abb2bc}
+.tag{font:700 18px Gaegu,sans-serif;color:#526c93}.resting{color:#745783}
 .week .pager{margin-bottom:12px}.row{display:grid;grid-template-columns:104px 70px 1fr 44px;align-items:center;padding:5px 12px;min-height:46px;border-bottom:1px dashed #c3cfe1;gap:10px}
 .row.active{background:#ffe7f0;border-radius:12px}.row strong{font:700 23px Gaegu,sans-serif}.row time{font-variant-numeric:tabular-nums}.empty{color:#6d7d95}
 </style>
-<div class="canvas"><main><header class="hero" aria-label="키리 방송 일정"><a href="../profile/index.html" aria-label="상세 프로필 보기"></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><div class="views"><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend"><span><i class="has-show" aria-hidden="true"></i>방송</span><span><i class="off-day" aria-hidden="true"></i>휴방</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section></div></div></main></div>
+<div class="canvas"><main><header class="hero" aria-label="키리 방송 일정"><a href="../index.html#profile" aria-label="상세 프로필 보기"></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><div class="views"><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend"><span><i class="has-show" aria-hidden="true"></i>방송</span><span><i class="off-day" aria-hidden="true"></i>휴방</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section></div></div></main></div>
 <script src="../page-motion.js"></script>
 <script>
 const canvas = document.querySelector('.canvas');
@@ -67,7 +72,11 @@ function render(){
  const y=selected.getFullYear(),m=selected.getMonth(),d=selected.getDate();
  $('month').hidden=weekly;$('week').hidden=!weekly;$('monthly').setAttribute('aria-pressed',!weekly);$('weekly').setAttribute('aria-pressed',weekly);
  $('ym').textContent=y+'년 '+(m+1)+'월';$('chosen').textContent=label(selected)+' '+days[selected.getDay()]+'요일';
- const items=list(selected);$('entries').innerHTML=items.map(([t,s])=>'<div class="event '+(t?'':'off')+'"><span class="tag">'+(t?'방송':'휴방')+'</span><strong>'+s+'</strong><small>'+(t||'예정된 방송을 쉬어요.')+'</small></div>').join('')||'<p class="empty">등록된 일정이 없어요.</p>';
+ const items=list(selected);
+ $('entries').innerHTML=items.map(([time,title])=>{
+   const heading=time?'<time>'+time+'</time>':'';
+   return '<div class="event '+(time?'':'off')+'">'+heading+'<strong>'+title+'</strong></div>';
+ }).join('')||'<p class="empty">등록된 일정이 없어요.</p>';
  let html=[...days].map(v=>'<span class="weekday">'+v+'</span>').join('')+'<span></span>'.repeat(new Date(y,m,1).getDay());
  for(let i=1;i<=new Date(y,m+1,0).getDate();i++){
    const date=new Date(y,m,i), entries=list(date);

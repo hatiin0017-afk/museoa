@@ -46,9 +46,9 @@ function setupFilters(labels, render) {
     document.querySelector('output').textContent = matches.length ? '' : '검색 결과가 없어요.';
     for (const song of matches.slice(page*pageSize,(page+1)*pageSize)) {
       const row = body.insertRow();
-      for (const text of [song.artist,song.title,'—',song.genre]) row.insertCell().textContent=text;
+      for (const text of [song.title,song.artist,song.genre]) row.insertCell().textContent=text;
       const copy = document.createElement('button');
-      copy.textContent = '⧉';
+      copy.className = 'copy-song';
       copy.setAttribute('aria-label',song.title+' 곡 정보 복사');
       copy.onclick = () => copySong(song.artist+' - '+song.title);
       row.insertCell().append(copy);
@@ -58,8 +58,8 @@ function setupFilters(labels, render) {
       const button = document.createElement('button');
       button.textContent = i+1;
       button.setAttribute('aria-label', (i+1)+'페이지');
-      button.disabled = page === i;
-      button.onclick = () => { page=i; render(); };
+      if (page === i) button.setAttribute('aria-current','page');
+      button.onclick = () => { page=i; render(); pages.querySelector('[aria-current]').focus(); };
       pages.append(button);
     }
   }
