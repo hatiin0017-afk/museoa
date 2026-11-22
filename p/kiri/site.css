@@ -227,3 +227,13 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
     border-radius:3px;transform:rotate(-4deg);box-shadow:0 1px 3px #8097aa80;
   }
 }
+
+/* Register the vector ink to the original 1122 × 1402 illustration. */
+.title-ink{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+@media(max-width:700px){
+  /* Catalog artwork uses a nine-slice border. The titles occupy its upper middle slice. */
+  :is(.work,.song)>.title-ink{
+    top:calc(-1 * var(--top-h));left:calc(-100% * .10 / .84);
+    width:calc(100% / .84);height:calc(var(--top-h) / .24);
+  }
+}
