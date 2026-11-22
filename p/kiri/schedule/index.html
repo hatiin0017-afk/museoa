@@ -49,13 +49,43 @@ h2{margin:7px 0 18px}
 .tag{font:700 18px Gaegu,sans-serif;color:#526c93}.resting{color:#745783}
 .week .pager{margin-bottom:12px}.row{display:grid;grid-template-columns:104px 70px 1fr 44px;align-items:center;padding:5px 12px;min-height:46px;border-bottom:1px dashed #c3cfe1;gap:10px}
 .row.active{background:#ffe7f0;border-radius:12px}.row strong{font:700 23px Gaegu,sans-serif}.row time{font-variant-numeric:tabular-nums}.empty{color:#6d7d95}
+
+.day{position:relative}.day[aria-current=date]:after,.legend .today-mark{width:5px;height:5px;border-radius:50%;background:#445887}
+.day[aria-current=date]:after{content:"";position:absolute;bottom:3px;left:calc(50% - 2.5px)}
+@media(max-width:700px){
+ .canvas{aspect-ratio:auto}
+ main{position:relative;width:100%;height:auto;background:none;padding:33vw 9% 14vw 11%;isolation:isolate}
+ main:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-style:solid;
+   border-width:74.68vw 7vw 17.42vw 9vw;border-image:url('../assets/schedule.webp') 76.3% 7% 17.8% 9% fill / 1 / 0 stretch round}
+ .hero a{top:5.4vw;right:1.4%;width:18%;height:6vw}
+ .sheet{position:relative;inset:auto;gap:10px}
+ .bar{flex-wrap:wrap;gap:4px 8px}
+ .tabs{gap:5px}.tabs button{min-height:40px;padding:6px 9px;font-size:20px}
+ .sample{font-size:11px}
+ #month{grid-template-columns:minmax(0,1fr);align-content:start;gap:12px}
+ .pager strong,h2{font-size:24px}.pager button{width:40px;height:40px}
+ .grid{margin-top:8px;grid-template-rows:25px repeat(6,44px)}
+ .day{width:min(40px,94%);height:40px;font-size:16px}
+ .legend{font-size:12px;margin:6px 0}
+ .detail{border:0;border-top:1px dashed #bbc9d8;padding:10px 0 0}
+ h2{margin:0 0 6px}.event{padding:5px 0 5px 10px}.event+.event{margin-top:6px}.event strong{font-size:22px}
+ .week .pager strong{font-size:clamp(17px,4.5vw,24px)}
+ .row{grid-template-columns:62px 43px minmax(0,1fr) 31px;font-size:13px;min-height:55px;gap:4px;padding:5px 2px}
+ .row strong{font-size:19px}.row .tag{font-size:15px}
+ .views{min-height:490px}
+}
 </style>
-<div class="canvas"><main><header class="hero" aria-label="키리 방송 일정"><a href="../index.html#profile" aria-label="상세 프로필 보기"></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><div class="views"><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend"><span><i class="has-show" aria-hidden="true"></i>방송</span><span><i class="off-day" aria-hidden="true"></i>휴방</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section></div></div></main></div>
+<div class="canvas"><main><header class="hero" aria-label="키리 방송 일정"><a href="../index.html#profile" aria-label="상세 프로필 보기"></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><div class="views"><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend"><span><i class="has-show" aria-hidden="true"></i>방송</span><span><i class="off-day" aria-hidden="true"></i>휴방</span><span><i class="today-mark" aria-hidden="true"></i>오늘</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section></div></div></main></div>
 <script src="../page-motion.js"></script>
 <script>
 const canvas = document.querySelector('.canvas');
 const page = canvas.querySelector('main');
 function fitCanvas() {
+  if(matchMedia('(max-width:700px)').matches){
+    page.style.transform='';
+    canvas.style.height='';
+    return;
+  }
   const scale = canvas.getBoundingClientRect().width / 940;
   page.style.transform = 'scale(' + scale + ')';
   canvas.style.height = page.offsetHeight * scale + 'px';
@@ -65,9 +95,15 @@ fitObserver.observe(canvas);
 fitObserver.observe(page);
 fitCanvas();
 const events={16:[['20:00','피아노 신청곡']],17:[['','휴방']],18:[['19:30','노래 연습실']],19:[['20:00','피아노 연주'],['21:30','신청곡 앵콜']],20:[['20:00','노래방']],21:[['18:00','주말 합주']],22:[['','휴방']]};
-let selected=new Date(2026,10,19), weekly=location.hash==='#week';
+function koreaToday(){
+ const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(new Date());
+ const value=type=>Number(parts.find(part=>part.type===type).value);
+ return new Date(value('year'),value('month')-1,value('day'));
+}
+let selected=koreaToday(), weekly=location.hash==='#week';
 const $=id=>document.getElementById(id),days='일월화수목금토', shift=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n),label=d=>(d.getMonth()+1)+'월 '+d.getDate()+'일',list=d=>d.getFullYear()===2026&&d.getMonth()===10?events[d.getDate()]||[]:[];
 function render(){
+ const today=koreaToday();
  const y=selected.getFullYear(),m=selected.getMonth(),d=selected.getDate();
  $('monthly').setAttribute('aria-pressed',!weekly);$('weekly').setAttribute('aria-pressed',weekly);
  $('ym').textContent=y+'년 '+(m+1)+'월';$('chosen').textContent=label(selected)+' '+days[selected.getDay()]+'요일';
@@ -82,7 +118,8 @@ function render(){
    const status=entries.some(([time])=>time)?'방송':entries.length?'휴방':'';
    const color=status==='방송'?'has-show':status==='휴방'?'off-day':'';
    const weekday=['sun','','','','','','sat'][date.getDay()];
-   html+='<button class="day '+weekday+' '+color+'" aria-label="'+[label(date),status].filter(Boolean).join(' · ')+'" aria-pressed="'+(d===i)+'" data-day="'+i+'">'+i+'</button>';
+   const current=+date===+today?' aria-current="date"':'';
+   html+='<button '+current+' class="day '+weekday+' '+color+'" aria-label="'+[label(date),status].filter(Boolean).join(' · ')+'" aria-pressed="'+(d===i)+'" data-day="'+i+'">'+i+'</button>';
  }
  $('grid').innerHTML=html;const mon=shift(selected,-((selected.getDay()+6)%7)),sun=shift(mon,6);
  $('range').textContent=mon.getFullYear()+'년 '+label(mon)+' – '+label(sun);

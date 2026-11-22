@@ -29,7 +29,8 @@ function setupFilters(labels, render) {
     const [artist,title] = row.split('|');
     return {artist,title,genre};
   }));
-  const pageSize = 12;
+  const compactCatalog = matchMedia('(max-width: 700px)');
+  compactCatalog.addEventListener('change', () => { page=0; render(); });
   const pages = document.querySelector('.pages');
   let resetCopy;
   let lastCopied;
@@ -54,7 +55,9 @@ function setupFilters(labels, render) {
   function render() {
     const query = search.value.trim().toLowerCase();
     const matches = songs.filter(s => (selectedFilter === '전체' || s.genre === selectedFilter) && (s.artist+' '+s.title).toLowerCase().includes(query));
+    const pageSize = compactCatalog.matches ? 5 : 12;
     const totalPages = Math.ceil(matches.length/pageSize);
+    panel.classList.toggle('genre-filtered', selectedFilter !== '전체');
     count.textContent = '예시 목록 · '+matches.length+'곡';
     const body = document.querySelector('tbody');
     body.replaceChildren();
@@ -72,6 +75,27 @@ function setupFilters(labels, render) {
       row.insertCell().append(copy);
     }
     pages.replaceChildren();
+    if (compactCatalog.matches && totalPages > 1) {
+      for (const step of [-1, 1]) {
+        if (step === 1) {
+          const position = document.createElement('span');
+          position.textContent = (page+1)+' / '+totalPages;
+          pages.append(position);
+        }
+        const button = document.createElement('button');
+        button.textContent = step < 0 ? '이전' : '다음';
+        button.disabled = page+step < 0 || page+step >= totalPages;
+        button.onclick = () => {
+          page += step;
+          render();
+          const buttons = pages.querySelectorAll('button');
+          const preferred = buttons[step < 0 ? 0 : 1];
+          (preferred.disabled ? pages.querySelector('button:enabled') : preferred).focus();
+        };
+        pages.append(button);
+      }
+      return;
+    }
     for (let i=0;i<totalPages;i++) {
       const button = document.createElement('button');
       button.textContent = i+1;
@@ -132,10 +156,11 @@ function setupFilters(labels, render) {
         pager.append(button);
       }
     }
+    list.classList.toggle('short-index', matches.length <= 2);
     list.replaceChildren(...matches.slice(folderPage*perPage,(folderPage+1)*perPage).map(user=>{
       const li=elem('li'),button=elem('button',null,'folder');
       button.dataset.id=user.id;button.setAttribute('aria-haspopup','dialog');
-      button.append(photo(user),elem('strong',user.name),elem('small','@'+user.id),elem('span','업보 '+rewards(user).reduce((sum,row)=>sum+row[2],0),'stamp'));
+      button.append(photo(user),elem('strong',user.name),elem('small','@'+user.id),elem('span','업보 '+rewards(user).reduce((sum,row)=>sum+row[2],0)+'개','stamp'));
       button.onclick=()=>show(user);li.append(button);return li;
     }));
     if(!matches.length)list.append(elem('li','검색 결과가 없어요.'));

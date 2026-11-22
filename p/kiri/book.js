@@ -24,7 +24,7 @@ async function openPage(){
     else link.removeAttribute('aria-current');
   });
   document.title=titles[next]+' · 키리';
-  if(request===1)return;
+  if(request===1){frameBox.dataset.route=name;return;}
   window.scrollTo({top:0,behavior:'instant'});
   const dialog=document.querySelector('dialog');
   if(dialog.open)dialog.close();
@@ -34,7 +34,10 @@ async function openPage(){
     artwork.set(name,image.decode().catch(()=>artwork.delete(name)));
   }
   await artwork.get(name);
-  if(request===navigation)turnPage(next);
+  if(request===navigation){
+    frameBox.dataset.route=name;
+    turnPage(next);
+  }
 }
 window.addEventListener('hashchange',openPage);
 openPage();
