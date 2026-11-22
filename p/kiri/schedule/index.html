@@ -19,9 +19,8 @@ a:focus-visible,button:focus-visible{outline:3px solid #776dc1;outline-offset:1p
 .tabs button{font:700 23px/1 Gaegu,sans-serif;padding:7px 14px;box-shadow:0 2px 0 #cbd5e9}
 .tabs [aria-pressed=true]{background:#ffe7f2;border-color:#dfacc9;color:#89456c}
 .sample,.legend,.detailhead{font-size:14px;color:#566881}
-.views{display:grid;isolation:isolate;overflow:clip}
+.views{position:relative;display:grid;isolation:isolate;overflow:clip}
 #month,#week{grid-area:1/1;min-width:0;padding:8px 2px}
-.views.moving>section{background:#fbf9f5}
 .views [hidden]{visibility:hidden;pointer-events:none}
 #month{display:grid;grid-template-columns:1.15fr 1fr;gap:22px}
 #month[hidden]{display:grid}#week[hidden]{display:block}
@@ -70,7 +69,7 @@ let selected=new Date(2026,10,19), weekly=location.hash==='#week';
 const $=id=>document.getElementById(id),days='일월화수목금토', shift=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n),label=d=>(d.getMonth()+1)+'월 '+d.getDate()+'일',list=d=>d.getFullYear()===2026&&d.getMonth()===10?events[d.getDate()]||[]:[];
 function render(){
  const y=selected.getFullYear(),m=selected.getMonth(),d=selected.getDate();
- $('month').hidden=weekly;$('week').hidden=!weekly;$('monthly').setAttribute('aria-pressed',!weekly);$('weekly').setAttribute('aria-pressed',weekly);
+ $('monthly').setAttribute('aria-pressed',!weekly);$('weekly').setAttribute('aria-pressed',weekly);
  $('ym').textContent=y+'년 '+(m+1)+'월';$('chosen').textContent=label(selected)+' '+days[selected.getDay()]+'요일';
  const items=list(selected);
  $('entries').innerHTML=items.map(([time,title])=>{
@@ -89,36 +88,15 @@ function render(){
  $('range').textContent=mon.getFullYear()+'년 '+label(mon)+' – '+label(sun);
  $('rows').innerHTML=Array.from({length:7},(_,i)=>{const date=shift(mon,i),items=list(date);return '<div class="row '+(+date===+selected?'active':'')+'"><span class="date"><b>'+days[date.getDay()]+'</b>　'+(date.getMonth()+1)+'.'+date.getDate()+'</span><time>'+items.map(v=>v[0]||'—').join('<br>')+'</time><strong>'+(items.map(v=>v[1]).join('<br>')||'일정 없음')+'</strong>'+(items.length?'<span class="tag '+(items[0][0]?'':'resting')+'">'+(items[0][0]?'방송':'휴방')+'</span>':'')+'</div>'}).join('');
 }
-let movement=[];
+const turnView=createPageTurn(document.querySelector('.views'),[$('month'),$('week')],Number(weekly));
 function switchView(toWeek){
   if(toWeek===weekly)return;
-  movement.forEach(effect=>effect.cancel());
-  movement=[];
-  const views=document.querySelector('.views');
-  views.classList.remove('moving');
-  const month=$('month'),week=$('week');
-  const outgoing=weekly?week:month;
   weekly=toWeek;
   history.replaceState(null,'',weekly?'#week':'#month');
   render();
-  month.inert=weekly;
-  week.inert=!weekly;
-  week.style.zIndex='';
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  views.classList.add('moving');
-  outgoing.hidden=false;
-  week.style.zIndex='1';
-  movement=slideSheets(week,month,weekly);
-  const slide=movement[0];
-  slide.onfinish=()=>{
-    if(movement[0]!==slide)return;
-    views.classList.remove('moving');
-    outgoing.hidden=true;
-    week.style.zIndex='';
-    movement.forEach(effect=>effect.cancel());
-    movement=[];
-  };
+  turnView(Number(weekly));
 }
+window.addEventListener('hashchange',()=>switchView(location.hash==='#week'));
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='weekly'||b.id==='monthly'){switchView(b.id==='weekly');return}else if(b.dataset.day){selected=new Date(selected.getFullYear(),selected.getMonth(),Number(b.dataset.day))}else if(b.dataset.move){const n=Number(b.dataset.move);selected=weekly?shift(selected,7*n):new Date(selected.getFullYear(),selected.getMonth()+n,1)}render();if(b.dataset.day)$('grid').querySelector('[aria-pressed=true]').focus()});render();
 </script></html>
 
