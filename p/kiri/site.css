@@ -34,6 +34,13 @@ tbody tr:hover,tbody tr:focus-within{background:#f0f5fc}
 .copy-song{position:relative;vertical-align:middle;width:36px;height:29px;border:0;border-radius:6px;background:transparent;color:#59718c}
 .copy-song:before,.copy-song:after{content:"";position:absolute;left:10px;top:6px;width:10px;height:12px;border:1.5px solid;border-radius:2px}
 .copy-song:after{left:14px;top:10px;background:#fbfbff}.copy-song:hover{background:#e1eafa}
+tbody tr{cursor:pointer}
+.copy-song.copied:before{display:none}
+.copy-song.copied:after{content:"복사됨";inset:0;display:grid;place-items:center;width:auto;height:auto;background:#e5f4ef;border:0;border-radius:5px;color:#315b51;font:700 12px/1 system-ui,sans-serif;white-space:nowrap}
+@media(prefers-reduced-motion:no-preference){
+  .copy-song.copied:after{animation:copy-confirm 160ms ease-out}
+  @keyframes copy-confirm{from{opacity:.4;transform:translateY(2px)}to{opacity:1;transform:none}}
+}
 .pages{justify-content:center}.pages button{min-width:35px;height:33px;border-radius:6px;font-variant-numeric:tabular-nums}.pages [aria-current]{background:#e4e8f5;color:#3c4675;box-shadow:inset 0 -2px #8884b6}
 @font-face{font-family:Gaegu;src:url(assets/Gaegu-Bold.ttf) format("truetype");font-weight:700;font-display:swap}
 .book{position:relative;width:min(940px,100%);aspect-ratio:1122/1402;margin:auto;container-type:inline-size;isolation:isolate;border-radius:2.7cqw;overflow:clip;background:#cbeaff url(assets/home.webp) top center/100% 100% no-repeat}

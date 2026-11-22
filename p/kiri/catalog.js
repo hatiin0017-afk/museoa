@@ -31,10 +31,25 @@ function setupFilters(labels, render) {
   }));
   const pageSize = 12;
   const pages = document.querySelector('.pages');
-  async function copySong(text) {
-    const status = document.querySelector('output');
-    try { await navigator.clipboard.writeText(text); status.textContent = '곡 정보를 복사했어요.'; }
-    catch { window.prompt('곡 정보를 복사하세요.',text); }
+  let resetCopy;
+  let lastCopied;
+  let copyRequest = 0;
+  async function copySong(song, button) {
+    const text = song.artist+' - '+song.title;
+    const request = ++copyRequest;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      if (request === copyRequest && button.isConnected) window.prompt('곡 정보를 복사하세요.',text);
+      return;
+    }
+    if (request !== copyRequest || !button.isConnected) return;
+    if (lastCopied) lastCopied.classList.remove('copied');
+    clearTimeout(resetCopy);
+    lastCopied = button;
+    button.classList.add('copied');
+    panel.querySelector('output').textContent = song.title+' 복사됨';
+    resetCopy = setTimeout(() => button.classList.remove('copied'), 1600);
   }
   function render() {
     const query = search.value.trim().toLowerCase();
@@ -50,7 +65,10 @@ function setupFilters(labels, render) {
       const copy = document.createElement('button');
       copy.className = 'copy-song';
       copy.setAttribute('aria-label',song.title+' 곡 정보 복사');
-      copy.onclick = () => copySong(song.artist+' - '+song.title);
+      copy.onclick = () => copySong(song, copy);
+      row.onclick = event => {
+        if (!event.target.closest('button') && !window.getSelection()?.toString()) copy.click();
+      };
       row.insertCell().append(copy);
     }
     pages.replaceChildren();
