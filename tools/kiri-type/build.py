@@ -221,14 +221,14 @@ def make_font(originals,small_chars=None,reading=False):
     populateCOLRv0(t["COLR"].table,flat,ids)
     return t
 
-def colorize(font,color,small=False,family_names=None):
+def colorize(font,color,small=False,family_names=None,reading=False):
     korean,hexes=PALETTES[color]
     if small:
         # A darker, narrower rim holds the counters open on a 22px navigation label.
         nav_inks={"Blue":("385ba3","5274c4"),"Mint":("166f69","188c85"),"Lilac":("55599f","727ac3")}
         hexes=[hexes[0],*nav_inks[color],*hexes[3:]]
     palette=[tuple(int(h[i:i+2],16)/255 for i in (0,2,4))+(1.,) for h in hexes]
-    font["CPAL"]=buildCPAL([palette])
+    font["CPAL"]=buildCPAL([[(1.,1.,1.,.10)] if reading else palette])
     family='Kiri Pop '+color+(' Small' if small else '')
     ko_family='키리 팝 '+korean+(' 작은글씨' if small else '')
     if family_names:
@@ -245,9 +245,9 @@ def colorize(font,color,small=False,family_names=None):
     stream=BytesIO();font.save(stream)
     return stream.getvalue()
 
-def build_bubble():
-    # Optical alternates from the original speech balloon, in font coordinates.
-    shapes=ElementTree.parse(Path(__file__).with_name('bubble.svg')).getroot()
+def caption_font(source,family_names,reading=False):
+    # These small labels use the natural spacing and counters of the illustrated originals.
+    shapes=ElementTree.parse(Path(__file__).with_name(source)).getroot()
     faces={}
     for glyph in shapes:
         face=pathops.Path()
@@ -255,8 +255,8 @@ def build_bubble():
         name=alphabet.cmap[ord(glyph.attrib['id'])]
         faces[name]=(pathops.simplify(face,clockwise=True),int(glyph.attrib['data-advance']))
     chars=''.join(glyph.attrib['id'] for glyph in shapes)
-    font=make_font(faces,small_chars=chars)
-    return colorize(font,"Blue",small=True,family_names=("Kiri Pop Bubble","키리 팝 말풍선"))
+    font=make_font(faces,small_chars=chars,reading=reading)
+    return colorize(font,"Blue",small=True,family_names=family_names,reading=reading)
 
 
 def main():
@@ -265,7 +265,9 @@ def main():
     for color,text in {"Blue":"프로필","Mint":"업보","Lilac":"노래책"}.items():
         font=make_font(originals,small_chars=text)
         (OUT/f'KiriPop-{color}-Nav.woff2').write_bytes(colorize(font,color,small=True))
-    (OUT/'KiriPop-Bubble.woff2').write_bytes(build_bubble())
+    (OUT/'KiriPop-Bubble.woff2').write_bytes(caption_font('bubble.svg',('Kiri Pop Bubble','키리 팝 말풍선')))
+    profile=caption_font('profile-labels.svg',('Kiri Pop Profile','키리 팝 프로필'),reading=True)
+    (OUT/'KiriPop-Profile.woff2').write_bytes(profile)
     master=make_font(originals)
     # Fixed stationery labels use the small-size rim. The reading face keeps the
     # same letter contours and uses the text color for small or dynamic content.

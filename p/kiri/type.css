@@ -15,6 +15,6 @@
 }
 @font-palette-values --small-ink{
   font-family:"Kiri Labels";
-  override-colors:1 #355686,2 #476894,3 #819fcb,4 #acbedb;
+  override-colors:1 #314b70,2 #3f5c82,3 #49668a,4 #556e91,5 #b0c1d8;
 }
-.address-label,.schedule-address,.folio-count{font-palette:--small-ink}
+.address-label,.schedule-address,.schedule-brand,.hero a span,.folio-count{font-palette:--small-ink}
