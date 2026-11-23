@@ -42,9 +42,9 @@ tbody tr{cursor:pointer}
   @keyframes copy-confirm{from{opacity:.4;transform:translateY(2px)}to{opacity:1;transform:none}}
 }
 .pages{justify-content:center}.pages button{min-width:35px;height:33px;border-radius:6px;font-variant-numeric:tabular-nums}.pages [aria-current]{background:#e4e8f5;color:#3c4675;box-shadow:inset 0 -2px #8884b6}
-@font-face{font-family:"Kiri Pop Blue";src:url(assets/KiriPop-Blue-Nav.woff2?v=1.002) format("woff2");font-weight:700;font-display:swap}
-@font-face{font-family:"Kiri Pop Mint";src:url(assets/KiriPop-Mint-Nav.woff2?v=1.002) format("woff2");font-weight:700;font-display:swap}
-@font-face{font-family:"Kiri Pop Lilac";src:url(assets/KiriPop-Lilac-Nav.woff2?v=1.002) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Kiri Pop Blue";src:url(assets/KiriPop-Blue-Nav.woff2?v=1.003) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Kiri Pop Mint";src:url(assets/KiriPop-Mint-Nav.woff2?v=1.003) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Kiri Pop Lilac";src:url(assets/KiriPop-Lilac-Nav.woff2?v=1.003) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:Gaegu;src:url(assets/Gaegu-Bold.ttf) format("truetype");font-weight:700;font-display:swap}
 .book{position:relative;width:min(940px,100%);aspect-ratio:1122/1402;margin:auto;container-type:inline-size;isolation:isolate;border-radius:2.7cqw;overflow:clip;background:#cbeaff url(assets/home.webp) top center/100% 100% no-repeat}
 .book header{top:4.45%;height:6.35%;left:.32%;right:.32%;background:linear-gradient(180deg,#fff 0%,#eff7ff 100%);border-bottom:3px solid #a9d8f7}

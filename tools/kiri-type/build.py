@@ -14,7 +14,7 @@ from fontTools.ttLib.tables.otTables import PaintFormat
 import alphabet
 
 OUT=alphabet.OUT
-VERSION="1.002"
+VERSION="1.003"
 # palette entries: white margin, lower and upper ink, lower and upper face, reflection
 PALETTES={
     "Sky":("하늘",["ffffff","42a7e7","69bdf2","acdffb","e7f6ff","ffffff"]),
@@ -39,46 +39,30 @@ def as_glyph(path):
 
 def optical_face(char,face,advance):
     if char in ("업","보"):
-        # Both faces are already 740 units tall. Match their visible widths and sidebearings.
         left,_,right,_=face.bounds
-        width=690
+        width=678 if char=="업" else 708
         scale=width/(right-left)
         return face.transform(scale,0,0,1,95-left*scale,0),width+190
-    if char=="노":
-        # Separate ㄴ and ㅗ even after the two colored rims expand.
-        face=pathops.Path()
-        parse_path(
-            "M168 746 Q168 820 247 820 Q325 820 325 746 L322 630 "
-            "Q322 601 351 601 L635 605 Q716 608 717 533 Q718 459 641 457 "
-            "L258 455 Q169 455 168 538 Z "
-            "M108 166 C105 213 148 235 195 225 C257 213 321 209 355 213 "
-            "C377 215 383 222 382 246 C380 306 390 346 439 353 "
-            "C489 360 518 332 511 279 C504 229 504 217 529 217 "
-            "C596 217 653 225 698 236 C748 248 780 232 788 195 "
-            "C800 143 765 117 707 106 C549 74 331 72 184 96 "
-            "C137 104 111 124 108 166 Z",face.getPen())
-        return pathops.simplify(face,clockwise=True),901
     if char=="필":
-        # Recover the original brush turns of the batchim from the profile title.
-        batchim=min(face.contours,key=lambda contour:contour.bounds[1])
-        trim=batchim.transform(1,0,0,1,0,0)
-        trim.stroke(28,pathops.LineCap.ROUND_CAP,pathops.LineJoin.ROUND_JOIN,4)
-        trim.convertConicsToQuads(.5)
-        batchim=combine(batchim,trim,pathops.PathOp.DIFFERENCE)
-        left,bottom,right,top=batchim.bounds
-        sx,sy=500/(right-left),346/(top-bottom)
-        face=batchim.transform(sx,0,0,sy,186-left*sx,80-bottom*sy)
-        for skeleton,weight in [
-            ("M140 767 Q305 772 470 767 M143 539 Q311 535 469 541 "
-             "M208 763 L210 544 M407 763 L405 544",94),
-            ("M653 766 Q649 657 651 548",106),
-        ]:
-            stroke=pathops.Path()
-            parse_path(skeleton,stroke.getPen())
-            stroke.stroke(weight,pathops.LineCap.ROUND_CAP,pathops.LineJoin.ROUND_JOIN,4)
-            stroke.convertConicsToQuads(.5)
-            face.addPath(stroke)
-        return pathops.simplify(face,clockwise=True),800
+        # Open the existing ㅍ counter around its own center. The ㄹ is the title drawing.
+        counter=next(c for c in face.contours if not c.clockwise)
+        left,bottom,right,top=counter.bounds
+        cx,cy=(left+right)/2,(bottom+top)/2
+        aperture=counter.transform(1.92,0,0,1.24,-.92*cx,-.24*cy)
+        return combine(face,aperture,pathops.PathOp.DIFFERENCE),advance
+    if char=="노":
+        # The two strokes touch in the poster. Trim the join along its drawn slope,
+        # then tuck the original ㄴ upward to leave daylight above the vowel.
+        body=max(face.contours,key=lambda c:c.area)
+        upper=pathops.Path()
+        parse_path("M0 395 Q460 360 900 395 V900 H0 Z",upper.getPen())
+        lower=pathops.Path()
+        parse_path("M0 339 H343 Q366 339 379 352 Q398 373 442 373 "
+                   "Q505 373 535 350 Q548 339 565 339 H900 V0 H0 Z",lower.getPen())
+        consonant=combine(body,upper,pathops.PathOp.INTERSECTION)
+        vowel=combine(body,lower,pathops.PathOp.INTERSECTION)
+        consonant=consonant.transform(.98,0,0,.85,9,123)
+        return combine(consonant,vowel,pathops.PathOp.UNION),advance
     return face,advance
 
 def lettering():
