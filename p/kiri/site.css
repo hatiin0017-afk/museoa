@@ -62,15 +62,29 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 .folder:hover{transform:translateY(-2px)}.avatar{display:grid;place-items:center;position:relative;overflow:hidden;width:52px;height:52px;background:#ebefff;border:3px solid white;border-radius:50%;box-shadow:0 0 0 1px #c2cde3}.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .folder strong,.folder small{max-width:100%;overflow-wrap:anywhere}.folder small{font-size:.79em}.stamp{display:inline-block;margin:4px 0;padding:0 10px;background:#fff4ce;border:1px dashed #d4b676;border-radius:6px}
 @font-face{
-  font-family:"Kiri Pop UI";src:url(assets/KiriPop-UI.woff2) format("woff2");
-  font-weight:400;font-display:swap;
+  font-family:"Kiri Pop";src:url(assets/KiriPop-Blue.woff2) format("woff2");
+  font-weight:700;font-display:swap;
 }
+@font-palette-values --reward-mint{
+  font-family:"Kiri Pop";override-colors:1 #217c78,2 #32978e,3 #a6ead8,4 #e4fff1;
+}
+@font-palette-values --reward-lilac{
+  font-family:"Kiri Pop";override-colors:1 #646eb6,2 #7c87cd,3 #d5c7fc,4 #f6efff;
+}
+@font-palette-values --reward-small{
+  font-family:"Kiri Pop";override-colors:1 #324e76,2 #426089,3 #82a2d0,4 #a6c0e5,5 #d9e9ff;
+}
+.work .folder,.work .folder :is(small,.stamp,.folder-slips span){
+  font-family:"Kiri Pop",var(--reading);font-weight:700;
+}
+.work .folder strong,.work .folder .stamp{font-palette:--reward-mint}
+.work .folder :is(small,.folder-slips span){font-palette:--reward-small}
 #rewards{
   width:min(430px,calc(100% - 28px));max-height:85svh;padding:24px;
   overflow:auto;overscroll-behavior:contain;color:#2e4857;background:#fffefa;
   border:1px solid #a4c5bd;border-top:4px solid #96c6b9;border-radius:18px;
   box-shadow:0 5px 0 #6d938b35,0 14px 46px #293d5540;
-  font:400 17px/1.45 "Kiri Pop UI",var(--reading);font-synthesis:none;
+  font:700 22px/1.45 "Kiri Pop",var(--reading);font-synthesis:none;
 }
 #rewards::backdrop{background:#34436566;backdrop-filter:blur(6px)}
 #rewards .close{
@@ -83,22 +97,25 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 .identity{display:grid;grid-template-columns:60px minmax(0,1fr);align-items:center;gap:14px;padding-right:22px}
 .identity .avatar{width:60px;height:auto;aspect-ratio:1;border:3px solid #fff;box-shadow:0 0 0 1px #bbd2cd}
 .member-info{min-width:0}
-.identity h2{margin:0;font:inherit;font-size:24px;line-height:1.23;color:#263c4b;-webkit-text-stroke:.18px currentColor;overflow-wrap:anywhere}
-.member-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;margin-top:4px;font-size:14px;color:#536473}
-.member-meta span{overflow-wrap:anywhere;max-width:100%}
+.identity h2{margin:0;font:inherit;font-size:31px;line-height:1.22;letter-spacing:.035em;color:#263c4b;overflow-wrap:anywhere}
+.member-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;margin-top:4px;font-size:17px;font-palette:--reward-small;color:#536473}
+.member-meta span{letter-spacing:.025em;overflow-wrap:anywhere;max-width:100%}
 .member-meta a{display:inline-flex;align-items:center;gap:5px;min-height:26px;color:#32685f;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .member-meta a::after{content:"";width:8px;height:8px;background:currentColor;clip-path:polygon(15% 0,100% 0,100% 85%,80% 85%,80% 35%,16% 100%,0 84%,65% 20%,15% 20%)}
-#rewards .sample{margin:22px 0 9px;color:#516864;font-size:14px}
+#rewards .sample{margin:22px 0 9px;color:#516864;font-size:17px;font-palette:--reward-small}
 #rewards ul{list-style:none;display:grid;gap:7px;margin:0;padding:0}
 .ticket{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border:1px solid #cddfd6;background:#eff7f2;border-radius:9px;color:#314f47}
 .ticket:nth-child(even){border-color:#ddd9e9;background:#f5f2fa;color:#514563}
-.ticket span{padding:11px 14px;overflow-wrap:anywhere}
-.ticket b{align-self:stretch;display:grid;place-items:center;min-width:54px;padding:6px 9px;border-left:1px dashed #a6b9b4;font:inherit;font-size:16px;white-space:nowrap}
+.ticket{font-palette:--reward-mint}
+.ticket:nth-child(even){font-palette:--reward-lilac}
+.ticket span{letter-spacing:.035em;padding:11px 14px;overflow-wrap:anywhere}
+.ticket b{align-self:stretch;display:grid;place-items:center;min-width:54px;padding:6px 9px;border-left:1px dashed #a6b9b4;font:inherit;font-size:20px;white-space:nowrap}
 @media(max-width:420px){
   #rewards{padding:19px 17px}
   .identity{grid-template-columns:50px minmax(0,1fr);gap:11px}
   .identity .avatar{width:50px}
-  .identity h2{font-size:22px}
+  .identity h2{font-size:26px}
+  .member-meta{font-size:16px}
 }
 .book header nav{margin-left:auto;gap:16px}.book header nav a{padding:0 .25em;display:grid;place-items:center;min-height:44px}
 

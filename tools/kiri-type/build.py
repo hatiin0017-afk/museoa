@@ -259,28 +259,8 @@ def caption_font(source,family_names,reading=False):
     return colorize(font,"Blue",small=True,family_names=family_names,reading=reading)
 
 
-def build_ui_regular():
-    # Use the original unexpanded strokes so stems and counters survive at 14 px.
-    font=FontBuilder(1000,isTTF=True)
-    font.setupGlyphOrder(list(alphabet.glyphs))
-    font.setupCharacterMap(alphabet.cmap)
-    font.setupGlyf(alphabet.glyphs)
-    font.setupHorizontalMetrics(alphabet.metrics)
-    font.setupHorizontalHeader(ascent=1020,descent=-225)
-    font.setupNameTable({"familyName":"Kiri Pop UI","styleName":"Regular",
-                         "psName":"KiriPopUI-Regular","version":"Version "+VERSION})
-    font.setupOS2(sTypoAscender=1020,sTypoDescender=-225,sTypoLineGap=0,
-                  usWinAscent=1020,usWinDescent=225,usWeightClass=400)
-    font.setupPost(keepGlyphNames=False)
-    font.font.recalcTimestamp=False
-    font.font["head"].created=font.font["head"].modified=3878150400
-    font.font.flavor="woff2"
-    font.save(OUT/'KiriPop-UI.woff2')
-
-
 def main():
     alphabet.build_alphabet()
-    build_ui_regular()
     originals={alphabet.cmap[ord(char)]:outline for char,outline in lettering().items()}
     for color,text in {"Blue":"프로필","Mint":"업보","Lilac":"노래책"}.items():
         font=make_font(originals,small_chars=text)
@@ -299,6 +279,9 @@ def main():
             entry=ZipInfo(f'KiriPop-{color}.ttf',(2026,11,23,0,0,0))
             entry.compress_type=ZIP_DEFLATED
             package.writestr(entry,colorize(master,color))
+            if color=="Blue":
+                master.flavor="woff2"
+                master.save(OUT/'KiriPop-Blue.woff2')
 
     reading=make_font(originals,reading=True)
     # 0xffff follows the page's foreground, including status and selection colors.
