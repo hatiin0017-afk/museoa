@@ -1,4 +1,14 @@
 @font-face{
+  font-family:"Kiri Pop";src:url(assets/KiriPop-Blue.woff2) format("woff2");
+  font-weight:700;font-display:swap;
+}
+@font-palette-values --pop-lilac{
+  font-family:"Kiri Pop";override-colors:1 #646eb6,2 #7c87cd,3 #d5c7fc,4 #f6efff;
+}
+@font-palette-values --pop-rose{
+  font-family:"Kiri Pop";override-colors:1 #b34772,2 #cd5d88,3 #f8aecb,4 #ffe8f0;
+}
+@font-face{
   font-family:"Kiri Reading";src:url("assets/KiriPop-Text.woff2?v=1.003") format("woff2");
   font-weight:100 900;font-display:swap;
 }
@@ -7,6 +17,7 @@
   font-weight:700;font-display:swap;
 }
 :root{
+  --pop-font:"Kiri Pop","Malgun Gothic",system-ui,sans-serif;
   --reading:"Kiri Reading","Malgun Gothic",system-ui,sans-serif;
   --lettering:"Kiri Labels",var(--reading);
 }
@@ -17,4 +28,4 @@
   font-family:"Kiri Labels";
   override-colors:1 #314b70,2 #3f5c82,3 #49668a,4 #556e91,5 #b0c1d8;
 }
-.address-label,.schedule-address,.schedule-brand,.hero a span,.folio-count{font-palette:--small-ink}
+.address-label,.schedule-address,.schedule-brand,.hero a span{font-palette:--small-ink}

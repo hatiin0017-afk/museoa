@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../type.css">
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#eff7ff;color:#354e79;font:600 16px/1.4 var(--reading)}
+body{--reading:var(--pop-font);margin:0;background:#eff7ff;color:#354e79;font:700 18px/1.4 var(--reading)}
 .canvas{position:relative;width:min(100%,940px);aspect-ratio:940/920;margin:auto;overflow:clip}
 main{position:absolute;inset:0 auto auto 0;width:940px;height:920px;transform-origin:top left;background:url('../assets/schedule.webp') center/100% 100% no-repeat}
 /* Match the upper middle slice of the illustrated page on both layouts. */
@@ -50,7 +50,7 @@ h2{margin:7px 0 18px}
 .event strong{display:block;font:700 26px/1.25 var(--reading)}
 .event.off{border-color:#abb2bc}
 .tag{font:700 18px var(--reading);color:#526c93}.resting{color:#745783}
-.week .pager{margin-bottom:12px}.row{display:grid;grid-template-columns:104px 70px 1fr 44px;align-items:center;padding:5px 12px;min-height:46px;border-bottom:1px dashed #c3cfe1;gap:10px}
+.week .pager{margin-bottom:12px}.row{display:grid;grid-template-columns:104px minmax(0,1fr) 44px;align-items:center;padding:5px 12px;min-height:46px;border-bottom:1px dashed #c3cfe1;gap:10px}
 .row.active{background:#ffe7f0;border-radius:12px}.row strong{font:700 23px var(--reading)}.row time{font-variant-numeric:tabular-nums}.empty{color:#6d7d95}
 
 .day{position:relative}.day[aria-current=date]:after,.legend .today-mark{width:5px;height:5px;border-radius:50%;background:#445887}
@@ -77,7 +77,7 @@ h2{margin:7px 0 18px}
  .detail{border:0;border-top:1px dashed #bbc9d8;padding:10px 0 0}
  h2{margin:0 0 6px}.event{padding:5px 0 5px 10px}.event+.event{margin-top:6px}.event strong{font-size:22px}
  .week .pager strong{font-size:clamp(17px,4.5vw,24px)}
- .row{grid-template-columns:62px 43px minmax(0,1fr) 31px;font-size:13px;min-height:55px;gap:4px;padding:5px 2px}
+ .row{font-size:13px;min-height:55px;gap:4px;padding:5px 2px}
  .row strong{font-size:19px}.row .tag{font-size:15px}
  .views{min-height:490px}
 }
@@ -91,8 +91,34 @@ h2{margin:7px 0 18px}
 .schedule-brand{--size:3cqw;left:10.9%;top:7%;width:9.6%;height:3.65%;background:none}
 .hero a span{--size:1.72cqw;background:none}
 .tabs button,.event strong,.row strong,.weekday,.pager strong,h2{font-family:var(--reading)}
-.row .date{white-space:nowrap}
-@media(max-width:700px){.row{grid-template-columns:65px 47px minmax(0,1fr) 33px}.week .pager strong{font-size:clamp(14px,4.2vw,22px)}}
+.row .date{display:flex;align-items:center;gap:.45em;white-space:nowrap}
+.agenda{display:grid;gap:.3em}
+.agenda-entry{display:grid;grid-template-columns:70px minmax(0,1fr);align-items:baseline;gap:10px}
+#range span{display:inline-block;white-space:nowrap}
+@media(max-width:700px){.week .pager strong{font-size:clamp(14px,4.2vw,22px)}}
+.sheet{letter-spacing:.035em;font-synthesis:none}
+.sheet button{letter-spacing:inherit}
+.sheet :is(.tabs [aria-pressed=true],.sun,.resting){font-palette:--pop-rose}
+.sheet .off-day{font-palette:--pop-lilac}
+.sample,.legend,.detailhead small{font-size:16px}
+.day{font-size:19px}
+@media(max-width:700px){
+ .sample,.legend,.detailhead small,.row{font-size:15px}
+ .week .pager strong{text-align:center;font-size:clamp(16px,4.3vw,23px);text-wrap:balance}
+ .week .pager button{flex-shrink:0}
+ .row{grid-template-columns:4em minmax(0,1fr);grid-template-areas:"date agenda" "tag agenda";gap:2px 10px;padding:8px 4px}
+ .row .date{grid-area:date;flex-wrap:wrap;gap:0 .35em;align-self:end}
+ .row .tag{grid-area:tag;align-self:start}
+ .agenda{grid-area:agenda;row-gap:.65em}
+ .agenda-entry{grid-template-columns:4em minmax(0,1fr);gap:.5em}
+
+ .row strong{font-size:18px;overflow-wrap:anywhere}
+}
+@media(max-width:440px){
+ .agenda-entry{grid-template-columns:minmax(0,1fr);gap:1px}
+ .agenda-entry time{font-size:15px}
+ .row strong{word-break:keep-all}
+}
 </style>
 <div class="canvas"><main><header class="hero"><span class="schedule-address" aria-hidden="true">kiri's profile</span><span class="schedule-brand">키리♡</span><h1 class="schedule-title" aria-label="방송 일정"><svg viewBox="112.86 0 1053.36 956.802" preserveAspectRatio="none" aria-hidden="true" focusable="false"><use href="../assets/title-ink.svg#schedule"/></svg></h1><a href="../index.html#profile" aria-label="상세 프로필 보기"><span>♡ 프로필로</span></a></header><div class="sheet"><div class="bar"><nav class="tabs" aria-label="일정 보기"><button id="monthly">월간 달력</button><button id="weekly">주간 일정</button></nav><span class="sample">예시 일정 · 한국 시간</span></div><div class="views"><section id="month" class="cols"><div class="card tape"><div class="pager"><button data-move="-1" aria-label="이전 달">‹</button><strong id="ym"></strong><button data-move="1" aria-label="다음 달">›</button></div><div class="grid" id="grid"></div><p class="legend"><span><i class="has-show" aria-hidden="true"></i>방송</span><span><i class="off-day" aria-hidden="true"></i>휴방</span><span><i class="today-mark" aria-hidden="true"></i>오늘</span></p></div><article class="card detail" aria-live="polite"><div class="detailhead"><small>선택한 날짜</small></div><h2 id="chosen"></h2><div id="entries"></div></article></section><section id="week" class="card week tape" hidden><div class="pager"><button data-move="-1" aria-label="지난주">‹</button><strong id="range"></strong><button data-move="1" aria-label="다음 주">›</button></div><div id="rows"></div></section></div></div></main></div>
 <script src="../page-motion.js"></script>
@@ -141,8 +167,15 @@ function render(){
    html+='<button '+current+' class="day '+weekday+' '+color+'" aria-label="'+[label(date),status].filter(Boolean).join(' · ')+'" aria-pressed="'+(d===i)+'" data-day="'+i+'">'+i+'</button>';
  }
  $('grid').innerHTML=html;const mon=shift(selected,-((selected.getDay()+6)%7)),sun=shift(mon,6);
- $('range').textContent=mon.getFullYear()+'년 '+label(mon)+' – '+label(sun);
- $('rows').innerHTML=Array.from({length:7},(_,i)=>{const date=shift(mon,i),items=list(date);return '<div class="row '+(+date===+selected?'active':'')+'"><span class="date"><b>'+days[date.getDay()]+'</b>　'+(date.getMonth()+1)+'.'+date.getDate()+'</span><time>'+items.map(v=>v[0]||'—').join('<br>')+'</time><strong>'+(items.map(v=>v[1]).join('<br>')||'일정 없음')+'</strong>'+(items.length?'<span class="tag '+(items[0][0]?'':'resting')+'">'+(items[0][0]?'방송':'휴방')+'</span>':'')+'</div>'}).join('');
+ $('range').innerHTML='<span>'+mon.getFullYear()+'년</span> <span>'+label(mon)+'</span> <span>– '+label(sun)+'</span>';
+ $('rows').innerHTML=Array.from({length:7},(_,i)=>{
+   const date=shift(mon,i),items=list(date);
+   const agenda=(items.length?items:[['','일정 없음']]).map(([time,title])=>(
+     '<div class="agenda-entry">'+(time?'<time>'+time+'</time>':'<span aria-hidden="true"></span>')+'<strong>'+title+'</strong></div>'
+   )).join('');
+   const tag=items.length?'<span class="tag '+(items[0][0]?'':'resting')+'">'+(items[0][0]?'방송':'휴방')+'</span>':'';
+   return '<div class="row '+(+date===+selected?'active':'')+'"><span class="date"><b>'+days[date.getDay()]+'</b><span>'+(date.getMonth()+1)+'.'+date.getDate()+'</span></span><div class="agenda">'+agenda+'</div>'+tag+'</div>';
+ }).join('');
 }
 const turnView=createPageTurn(document.querySelector('.views'),[$('month'),$('week')],Number(weekly));
 function switchView(toWeek){
