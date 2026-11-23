@@ -42,6 +42,9 @@ tbody tr{cursor:pointer}
   @keyframes copy-confirm{from{opacity:.4;transform:translateY(2px)}to{opacity:1;transform:none}}
 }
 .pages{justify-content:center}.pages button{min-width:35px;height:33px;border-radius:6px;font-variant-numeric:tabular-nums}.pages [aria-current]{background:#e4e8f5;color:#3c4675;box-shadow:inset 0 -2px #8884b6}
+@font-face{font-family:"Kiri Pop Blue";src:url(assets/KiriPop-Blue-Nav.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Kiri Pop Mint";src:url(assets/KiriPop-Mint-Nav.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Kiri Pop Lilac";src:url(assets/KiriPop-Lilac-Nav.woff2) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:Gaegu;src:url(assets/Gaegu-Bold.ttf) format("truetype");font-weight:700;font-display:swap}
 .book{position:relative;width:min(940px,100%);aspect-ratio:1122/1402;margin:auto;container-type:inline-size;isolation:isolate;border-radius:2.7cqw;overflow:clip;background:#cbeaff url(assets/home.webp) top center/100% 100% no-repeat}
 .book header{top:4.45%;height:6.35%;left:.32%;right:.32%;background:linear-gradient(180deg,#fff 0%,#eff7ff 100%);border-bottom:3px solid #a9d8f7}
@@ -65,7 +68,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 #rewards ul{padding:0;list-style:none;display:grid;gap:9px;margin-bottom:0}.ticket{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#edf5fa;border:1px dashed #a8bccd;border-radius:8px}.ticket b{margin-left:auto;background:white;border-radius:9px;padding:2px 9px}
 
 .book header nav{margin-left:auto;gap:16px}.book header nav a{padding:0 .25em;display:grid;place-items:center;min-height:44px}
-.book header nav img{display:block;width:clamp(70px,10.6cqw,102px);height:auto}
+
 
 .folder .avatar{width:44px;height:44px}
 .folder-pager:not([hidden]){display:flex;justify-content:center;gap:12px;align-items:center}.folder-pager button{border:1px solid #a6bfdb;background:white;color:#445e84;border-radius:15px;padding:4px 12px}.folder-pager button:disabled{opacity:.45}
@@ -94,7 +97,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
   .book .brand{width:auto;gap:3px;font-size:23px}
   .brand:before{width:30px}
   .book header nav{gap:2px}.book header nav a{min-height:40px;padding-inline:3px}
-  .book header nav img{width:clamp(53px,14vw,82px)}
+
   .stage{top:var(--stage-top)}
   .leaf .sheet{top:-13.5vw;bottom:auto}
   .book-frame[data-route=song],.book-frame[data-route=work]{aspect-ratio:auto;height:max(125vw,calc(48vw + 496px))}
@@ -136,8 +139,17 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 .book-frame[data-route=song],.song{--chapter:#7263a4;--wash:#eee8fb}
 .book header nav{align-self:stretch;align-items:end;gap:8px}
 .book header nav a{
-  position:relative;min-height:0;height:78%;padding-inline:7px;
+  position:relative;min-height:0;height:78%;min-width:3.45em;padding-inline:7px;
+  font:700 clamp(24px,3.35cqw,32px)/1 "Malgun Gothic",sans-serif;letter-spacing:.01em;
   border:1px solid transparent;border-bottom:0;border-radius:15px 15px 0 0;
+}
+/* These faces contain their own ink, white edging and highlight layers. */
+.book header nav a[href="#profile"]{font-family:"Kiri Pop Blue","Malgun Gothic",sans-serif}
+.book header nav a[href="#work"]{font-family:"Kiri Pop Mint","Malgun Gothic",sans-serif}
+.book header nav a[href="#song"]{font-family:"Kiri Pop Lilac","Malgun Gothic",sans-serif}
+.book header nav a span{white-space:nowrap}
+@media(forced-colors:active){
+  .book header nav a span{font-family:"Malgun Gothic",sans-serif;color:LinkText}
 }
 .book header nav [aria-current]{
   background:linear-gradient(var(--wash),#fff);
@@ -200,7 +212,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 .folder-slips span{font:700 18px/1.3 Gaegu,sans-serif;background:#fffdf6;color:#47615b;border:1px solid #d4e4d9;border-radius:5px;padding:2px 7px}
 @media(max-width:700px){
   .book header nav{gap:2px}
-  .book header nav a{height:90%;padding-inline:3px;border-radius:10px 10px 0 0}
+  .book header nav a{font-size:clamp(22px,5.6vw,27px);min-width:2.95em;height:100%;padding-inline:3px;border-radius:10px 10px 0 0}
   .book .folio{bottom:6.8vw;gap:4px}
   .book .folio a{width:32px;height:27px;font-size:23px}
   .folio-mark{font-size:17px}.folio-count{font-size:11px;padding-left:5px}
