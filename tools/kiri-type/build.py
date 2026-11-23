@@ -14,6 +14,7 @@ from fontTools.ttLib.tables.otTables import PaintFormat
 import alphabet
 
 OUT=alphabet.OUT
+VERSION="1.001"
 # palette entries: white margin, lower and upper ink, lower and upper face, reflection
 PALETTES={
     "Sky":("하늘",["ffffff","42a7e7","69bdf2","acdffb","e7f6ff","ffffff"]),
@@ -36,6 +37,43 @@ def as_glyph(path):
     path.draw(Cu2QuPen(pen,max_err=1,reverse_direction=False))
     return pen.glyph()
 
+def optical_face(char,face,advance):
+    if char in ("업","보"):
+        # Both faces are already 740 units tall. Match their visible widths and sidebearings.
+        left,_,right,_=face.bounds
+        width=690
+        scale=width/(right-left)
+        return face.transform(scale,0,0,1,95-left*scale,0),width+190
+    if char=="노":
+        # Separate ㄴ and ㅗ even after the two colored rims expand.
+        face=pathops.Path()
+        parse_path(
+            "M168 746 Q168 820 247 820 Q325 820 325 746 L322 630 "
+            "Q322 601 351 601 L635 605 Q716 608 717 533 Q718 459 641 457 "
+            "L258 455 Q169 455 168 538 Z "
+            "M101 144 Q100 210 171 211 L370 211 L370 270 Q370 338 440 338 "
+            "Q510 338 510 270 L510 211 L726 211 Q800 211 800 146 "
+            "Q800 80 727 80 L173 80 Q102 80 101 144 Z",face.getPen())
+        return pathops.simplify(face,clockwise=True),901
+    if char=="필":
+        # Widen the counter in ㅍ and draw ㄹ with long, separated horizontal strokes.
+        face=pathops.Path()
+        for skeleton,weight in [
+            ("M140 767 Q305 772 470 767 M143 539 Q311 535 469 541 "
+             "M208 763 L210 544 M407 763 L405 544",94),
+            ("M653 766 Q649 657 651 548",106),
+            ("M233 391 Q410 396 605 392 Q624 392 624 372 L624 259 "
+             "Q624 244 607 244 L239 244 Q224 244 224 228 V133 Q224 119 240 119 "
+             "Q424 116 645 122",78),
+        ]:
+            stroke=pathops.Path()
+            parse_path(skeleton,stroke.getPen())
+            stroke.stroke(weight,pathops.LineCap.ROUND_CAP,pathops.LineJoin.ROUND_JOIN,4)
+            stroke.convertConicsToQuads(.5)
+            face.addPath(stroke)
+        return pathops.simplify(face,clockwise=True),800
+    return face,advance
+
 def lettering():
     root=ElementTree.parse(OUT/'title-ink.svg').getroot()
     originals={}
@@ -57,7 +95,7 @@ def lettering():
                 scale=740/(427-270)
                 baseline=450+(270+427)*scale/2
             face=face.transform(scale,0,0,-scale,95-left*scale,baseline)
-            originals[char]=(pathops.simplify(face,clockwise=True),round(190+(right-left)*scale))
+            originals[char]=optical_face(char,pathops.simplify(face,clockwise=True),round(190+(right-left)*scale))
     return originals
 
 def combine(a,b,op):
@@ -172,6 +210,7 @@ def make_font(originals,small_chars=None):
     font.font["head"].macStyle=1
     font.setupPost(keepGlyphNames=False)
     t=font.font
+    t["head"].fontRevision=float(VERSION)
     t.recalcTimestamp=False;t["head"].created=t["head"].modified=3878150400
     ids=t.getReverseGlyphMap()
     t["COLR"]=buildCOLR(shaded,version=1,glyphMap=ids)
@@ -191,7 +230,7 @@ def colorize(font,color,small=False):
     ps=family.replace(' ','')+'-Bold'
     names=font['name']
     for lang,localized,style in [(0x409,family,'Bold'),(0x412,ko_family,'굵게')]:
-        for key,value in {1:localized,2:style,3:ps+' 1.000',4:localized+' '+style,5:'Version 1.000',6:ps,
+        for key,value in {1:localized,2:style,3:ps+' '+VERSION,4:localized+' '+style,5:'Version '+VERSION,6:ps,
                           16:localized,17:style}.items():
             names.setName(value,key,3,1,lang)
     # Remove any earlier English Macintosh names from the shared master.
