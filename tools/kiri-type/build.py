@@ -14,7 +14,7 @@ from fontTools.ttLib.tables.otTables import PaintFormat
 import alphabet
 
 OUT=alphabet.OUT
-VERSION="1.001"
+VERSION="1.002"
 # palette entries: white margin, lower and upper ink, lower and upper face, reflection
 PALETTES={
     "Sky":("하늘",["ffffff","42a7e7","69bdf2","acdffb","e7f6ff","ffffff"]),
@@ -51,20 +51,27 @@ def optical_face(char,face,advance):
             "M168 746 Q168 820 247 820 Q325 820 325 746 L322 630 "
             "Q322 601 351 601 L635 605 Q716 608 717 533 Q718 459 641 457 "
             "L258 455 Q169 455 168 538 Z "
-            "M101 144 Q100 210 171 211 L370 211 L370 270 Q370 338 440 338 "
-            "Q510 338 510 270 L510 211 L726 211 Q800 211 800 146 "
-            "Q800 80 727 80 L173 80 Q102 80 101 144 Z",face.getPen())
+            "M108 166 C105 213 148 235 195 225 C257 213 321 209 355 213 "
+            "C377 215 383 222 382 246 C380 306 390 346 439 353 "
+            "C489 360 518 332 511 279 C504 229 504 217 529 217 "
+            "C596 217 653 225 698 236 C748 248 780 232 788 195 "
+            "C800 143 765 117 707 106 C549 74 331 72 184 96 "
+            "C137 104 111 124 108 166 Z",face.getPen())
         return pathops.simplify(face,clockwise=True),901
     if char=="필":
-        # Widen the counter in ㅍ and draw ㄹ with long, separated horizontal strokes.
-        face=pathops.Path()
+        # Recover the original brush turns of the batchim from the profile title.
+        batchim=min(face.contours,key=lambda contour:contour.bounds[1])
+        trim=batchim.transform(1,0,0,1,0,0)
+        trim.stroke(28,pathops.LineCap.ROUND_CAP,pathops.LineJoin.ROUND_JOIN,4)
+        trim.convertConicsToQuads(.5)
+        batchim=combine(batchim,trim,pathops.PathOp.DIFFERENCE)
+        left,bottom,right,top=batchim.bounds
+        sx,sy=500/(right-left),346/(top-bottom)
+        face=batchim.transform(sx,0,0,sy,186-left*sx,80-bottom*sy)
         for skeleton,weight in [
             ("M140 767 Q305 772 470 767 M143 539 Q311 535 469 541 "
              "M208 763 L210 544 M407 763 L405 544",94),
             ("M653 766 Q649 657 651 548",106),
-            ("M233 391 Q410 396 605 392 Q624 392 624 372 L624 259 "
-             "Q624 244 607 244 L239 244 Q224 244 224 228 V133 Q224 119 240 119 "
-             "Q424 116 645 122",78),
         ]:
             stroke=pathops.Path()
             parse_path(skeleton,stroke.getPen())
