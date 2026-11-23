@@ -139,7 +139,7 @@ def paint(glyph,color,upper=None):
               "x0":0,"y0":90,"x1":0,"y1":825,"x2":100,"y2":90}
     return {"Format":PaintFormat.PaintGlyph,"Glyph":glyph,"Paint":fill}
 
-def make_font(originals,small_chars=None):
+def make_font(originals,small_chars=None,reading=False):
     small=small_chars is not None
     cmap=alphabet.cmap if not small else {ord(c):alphabet.cmap[ord(c)] for c in ' '+small_chars}
     glyphs={};metrics={};flat={};shaded={}
@@ -149,7 +149,9 @@ def make_font(originals,small_chars=None):
         glyphs[name]=glyph
         metrics[name]=(advance,getattr(glyph,"xMin",0))
 
-    def layer_names(name):return (name+'.white',name+'.ink',name,name+'.light')
+    def layer_names(name):
+        if reading:return (name+'.ink',name)
+        return (name+'.white',name+'.ink',name,name+'.light')
 
     def add(name):
         if name in glyphs:return
@@ -175,6 +177,10 @@ def make_font(originals,small_chars=None):
                     if letter in "ㄹㅌㅊㅎ" or letter in alphabet.PAIRS:
                         spread=min(spread,15)
                 face=edge(face,spread)
+            if reading:
+                put(layers[0],as_glyph(edge(face,9)),advance)
+                put(layers[1],as_glyph(face),advance)
+                return
             rim=33 if small else 47
             margin=17 if small else 38
             gloss=title_glint(face,small) if override else reflection(face,small)
@@ -186,6 +192,12 @@ def make_font(originals,small_chars=None):
     for name in dict.fromkeys(cmap.values()):
         if name=="space":continue
         add(name)
+        if reading:
+            ink,face=layer_names(name)
+            flat[name]=[(ink,0xffff),(face,0)]
+            shaded[name]={"Format":PaintFormat.PaintColrLayers,
+                          "Layers":[paint(ink,0xffff),paint(face,0)]}
+            continue
         white,ink,face,light=layer_names(name)
         flat[name]=[(white,0),(ink,1),(face,3),(light,5)]
         shaded[name]={"Format":PaintFormat.PaintColrLayers,
@@ -208,7 +220,7 @@ def make_font(originals,small_chars=None):
     populateCOLRv0(t["COLR"].table,flat,ids)
     return t
 
-def colorize(font,color,small=False):
+def colorize(font,color,small=False,labels=False):
     korean,hexes=PALETTES[color]
     if small:
         # A darker, narrower rim holds the counters open on a 22px navigation label.
@@ -218,6 +230,8 @@ def colorize(font,color,small=False):
     font["CPAL"]=buildCPAL([palette])
     family='Kiri Pop '+color+(' Small' if small else '')
     ko_family='키리 팝 '+korean+(' 작은글씨' if small else '')
+    if labels:
+        family,ko_family='Kiri Pop Labels','키리 팝 문구'
     ps=family.replace(' ','')+'-Bold'
     names=font['name']
     for lang,localized,style in [(0x409,family,'Bold'),(0x412,ko_family,'굵게')]:
@@ -237,11 +251,31 @@ def main():
         font=make_font(originals,small_chars=text)
         (OUT/f'KiriPop-{color}-Nav.woff2').write_bytes(colorize(font,color,small=True))
     master=make_font(originals)
+    # Fixed stationery labels use the small-size rim. The reading face keeps the
+    # same letter contours and uses the text color for small or dynamic content.
+    labels="키리의작은연습실♡버츄얼방송팬캐릭터유령연주·노래프로필업보책일정월간달력상세로" + "Kkiri's profile0123456789/"
+    display=make_font(originals,small_chars=labels)
+    (OUT/'KiriPop-Labels.woff2').write_bytes(colorize(display,"Blue",small=True,labels=True))
     with ZipFile(OUT/'KiriPop-ColorFonts.zip','w',compression=ZIP_DEFLATED) as package:
         for color in PALETTES:
             entry=ZipInfo(f'KiriPop-{color}.ttf',(2026,11,23,0,0,0))
             entry.compress_type=ZIP_DEFLATED
             package.writestr(entry,colorize(master,color))
+
+    reading=make_font(originals,reading=True)
+    # 0xffff follows the page's foreground, including status and selection colors.
+    reading['CPAL']=buildCPAL([[(1.,1.,1.,.13)]])
+    for subtable in reading['cmap'].tables:
+        if subtable.isUnicode():
+            for sign,source in [('’',"'"),('‹','<'),('›','>')]:
+                subtable.cmap[ord(sign)]=subtable.cmap[ord(source)]
+    for lang,family in [(0x409,'Kiri Pop Text'),(0x412,'키리 팝 본문')]:
+        for key,value in {1:family,3:'KiriPopText-Bold '+VERSION,4:family+' Bold',
+                          6:'KiriPopText-Bold',16:family}.items():
+            reading['name'].setName(value,key,3,1,lang)
+    reading['name'].names=[r for r in reading['name'].names if r.platformID!=1]
+    reading.flavor='woff2'
+    reading.save(OUT/'KiriPop-Text.woff2')
 
 if __name__=='__main__':
     main()

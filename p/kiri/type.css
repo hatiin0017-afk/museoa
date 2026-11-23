@@ -1,0 +1,20 @@
+@font-face{
+  font-family:"Kiri Reading";src:url("assets/KiriPop-Text.woff2?v=1.003") format("woff2");
+  font-weight:100 900;font-display:swap;
+}
+@font-face{
+  font-family:"Kiri Labels";src:url("assets/KiriPop-Labels.woff2?v=1.003") format("woff2");
+  font-weight:700;font-display:swap;
+}
+:root{
+  --reading:"Kiri Reading","Malgun Gothic",system-ui,sans-serif;
+  --lettering:"Kiri Labels",var(--reading);
+}
+@media(forced-colors:active){
+  :root{--lettering:var(--reading)}
+}
+@font-palette-values --small-ink{
+  font-family:"Kiri Labels";
+  override-colors:1 #355686,2 #476894,3 #819fcb,4 #acbedb;
+}
+.address-label,.schedule-address,.folio-count{font-palette:--small-ink}

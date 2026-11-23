@@ -1,5 +1,5 @@
 *{box-sizing:border-box}
-body{margin:0;color:#344f81;background:#eff7fe;font:600 16px/1.45 "Malgun Gothic",system-ui,sans-serif}
+body{margin:0;color:#344f81;background:#eff7fe;font:600 16px/1.45 var(--reading)}
 .sheet{width:min(100%,940px);aspect-ratio:1122/1402;position:relative;margin:auto;background:var(--art) center top/100% 100% no-repeat;container-type:inline-size}
 .home{--art:url(assets/home.webp)}.profile{--art:url(assets/profile.webp)}.work{--art:url(assets/work.webp)}.song{--art:url(assets/song.webp)}
 a,button,input{font:inherit;color:inherit}a{text-decoration:none}button{cursor:pointer}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #5951a5;outline-offset:2px}
@@ -14,17 +14,17 @@ nav{display:flex;gap:1.5cqw;align-items:center}nav a{padding:.35em 1.05em;border
 .catalog-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #c7d4e4;padding-bottom:8px}
 .filters,.pages{display:flex;gap:3px;align-items:center}
 .filters button,.pages button{border:0;background:transparent;color:#53647e}
-.filters button{padding:7px 10px;border-bottom:2px solid transparent;font:700 24px/1.2 Gaegu,sans-serif}
+.filters button{padding:7px 10px;border-bottom:2px solid transparent;font:700 24px/1.2 var(--reading)}
 .filters [aria-pressed=true]{color:#3e467a;border-color:#8b89b6}
 .filters button:hover,.pages button:hover{background:#eef2fa}
 .search{position:relative;display:flex;align-items:center;width:215px;max-width:43%;height:40px;padding:0 10px 0 33px;border:1px solid #ccd6e5;border-radius:9px;background:#fff}
 .search:before,.search:after{content:"";position:absolute;pointer-events:none;color:#59718c}
 .search:before{left:11px;top:12px;border:1.7px solid;width:10px;height:10px;border-radius:50%}
 .search:after{left:21px;top:23px;height:1.7px;width:6px;background:currentColor;transform:rotate(45deg)}
-.search input{width:100%;border:0;min-width:0;background:transparent;font:500 15px/1.4 system-ui,sans-serif}
+.search input{width:100%;border:0;min-width:0;background:transparent;font:500 15px/1.4 var(--reading)}
 .search input::placeholder{color:#627286}
 .search:focus-within{outline:2px solid #776baf;outline-offset:2px}.search input:focus{outline:none}
-.count,output{margin:0;color:#5b6c83;font:500 14px/1.4 system-ui,sans-serif}
+.count,output{margin:0;color:#5b6c83;font:500 14px/1.4 var(--reading)}
 table{border-collapse:collapse;width:100%;table-layout:fixed}
 td,th{padding:6px 9px;border-bottom:1px solid #dce3ee;text-align:left}
 th{font-size:14px;color:#5b6980;background:#eef1f9}
@@ -36,7 +36,7 @@ tbody tr:hover,tbody tr:focus-within{background:#f0f5fc}
 .copy-song:after{left:14px;top:10px;background:#fbfbff}.copy-song:hover{background:#e1eafa}
 tbody tr{cursor:pointer}
 .copy-song.copied:before{display:none}
-.copy-song.copied:after{content:"복사됨";inset:0;display:grid;place-items:center;width:auto;height:auto;background:#e5f4ef;border:0;border-radius:5px;color:#315b51;font:700 12px/1 system-ui,sans-serif;white-space:nowrap}
+.copy-song.copied:after{content:"복사됨";inset:0;display:grid;place-items:center;width:auto;height:auto;background:#e5f4ef;border:0;border-radius:5px;color:#315b51;font:700 12px/1 var(--reading);white-space:nowrap}
 @media(prefers-reduced-motion:no-preference){
   .copy-song.copied:after{animation:copy-confirm 160ms ease-out}
   @keyframes copy-confirm{from{opacity:.4;transform:translateY(2px)}to{opacity:1;transform:none}}
@@ -45,16 +45,15 @@ tbody tr{cursor:pointer}
 @font-face{font-family:"Kiri Pop Blue";src:url(assets/KiriPop-Blue-Nav.woff2?v=1.003) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"Kiri Pop Mint";src:url(assets/KiriPop-Mint-Nav.woff2?v=1.003) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"Kiri Pop Lilac";src:url(assets/KiriPop-Lilac-Nav.woff2?v=1.003) format("woff2");font-weight:700;font-display:swap}
-@font-face{font-family:Gaegu;src:url(assets/Gaegu-Bold.ttf) format("truetype");font-weight:700;font-display:swap}
 .book{position:relative;width:min(940px,100%);aspect-ratio:1122/1402;margin:auto;container-type:inline-size;isolation:isolate;border-radius:2.7cqw;overflow:clip;background:#cbeaff url(assets/home.webp) top center/100% 100% no-repeat}
 .book header{top:4.45%;height:6.35%;left:.32%;right:.32%;background:linear-gradient(180deg,#fff 0%,#eff7ff 100%);border-bottom:3px solid #a9d8f7}
-.book .brand{display:flex;align-items:center;gap:.4em;background:none;width:29%;height:100%;color:#6584c2;font:700 clamp(22px,4cqw,40px)/1 Gaegu,sans-serif;text-shadow:1px 2px white}
+.book .brand{display:flex;align-items:center;gap:.4em;background:none;width:29%;height:100%;color:#6584c2;font:700 clamp(22px,4cqw,40px)/1 var(--reading);text-shadow:1px 2px white}
 .brand:before{content:'';width:26%;aspect-ratio:1;background:url(assets/fan.webp) center/contain no-repeat;mix-blend-mode:multiply}
 .stage{position:absolute;inset:10.8% .35% .35%;overflow:clip;background:#d8efff}
 .leaf{position:absolute;inset:0;overflow:hidden;transform-origin:left center}.leaf[hidden]{display:none!important}
 .leaf .sheet{position:absolute;bottom:-.4cqw;left:-.35cqw;width:100cqw;height:124.955cqw;animation:none}
 
-#rewards,nav,.brand,.folder{font-family:Gaegu,"Malgun Gothic",sans-serif}
+#rewards,nav,.brand,.folder{font-family:var(--reading)}
 .work .members{list-style:none;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 14px;padding:12px 2px}
 .work .members li{min-width:0}
 .folder{--edge:#9dbad4;--paper:#eef7fd;position:relative;display:grid;justify-items:center;width:100%;gap:2px;margin-top:7px;padding:12px 6px 9px;border:1.5px solid var(--edge);border-radius:0 10px 11px 11px;background:var(--paper);box-shadow:0 2px 0 var(--edge);color:#405470;font-size:23px;line-height:1.15}
@@ -79,7 +78,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 
 /* The printed broadcast card links directly into the songbook. */
 .profile-song-link{position:absolute;left:10.4%;top:75%;width:34%;height:8%;display:flex;align-items:center;justify-content:flex-end;padding-right:1.5%;border-radius:3cqw}
-.profile-song-link span{font:700 3.3cqw/1 system-ui,sans-serif;color:#5374a8}
+.profile-song-link span{font:700 3.3cqw/1 var(--reading);color:#5374a8}
 .profile-song-link:hover span{color:#304b81}
 /* Folder labels use the same reading order as a physical card index. */
 .work .members.short-index{grid-template-columns:1fr}
@@ -87,7 +86,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 .short-index .folder:before{width:26%}
 .short-index .avatar{grid-area:1/1/3/2}
 .short-index strong{grid-area:1/2}.short-index small{grid-area:2/2;color:#53657a}
-.short-index .stamp{grid-area:1/3/3/4;align-self:center;font:600 15px/1.7 system-ui,sans-serif}
+.short-index .stamp{grid-area:1/3/3/4;align-self:center;font:600 15px/1.7 var(--reading)}
 
 .filters button:active,.pages button:active{background:#e7eaf4}
 @media(max-width:700px){
@@ -125,7 +124,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
   .pages{gap:10px;font-size:14px}.pages button{min-width:46px;height:42px}.pages button:disabled{opacity:.4}
   .work .members{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 8px}
   .short-index .folder{padding:12px 7px;column-gap:7px}
-  .folder{font-size:21px}.folder small{font:500 13px/1.4 system-ui,sans-serif}.short-index .stamp{font-size:13px;padding:0 5px}
+  .folder{font-size:21px}.folder small{font:500 13px/1.4 var(--reading)}.short-index .stamp{font-size:13px;padding:0 5px}
   .folder .avatar{width:37px;height:37px}
 }
 
@@ -166,13 +165,13 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 }
 .book .folio a{
   display:grid;place-items:center;padding:0;width:38px;height:39px;
-  font:600 26px/1 system-ui,sans-serif;border-radius:50%;
+  font:600 26px/1 var(--reading);border-radius:50%;
 }
 .folio a[href]:hover{background:var(--wash)}
 .folio a:not([href]){opacity:.22}
 .folio a span{transform:translateY(-2px)}
-.folio-mark{font:700 21px/1 Gaegu,sans-serif;color:#5177ac}
-.folio-count{border-left:1px solid #c9d8e5;padding-left:7px;white-space:nowrap;font:600 13px/1.2 system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.folio-mark{font:700 21px/1 var(--reading);color:#5177ac}
+.folio-count{border-left:1px solid #c9d8e5;padding-left:7px;white-space:nowrap;font:600 13px/1.2 var(--reading);font-variant-numeric:tabular-nums}
 
 .ledger{
   --seam:color-mix(in srgb,var(--chapter) 34%,white);
@@ -209,7 +208,7 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 .short-index .avatar{width:64px;height:64px}
 .short-index .stamp{grid-area:3/2;justify-self:start;font-size:13px;margin:5px 0}
 .folder-slips{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:8px;padding-top:9px;border-top:1px dashed var(--edge)}
-.folder-slips span{font:700 18px/1.3 Gaegu,sans-serif;background:#fffdf6;color:#47615b;border:1px solid #d4e4d9;border-radius:5px;padding:2px 7px}
+.folder-slips span{font:700 18px/1.3 var(--reading);background:#fffdf6;color:#47615b;border:1px solid #d4e4d9;border-radius:5px;padding:2px 7px}
 @media(max-width:700px){
   .book header nav{gap:2px}
   .book header nav a{font-size:clamp(22px,5.6vw,27px);min-width:2.95em;height:100%;padding-inline:3px;border-radius:10px 10px 0 0}
@@ -248,4 +247,35 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
     top:calc(-1 * var(--top-h));left:calc(-100% * .10 / .84);
     width:calc(100% / .84);height:calc(var(--top-h) / .24);
   }
+}
+
+.leaf :is(.profile,.home)::before{
+  content:"";position:absolute;inset:0;pointer-events:none;background:var(--caption-paper) center/100% 100% no-repeat;
+}
+.profile{--caption-paper:url(assets/profile-label-paper.svg)}
+.home{--caption-paper:url(assets/home-label-paper.svg)}
+.book .brand span{white-space:nowrap}
+@media(max-width:700px){.book .brand{font-size:clamp(16px,4.35vw,23px);flex-shrink:0}.brand:before{flex-shrink:0}}
+/* Set the captions back into the stationery's original writing spaces. */
+.book>.address-label{position:absolute;z-index:1;left:27.45%;top:1.92cqw;width:11.1%;height:2.1cqw;display:grid;align-content:center;background:#e8f3fb;font:700 clamp(8px,1.85cqw,18px)/1 var(--lettering);white-space:nowrap;pointer-events:none}
+.book .brand{font-family:var(--lettering);text-shadow:none}
+.home-note{position:absolute;left:67%;top:37.1%;width:20.7%;margin:0;display:grid;justify-items:center;align-content:center;gap:.1cqw;text-align:center;pointer-events:none;font:700 3.03cqw/1.12 var(--lettering)}
+.home-note span{display:block;width:max-content;min-width:51%;}
+.home-note span+span{min-width:96%;}
+.cards a{position:relative}
+.cards a span{position:absolute;top:74%;left:49%;transform:translate(-50%,-50%);min-width:37%;padding:0 .1em;text-align:center;white-space:nowrap;font:700 clamp(11px,2.92cqw,28px)/1.1 "Kiri Pop Blue",var(--reading)}
+.cards a:nth-child(2) span{left:48%;font-family:"Kiri Pop Mint",var(--reading);}
+.cards a:nth-child(3) span{left:45%;font-family:"Kiri Pop Lilac",var(--reading);}
+.book .folio-mark{font-family:var(--lettering)}
+.folio-count{font:700 clamp(13px,1.58cqw,16px)/1 var(--lettering)}
+.profile :is(.bio,.facts){display:contents;clip-path:none}
+.profile :is(.bio,.facts) :is(h2,p){position:absolute;transform:translate(-50%,-50%);margin:0;padding:0 .08em;width:max-content;text-align:center;white-space:nowrap;font:700 var(--size)/1.06 var(--lettering);pointer-events:none}
+.bio h2{--size:6.7cqw;left:69.9%;top:33.5%;min-width:14%}
+.bio p{--size:3.65cqw;left:69.7%;top:40.15%;min-width:11%}
+.facts article:first-child h2{--size:4.95cqw;left:29.8%;top:69.35%;min-width:9.8%}
+.facts article:first-child p{--size:3.22cqw;left:29.55%;top:78.95%;min-width:17%}
+.facts article:last-child h2{--size:4.0cqw;left:70.9%;top:69.7%;min-width:18.6%}
+.facts article:last-child p{--size:3.6cqw;left:70.8%;top:87.6%;min-width:8.5%}
+@media(max-width:700px){
+  .catalog-tools .filters button{font-size:clamp(14px,4vw,19px)}
 }
