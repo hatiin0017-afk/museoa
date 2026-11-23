@@ -1,5 +1,6 @@
 """Build the Kiri Pop color families. Run from this directory with Python + fontTools, brotli, skia-pathops."""
 from io import BytesIO
+from pathlib import Path
 from xml.etree import ElementTree
 from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
@@ -220,7 +221,7 @@ def make_font(originals,small_chars=None,reading=False):
     populateCOLRv0(t["COLR"].table,flat,ids)
     return t
 
-def colorize(font,color,small=False,labels=False):
+def colorize(font,color,small=False,family_names=None):
     korean,hexes=PALETTES[color]
     if small:
         # A darker, narrower rim holds the counters open on a 22px navigation label.
@@ -230,8 +231,8 @@ def colorize(font,color,small=False,labels=False):
     font["CPAL"]=buildCPAL([palette])
     family='Kiri Pop '+color+(' Small' if small else '')
     ko_family='키리 팝 '+korean+(' 작은글씨' if small else '')
-    if labels:
-        family,ko_family='Kiri Pop Labels','키리 팝 문구'
+    if family_names:
+        family,ko_family=family_names
     ps=family.replace(' ','')+'-Bold'
     names=font['name']
     for lang,localized,style in [(0x409,family,'Bold'),(0x412,ko_family,'굵게')]:
@@ -244,18 +245,33 @@ def colorize(font,color,small=False,labels=False):
     stream=BytesIO();font.save(stream)
     return stream.getvalue()
 
+def build_bubble():
+    # Optical alternates from the original speech balloon, in font coordinates.
+    shapes=ElementTree.parse(Path(__file__).with_name('bubble.svg')).getroot()
+    faces={}
+    for glyph in shapes:
+        face=pathops.Path()
+        parse_path(glyph.attrib['d'],face.getPen())
+        name=alphabet.cmap[ord(glyph.attrib['id'])]
+        faces[name]=(pathops.simplify(face,clockwise=True),int(glyph.attrib['data-advance']))
+    chars=''.join(glyph.attrib['id'] for glyph in shapes)
+    font=make_font(faces,small_chars=chars)
+    return colorize(font,"Blue",small=True,family_names=("Kiri Pop Bubble","키리 팝 말풍선"))
+
+
 def main():
     alphabet.build_alphabet()
     originals={alphabet.cmap[ord(char)]:outline for char,outline in lettering().items()}
     for color,text in {"Blue":"프로필","Mint":"업보","Lilac":"노래책"}.items():
         font=make_font(originals,small_chars=text)
         (OUT/f'KiriPop-{color}-Nav.woff2').write_bytes(colorize(font,color,small=True))
+    (OUT/'KiriPop-Bubble.woff2').write_bytes(build_bubble())
     master=make_font(originals)
     # Fixed stationery labels use the small-size rim. The reading face keeps the
     # same letter contours and uses the text color for small or dynamic content.
     labels="키리의작은연습실♡버츄얼방송팬캐릭터유령연주·노래프로필업보책일정월간달력상세로" + "Kkiri's profile0123456789/"
     display=make_font(originals,small_chars=labels)
-    (OUT/'KiriPop-Labels.woff2').write_bytes(colorize(display,"Blue",small=True,labels=True))
+    (OUT/'KiriPop-Labels.woff2').write_bytes(colorize(display,"Blue",small=True,family_names=("Kiri Pop Labels","키리 팝 문구")))
     with ZipFile(OUT/'KiriPop-ColorFonts.zip','w',compression=ZIP_DEFLATED) as package:
         for color in PALETTES:
             entry=ZipInfo(f'KiriPop-{color}.ttf',(2026,11,23,0,0,0))

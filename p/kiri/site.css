@@ -259,9 +259,22 @@ li:nth-child(3n+2) .folder{--paper:#f1eaff;--edge:#c3b4df}li:nth-child(3n) .fold
 /* Set the captions back into the stationery's original writing spaces. */
 .book>.address-label{position:absolute;z-index:1;left:27.45%;top:1.92cqw;width:11.1%;height:2.1cqw;display:grid;align-content:center;background:#e8f3fb;font:700 clamp(8px,1.85cqw,18px)/1 var(--lettering);white-space:nowrap;pointer-events:none}
 .book .brand{font-family:var(--lettering);text-shadow:none}
-.home-note{position:absolute;left:67%;top:37.1%;width:20.7%;margin:0;display:grid;justify-items:center;align-content:center;gap:.1cqw;text-align:center;pointer-events:none;font:700 3.03cqw/1.12 var(--lettering)}
-.home-note span{display:block;width:max-content;min-width:51%;}
-.home-note span+span{min-width:96%;}
+@font-face{
+  font-family:"Kiri Pop Bubble";src:url("assets/KiriPop-Bubble.woff2") format("woff2");
+  font-weight:700;font-display:swap;
+}
+@font-palette-values --bubble-ink{
+  font-family:"Kiri Pop Bubble";
+  override-colors:1 #4a6ca5,2 #5a7db5,3 #8caee1,4 #bad0f0;
+}
+.home-note{
+  position:absolute;left:65.6%;top:36.95%;width:23.3%;height:6.35%;margin:0;
+  display:grid;place-content:center;justify-items:center;gap:.12cqw;
+  font:700 3.7cqw/.98 "Kiri Pop Bubble",var(--reading);font-palette:--bubble-ink;
+  word-spacing:-.13em;
+  white-space:nowrap;pointer-events:none;
+}
+.home-note span:first-child{font-size:.9em}
 .cards a{position:relative}
 .cards a span{position:absolute;top:74%;left:49%;transform:translate(-50%,-50%);min-width:37%;padding:0 .1em;text-align:center;white-space:nowrap;font:700 clamp(11px,2.92cqw,28px)/1.1 "Kiri Pop Blue",var(--reading)}
 .cards a:nth-child(2) span{left:48%;font-family:"Kiri Pop Mint",var(--reading);}
