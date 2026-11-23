@@ -130,15 +130,35 @@ function setupFilters(labels, render) {
   function show(user){
     opened=user;
     const heading=elem('h2',user.name);heading.id='viewer';
-    const info=elem('div');info.append(heading,elem('p','@'+user.id));
-    const link=elem('a',user.station||'SOOP 방송국');link.href='https://www.sooplive.com/station/'+encodeURIComponent(user.id);link.target='_blank';link.rel='noopener noreferrer';info.append(link);
+    const info=elem('div',null,'member-info');
+    const meta=elem('div',null,'member-meta');
+    const link=elem('a','방송국');
+    link.href='https://www.sooplive.com/station/'+encodeURIComponent(user.id);
+    link.target='_blank';
+    link.rel='noopener noreferrer';
+    link.setAttribute('aria-label',user.name+' 방송국 (새 창)');
+    if(user.station)link.title=user.station;
+    const restoreLink=document.activeElement===modal.querySelector('.member-meta a');
+    meta.append(elem('span','@'+user.id),link);
+    info.append(heading,meta);
     modal.querySelector('.identity').replaceChildren(photo(user),info);
-    const tickets=rewards(user).map(([,name,qty])=>{const ticket=elem('li',null,'ticket');ticket.append(elem('span','✧'),elem('strong',name),elem('b','×'+qty));return ticket});
+    if(restoreLink)link.focus();
+    modal.querySelector('.sample').textContent='시즌 '+(season+1)+' · 예시 업보 내역';
+    const tickets=rewards(user).map(([,name,qty])=>{
+      const ticket=elem('li',null,'ticket');
+      ticket.append(elem('span',name),elem('b',qty+'개'));
+      return ticket;
+    });
     modal.querySelector('ul').replaceChildren(...tickets);
     if(!modal.open)modal.showModal();
   }
   modal.querySelector('.close').onclick=()=>modal.close();
-  modal.onclose=()=>{opened=null};
+  modal.onclose=()=>{
+    if(opened && document.activeElement===document.body && !work.closest('.leaf').hidden){
+      list.querySelector('[data-id="'+CSS.escape(opened.id)+'"]')?.focus();
+    }
+    opened=null;
+  };
   modal.onclick=e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close()}};
   function draw(){
     const query=input.value.trim().toLowerCase();
